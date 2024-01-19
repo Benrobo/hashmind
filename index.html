@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Amplitude Visualization</title>
+    <style>
+      #visualization {
+        width: 200px;
+        height: 200px;
+        background-color: #3498db;
+        transition: height 0.2s ease-out;
+        margin: 10px auto;
+        border-radius: 100%;
+        transform: scale(0.75);
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="audioFileInput" accept="audio/*" />
+    <div id="visualization"></div>
+
+    <script>
+      // Initialize AudioContext once when the page loads
+      const audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
+      let analyser;
+
+      document
+        .getElementById("audioFileInput")
+        .addEventListener("change", handleFileSelect);
+
+      let audioIsPlaying = false;
+      let animationFrameId;
+      let audioSource;
+
+      function handleFileSelect(event) {
+        const file = event.target.files[0];
+
+        // If audio is playing, stop it and clear the file input
+        if (audioIsPlaying) {
+          audioSource.stop();
+          audioIsPlaying = false;
+          // event.target.value = null;
+          // return;
+        }
+
+        if (file) {
+          analyser = audioContext.createAnalyser();
+          const visualizationElement = document.getElementById("visualization");
+
+          const fileReader = new FileReader();
+          fileReader.onload = function (e) {
+            audioContext.decodeAudioData(e.target.result, function (buffer) {
+              audioSource = audioContext.createBufferSource();
+              audioSource.buffer = buffer;
+              audioSource.connect(analyser);
+              analyser.connect(audioContext.destination);
+
+              analyser.fftSize = 256;
+              const bufferLength = analyser.frequencyBinCount;
+              const dataArray = new Uint8Array(bufferLength);
+
+              // Start playing the audio
+              audioSource.start();
+              audioIsPlaying = true;
+
+              // Stop the audio after the duration of the audio
+              audioSource.onended = () => {
+                audioIsPlaying = false;
+                audioSource.stop();
+              };
+
+              // Update visualization on audio data changes
+              function updateVisualization() {
+                analyser.getByteFrequencyData(dataArray);
+
+                // Calculate average amplitude
+                const averageAmplitude =
+                  dataArray.reduce((sum, value) => sum + value, 0) /
+                  bufferLength;
+
+                // Update visualization element height based on the average amplitude
+                visualizationElement.style.transform = `scale(${
+                  averageAmplitude / 200
+                })`;
+
+                // Call the update function recursively
+                animationFrameId = requestAnimationFrame(updateVisualization);
+              }
+
+              // Start the visualization loop
+              animationFrameId = requestAnimationFrame(updateVisualization);
+            });
+          };
+
+          fileReader.readAsArrayBuffer(file);
+        }
+      }
+
+      function stopAudio() {
+        if (audioIsPlaying) {
+          // cancelAnimationFrame(animationFrameId);
+          audioIsPlaying = false;
+
+          // Disconnect the analyser
+          // analyser.disconnect();
+        }
+      }
+    </script>
+  </body>
+</html>
