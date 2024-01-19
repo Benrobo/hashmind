@@ -1,7 +1,7 @@
 "use client";
 import React, { PropsWithChildren } from "react";
 
-export type ActiveToolBarPages = "home" | "ai" | "settings";
+export type ActiveToolBarPages = "home" | "ai" | "settings" | string;
 
 type DCTypes = {
   toolbarVisible: boolean;
