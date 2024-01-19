@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import useLocation from "@/hooks/useLocation";
-import { useDataContext } from "@/context/DataContext";
+import { ActiveToolBarPages, useDataContext } from "@/context/DataContext";
 
 const navigations = [
   {
@@ -27,8 +27,7 @@ const navigations = [
 ];
 
 export default function ToolBar() {
-  const { toolbarVisible } = useDataContext();
-  const [active, setActive] = React.useState<string>("home");
+  const { toolbarVisible, activePage, setActivePage } = useDataContext();
   const router = useRouter();
 
   return (
@@ -45,7 +44,8 @@ export default function ToolBar() {
           <Link
             href={nav.path}
             onClick={() => {
-              setActive(nav.name.toLowerCase());
+              setActivePage &&
+                setActivePage(nav.name.toLowerCase() as ActiveToolBarPages);
               //   router.push(nav.path);
             }}
             key={i}
@@ -53,13 +53,13 @@ export default function ToolBar() {
               "w-auto rounded-full p-2",
               nav.main
                 ? "bg-blue-100 -translate-y-[1em] text-white-100"
-                : active?.toLowerCase() === nav.name.toLowerCase() &&
+                : activePage?.toLowerCase() === nav.name.toLowerCase() &&
                     "text-blue-100"
             )}
           >
             {renderIcon(
               nav.name.toLowerCase(),
-              nav.main ? nav.name.toLowerCase() : active
+              nav.main ? nav.name.toLowerCase() : activePage
             )}
           </Link>
         ))}

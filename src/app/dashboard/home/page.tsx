@@ -4,10 +4,11 @@ import { useDataContext } from "@/context/DataContext";
 import React from "react";
 
 export default function Dashboard() {
-  const { showToolBar } = useDataContext();
+  const { showToolBar, setActivePage } = useDataContext();
 
   React.useEffect(() => {
     showToolBar();
+    setActivePage("home");
   }, []);
   return (
     <FlexColStart className="w-full h-full">

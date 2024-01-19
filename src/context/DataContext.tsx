@@ -1,16 +1,21 @@
 "use client";
 import React, { PropsWithChildren } from "react";
 
+export type ActiveToolBarPages = "home" | "ai" | "settings";
+
 type DCTypes = {
   toolbarVisible: boolean;
   showToolBar: () => void;
   hideToolBar: () => void;
+  activePage: string;
+  setActivePage: (name: ActiveToolBarPages) => void;
 };
 
 const DataContext = React.createContext<DCTypes>({} as DCTypes);
 
 export default function DataContextProvider({ children }: PropsWithChildren) {
   const [toolbarVisible, setToolBarVisible] = React.useState<boolean>(true);
+  const [activePage, setActivePage] = React.useState<ActiveToolBarPages>("");
 
   const showToolBar = () => setToolBarVisible(true);
   const hideToolBar = () => setToolBarVisible(false);
@@ -19,6 +24,8 @@ export default function DataContextProvider({ children }: PropsWithChildren) {
     toolbarVisible,
     showToolBar,
     hideToolBar,
+    activePage,
+    setActivePage,
   };
 
   return <DataContext.Provider value={ctxVal}>{children}</DataContext.Provider>;
