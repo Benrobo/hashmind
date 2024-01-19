@@ -78,7 +78,6 @@ https://www.greataiprompts.com/guide/chatgpt-prompts-styles/
 
 https://neuroflash.com/blog/discover-the-engaging-chatgpt-prompts-writing-style-for-hypnotic-content-creation/
 
-- Formatting Excellence
 - Conversational and Casual
 - Tutorials and Guide
 - Informative and Newsy
