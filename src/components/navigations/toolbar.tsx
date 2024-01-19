@@ -1,10 +1,12 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { FlexRowCenter } from "../flex";
 import { AudioLines, BrainCog, Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import useLocation from "@/hooks/useLocation";
+import { useDataContext } from "@/context/DataContext";
 
 const navigations = [
   {
@@ -25,15 +27,27 @@ const navigations = [
 ];
 
 export default function ToolBar() {
+  const { toolbarVisible } = useDataContext();
   const [active, setActive] = React.useState<string>("home");
   const router = useRouter();
 
   return (
     <FlexRowCenter className="w-full fixed bottom-5">
-      <FlexRowCenter className="min-w-[10em] bg-dark-100 px-4 py-1 rounded-full">
+      <FlexRowCenter
+        className={cn(
+          "min-w-[10em] bg-dark-100 px-4 py-1 rounded-full transition-all",
+          !toolbarVisible
+            ? "animate-leave translate-y-[10em]"
+            : "animate-enter -translate-y-[1em]"
+        )}
+      >
         {navigations.map((nav, i) => (
           <Link
             href={nav.path}
+            onClick={() => {
+              setActive(nav.name.toLowerCase());
+              //   router.push(nav.path);
+            }}
             key={i}
             className={cn(
               "w-auto rounded-full p-2",

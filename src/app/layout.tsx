@@ -1,6 +1,8 @@
 import { ppReg, ppB, ppEB, ppSB, ppL, blEB } from "@/config/font";
 import "../styles/globals.css";
 import { cn } from "@/lib/utils";
+import NextTopLoader from "@/components/toploader";
+import DataContextProvider from "@/context/DataContext";
 
 export default function RootLayout({
   children,
@@ -16,7 +18,8 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        {children}
+        <DataContextProvider>{children}</DataContextProvider>
+        <NextTopLoader />
       </body>
     </html>
   );

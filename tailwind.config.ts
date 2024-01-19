@@ -163,6 +163,9 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        enter: "enter 200ms ease-out",
+        "slide-in": "slide-in 1.2s cubic-bezier(.41,.73,.51,1.02)",
+        leave: "leave 150ms ease-in forwards",
       },
       fontFamily: {
         ppReg: ["var(--font-ppReg)"],
