@@ -3,7 +3,7 @@ import React, { PropsWithChildren } from "react";
 
 export default function layout({ children }: PropsWithChildren) {
   return (
-    <div>
+    <div className="w-full px-4">
       <ToolBar />
       {children}
     </div>
