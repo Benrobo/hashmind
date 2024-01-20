@@ -1,7 +1,7 @@
 // gpt response type properties for the name properties
 export type GPT_RESP_STYLE_NAME =
   | "author_style"
-  | "conversational_and_casual"
+  | "casual_conversation"
   | "tutorials_and_guide"
   | "informative_and_newsy";
 
