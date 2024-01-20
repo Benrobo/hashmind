@@ -23,75 +23,12 @@ type StyleInfoProps = {
   ) => void;
 };
 
-const audio = new Audio();
-
 export function StyleInfo({
   style,
   //   activePlayerName,
   defaultBlogStyle,
   saveChanges,
 }: StyleInfoProps) {
-  const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
-  const [activePlayer, setActivePlayer] =
-    React.useState<GPT_RESP_STYLE_NAME | null>(null);
-  const [audioUrl, setAudioUrl] = React.useState<string>("");
-
-  audio.onplaying = function () {
-    setIsPlaying(true);
-  };
-
-  // On audio pause toggle values
-  audio.onpause = function () {
-    setIsPlaying(false);
-  };
-
-  React.useEffect(() => {
-    console.log(audio.src);
-  }, [audio]);
-
-  const stopAudio = () => {
-    audio?.pause();
-    audio.currentTime = 0;
-    setActivePlayer(null);
-    setIsPlaying(false);
-  };
-
-  const playAudio = () => {
-    if (audio.paused && !isPlaying) audio.play();
-    setIsPlaying(true);
-  };
-
-  React.useEffect(() => {
-    if (activePlayer) {
-      const styleAudioTest = GPT_RESP_STYLE.find(
-        (s) => s.name === activePlayer
-      )?.audio_responses;
-
-      console.log(styleAudioTest);
-
-      if (styleAudioTest) {
-        const url = styleAudioTest.test_example;
-        audio.src = url;
-        setAudioUrl(url);
-        playAudio();
-        // if (audio.paused) audio.play();
-        // audio.play();
-        // setIsPlaying(true);
-      }
-    } else {
-      //   audio.src = "";
-      stopAudio();
-      //   audio.pause();
-      //   audio.load;
-      //   setIsPlaying(false);
-      //   setActivePlayer(null);
-    }
-  }, [activePlayer]);
-
-  React.useEffect(() => {
-    console.log(activePlayer);
-  }, [activePlayer]);
-
   let comp = null;
 
   if (style === "author_style") {
@@ -99,7 +36,6 @@ export function StyleInfo({
       <AuthorStyle
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
-        isPlaying={isPlaying}
       />
     );
   }
@@ -109,7 +45,6 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="casual_conversation"
-        isPlaying={isPlaying}
       />
     );
   }
@@ -119,7 +54,6 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="informative_and_newsy"
-        isPlaying={isPlaying}
       />
     );
   }
@@ -129,31 +63,16 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="tutorials_and_guide"
-        isPlaying={isPlaying}
       />
     );
   }
 
-  return (
-    <>
-      {/* {audioUrl && (
-        <audio src={audioUrl} ref={audioRef as any} className="hidden2" />
-      )} */}
-      {comp}
-    </>
-  );
+  return <>{comp}</>;
 }
 
-interface StyleProps extends StyleInfoProps {
-  isPlaying?: boolean;
-}
+interface StyleProps extends StyleInfoProps {}
 
-function AuthorStyle({
-  //   activePlayer,
-  defaultBlogStyle,
-  saveChanges,
-}: //   setActivePlayer
-StyleProps) {
+function AuthorStyle({ defaultBlogStyle, saveChanges }: StyleProps) {
   const [authorName, setAuthorName] =
     React.useState<AUTHOR_NAMES>("dan_ariely");
   const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
@@ -200,7 +119,6 @@ StyleProps) {
               isPlaying ? "text-blue-101" : "text-white-100/40"
             )}
             onClick={() => {
-              //   setActivePlayer("author_style");
               if (!isPlaying) playAudio();
               else stopAudio();
             }}
