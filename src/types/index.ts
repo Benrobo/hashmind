@@ -18,6 +18,9 @@ export type GPT_RESP_STYLE_TYPE = {
   title: string;
   emoji: string;
   isAuthor: boolean;
+  audio_responses?: {
+    test_example: string;
+  };
   styles: {
     name: AUTHOR_NAMES;
     title: string;

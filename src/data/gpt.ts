@@ -45,6 +45,9 @@ export const GPT_RESP_STYLE = [
         default: false,
       },
     ],
+    audio_responses: {
+      test_example: "/audio/response/style/author.mp3",
+    },
   },
   {
     name: "casual_conversation",
@@ -52,6 +55,9 @@ export const GPT_RESP_STYLE = [
     emoji: "😄",
     isAuthor: false,
     styles: [],
+    audio_responses: {
+      test_example: "/audio/response/style/casual.mp3",
+    },
   },
   {
     name: "tutorials_and_guide",
@@ -59,6 +65,9 @@ export const GPT_RESP_STYLE = [
     emoji: "📚",
     isAuthor: false,
     styles: [],
+    audio_responses: {
+      test_example: "/audio/response/style/tut.mp3",
+    },
   },
   {
     name: "informative_and_newsy",
@@ -66,6 +75,9 @@ export const GPT_RESP_STYLE = [
     emoji: "📰",
     isAuthor: false,
     styles: [],
+    audio_responses: {
+      test_example: "/audio/response/style/informative.mp3",
+    },
   },
 ] satisfies GPT_RESP_STYLE_TYPE[];
 
