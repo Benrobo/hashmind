@@ -47,8 +47,8 @@ export const GPT_RESP_STYLE = [
     ],
   },
   {
-    name: "conversational_and_casual",
-    title: "Conversational and Casual",
+    name: "casual_conversation",
+    title: "Casual Conversation",
     emoji: "😄",
     isAuthor: false,
     styles: [],
@@ -71,7 +71,7 @@ export const GPT_RESP_STYLE = [
 
 export const GPT_CUSTOM_PROMPT = [
   {
-    name: "conversational_and_casual",
+    name: "casual_conversation",
     prompt:
       "Write in a conversational and casual tone, making the content easy-going and relatable. Inject a sense of friendliness and approachability into the text.",
   },
