@@ -91,12 +91,12 @@ export default function Dashboard() {
             )}
           >
             {/* child queue content */}
-            <QueueVContent
+            <QueueContent
               title="Processing cover image"
               status="completed"
               message="Cover image generated successfully."
             />
-            <QueueVContent
+            <QueueContent
               title="Processing blog images"
               status="pending"
               message="error processing blog images."
@@ -114,8 +114,8 @@ type QueueContentProps = {
   message: string;
 };
 
-function QueueVContent({ title, status, message }: QueueContentProps) {
-  const [queueVisi, setQueueVisi] = React.useState<string>("queue_name");
+function QueueContent({ title, status, message }: QueueContentProps) {
+  const [queueVisi, setQueueVisi] = React.useState<string>();
   const toggleQueueVisi = (name: string) => {
     if (status === "pending") return;
     if (name === queueVisi) setQueueVisi("");
