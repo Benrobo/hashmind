@@ -34,7 +34,7 @@ export default function ToolBar() {
     <FlexRowCenter className="w-full fixed bottom-5">
       <FlexRowCenter
         className={cn(
-          "min-w-[10em] bg-dark-100 px-4 py-1 rounded-full transition-all",
+          "min-w-[10em] bg-dark-100 px-4 py-1 rounded-full transition-all shadow-2xl drop-shadow-2xl shadow-dark-105",
           !toolbarVisible
             ? "animate-leave translate-y-[10em]"
             : "animate-enter -translate-y-[1em]"
