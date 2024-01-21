@@ -12,8 +12,8 @@ export default function Dashboard() {
   }, []);
   return (
     <FlexColStart className="w-full h-full">
-      <FlexRowCenterBtw className="w-full">
-        <h1 className="">
+      <FlexRowCenterBtw className="w-full px-4 py-3">
+        <h1 className="font-ppEB text-2xl">
           Good morning,
           <br />
           <span className="">John</span>
