@@ -88,3 +88,9 @@ https://neuroflash.com/blog/discover-the-engaging-chatgpt-prompts-writing-style-
   - Jane Austen
   - Gabriel Garcia Marquez
   - Seth Godin
+
+you would need to create a separate folder to handle background-jobs as nextjs might not be the ideal approach to handle jobs/queues with bullmq.
+
+or better still, use trigger.dev for long running jobs. (i dont wanna manage my own custom server for this project)
+
+tutorial: https://dev.to/triggerdotdev/creating-a-resume-builder-with-nextjs-triggerdev-and-gpt4-4gmf
