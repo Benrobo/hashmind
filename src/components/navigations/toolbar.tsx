@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect } from "react";
 import { FlexRowCenter } from "../flex";
-import { AudioLines, BrainCog, Home } from "lucide-react";
+import { AudioLines, BrainCog, Home, Layers3, Newspaper } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -15,9 +15,19 @@ const navigations = [
     path: "/dashboard/home",
   },
   {
+    name: "content",
+    main: false,
+    path: "/dashboard/content",
+  },
+  {
     name: "ai",
     main: true,
     path: "/dashboard/ai",
+  },
+  {
+    name: "queues",
+    main: false,
+    path: "/dashboard/queues",
   },
   {
     name: "settings",
@@ -79,9 +89,25 @@ function renderIcon(name: string, active?: string) {
         />
       );
       break;
+    case "content":
+      icon = (
+        <Newspaper
+          size={25}
+          className={cn("text-white-300", active === name && "text-white-100")}
+        />
+      );
+      break;
     case "ai":
       icon = (
         <AudioLines
+          size={25}
+          className={cn("text-white-300", active === name && "text-white-100")}
+        />
+      );
+      break;
+    case "queues":
+      icon = (
+        <Layers3
           size={25}
           className={cn("text-white-300", active === name && "text-white-100")}
         />
