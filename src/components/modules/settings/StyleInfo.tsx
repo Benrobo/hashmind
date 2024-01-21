@@ -132,7 +132,10 @@ function AuthorStyle({ defaultBlogStyle, saveChanges }: StyleProps) {
           name=""
           id=""
           className="w-auto text-[10px] px-1 py-1 bg-dark-400 rounded-md font-ppReg border-none outline-none"
-          onChange={(e) => setAuthorName(e.target.value as AUTHOR_NAMES)}
+          onChange={(e) => {
+            setAuthorName(e.target.value as AUTHOR_NAMES);
+            saveChanges("author_style", e.target.value as AUTHOR_NAMES);
+          }}
         >
           <option value="">Select author style</option>
           {getGptStyle("author_style" as GPT_RESP_STYLE_NAME)?.styles.map(
