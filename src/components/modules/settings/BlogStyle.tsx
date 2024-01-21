@@ -66,7 +66,12 @@ export function BlogStyleComp() {
     author_name?: AUTHOR_NAMES
   ) => {
     const isAuthor = name === "author_style";
-    if (styleChanges?.name === name) {
+    if (
+      styleChanges?.name === name &&
+      styleChanges?.author_name === author_name
+    ) {
+      setStyleChanges(null);
+    } else if (styleChanges?.name === name) {
       setStyleChanges(null);
     } else {
       setStyleChanges({
@@ -95,9 +100,12 @@ export function BlogStyleComp() {
       <button
         className={cn(
           "cursor-pointer px-2 py-1 rounded-md flex items-center justify-start gap-2 scale-[.90] transition-all ",
-          styleChanges && styleChanges?.name !== defaultBlogStyle.name
-            ? "text-white-100 bg-blue-101 "
-            : "bg-dark-100 text-white-100/40"
+          styleChanges
+            ? styleChanges?.name !== defaultBlogStyle.name ||
+              defaultBlogStyle?.author_name !== styleChanges?.author_name
+              ? "text-white-100 bg-blue-101 "
+              : "bg-dark-100 text-white-100/40"
+            : ""
         )}
         onClick={() => {
           saveBlogStyle();
