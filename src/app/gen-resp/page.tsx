@@ -6,11 +6,13 @@ import toast from "react-hot-toast";
 
 export default function GenAIResponses() {
   const [prompt, setPrompt] = React.useState<string>("");
+  const [blobUrls, setBlobUrls] = React.useState<string[]>([]);
   const audioRef = React.useRef<HTMLAudioElement>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const generateResponse = async () => {
     if (prompt.length < 1) return;
+    const voiceId = "ep8llq73F5oPd4fLOhW9"; //Natasha style
     const options = {
       method: "POST",
       headers: {
@@ -19,9 +21,10 @@ export default function GenAIResponses() {
       },
       body: JSON.stringify({
         text: prompt,
+        model_id: "eleven_monolingual_v1",
         voice_settings: {
           similarity_boost: 0,
-          stability: 0,
+          stability: 0.5,
         },
       }),
     };
@@ -29,7 +32,7 @@ export default function GenAIResponses() {
     try {
       setLoading(true);
       const res = await fetch(
-        "https://api.elevenlabs.io/v1/text-to-speech/jsCqWAovK2LkecY7zXl4",
+        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
         options
       );
       const data = await res.arrayBuffer();
@@ -42,7 +45,9 @@ export default function GenAIResponses() {
 
       const blob = new Blob([data], { type: "audio/mp3" });
       const blobUrl = URL.createObjectURL(blob);
-      audioRef.current!.src = blobUrl;
+
+      setBlobUrls([...blobUrls, blobUrl]);
+      //   audioRef.current!.src = blobUrl;
     } catch (e: any) {
       setLoading(false);
       console.log(e);
@@ -64,11 +69,13 @@ export default function GenAIResponses() {
         onChange={(e) => setPrompt(e.target.value)}
         value={prompt}
       ></textarea>
-      <audio ref={audioRef} controls />
-      <br />
       <Button onClick={generateResponse} isLoading={loading}>
         Generate
       </Button>
+      {blobUrls.map((url) => (
+        <audio key={url} ref={audioRef} src={url} controls />
+      ))}
+      <br />
     </FlexColStart>
   );
 }
