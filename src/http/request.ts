@@ -19,3 +19,14 @@ export const updateBlogPreference = async (data: any) => {
   const req = await $axios.patch("/user/blog/preference", data);
   return req.data;
 };
+
+// hashnode token
+export const updateHNToken = async (data: any) => {
+  const req = await $axios.patch("/user/settings/hashnode_token", data);
+  return req.data;
+};
+
+export const checkHnTokenIsAuthorized = async () => {
+  const req = await $axios.get("/user/settings/hashnode_token");
+  return req.data;
+};

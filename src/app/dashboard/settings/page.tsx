@@ -16,17 +16,72 @@ import Link from "next/link";
 import React from "react";
 import { BlogStyleComp } from "@/components/modules/settings/BlogStyle";
 import BlogPreference from "@/components/modules/settings/BlogPreference";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { checkHnTokenIsAuthorized, updateHNToken } from "@/http/request";
+import toast from "react-hot-toast";
+import { ResponseData } from "@/types";
 
 export default function Settings() {
   const { showToolBar, setActivePage } = useDataContext();
   const [authVisi, setAuthVisi] = React.useState<boolean>(false);
+  const [tokenAuthorized, setTokenAuthorized] = React.useState<boolean>(false);
+  const [hnToken, setHnToken] = React.useState<string>("");
+  const updateHNTokenMutation = useMutation({
+    mutationFn: async (data: any) => updateHNToken(data),
+  });
+  const checkHnAuthorizeQuery = useQuery({
+    queryKey: ["checkHnAuthorize"],
+    queryFn: async () => checkHnTokenIsAuthorized(),
+  });
 
-  const toggleAuthVisi = () => setAuthVisi(!authVisi);
+  const toggleAuthVisi = () =>
+    !checkHnAuthorizeQuery.isPending && setAuthVisi(!authVisi);
 
   React.useEffect(() => {
     showToolBar();
     setActivePage("settings");
   }, []);
+
+  React.useEffect(() => {
+    if (updateHNTokenMutation?.error) {
+      const data = (updateHNTokenMutation?.error as any)?.response
+        ?.data as ResponseData;
+      toast.error(data?.message ?? "Something went wrong!.");
+    }
+    if (updateHNTokenMutation.data) {
+      toast.success("Updated.");
+    }
+  }, [
+    updateHNTokenMutation.data,
+    updateHNTokenMutation.error,
+    updateHNTokenMutation.isPending,
+  ]);
+
+  React.useEffect(() => {
+    if (checkHnAuthorizeQuery?.error) {
+      const data = (checkHnAuthorizeQuery?.error as any)?.response
+        ?.data as ResponseData;
+      toast.error(data?.message ?? "Something went wrong!.");
+    }
+    if (checkHnAuthorizeQuery.data) {
+      const token = (checkHnAuthorizeQuery.data as any)?.data?.token;
+      setTokenAuthorized(true);
+      setHnToken(token);
+    }
+  }, [
+    checkHnAuthorizeQuery.data,
+    checkHnAuthorizeQuery.error,
+    checkHnAuthorizeQuery.isPending,
+  ]);
+
+  function updateHashnodeToken() {
+    if (hnToken.length < 1) {
+      toast.error("Please enter a valid token.");
+      return;
+    }
+    updateHNTokenMutation.mutate({ token: hnToken });
+  }
+
   return (
     <FlexColStart className="w-full h-screen overflow-y-scroll hideScrollBar pb-[10em]">
       <FlexColStart className="w-full px-4 py-4">
@@ -43,7 +98,11 @@ export default function Settings() {
       <FlexColStart className="w-full px-4 py-1 ">
         {/* Authrozie */}
         <FlexColStart className="w-full h-auto bg-dark-200 rounded-lg px-4 py-3 gap-0 transition-all">
-          <button className="w-full cursor-pointer" onClick={toggleAuthVisi}>
+          <button
+            className="w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-[.7]"
+            onClick={toggleAuthVisi}
+            disabled={checkHnAuthorizeQuery.isPending}
+          >
             <FlexRowCenterBtw className="w-full">
               <FlexRowStartCenter>
                 <Image
@@ -55,7 +114,7 @@ export default function Settings() {
                 />
                 <span className="font-ppReg text-sm text-white-100 flex items-center justify-start gap-3">
                   Authorize Hashnode{" "}
-                  {false ? (
+                  {tokenAuthorized ? (
                     <CheckCheck size={15} className="text-green-400" />
                   ) : (
                     <ShieldAlert size={15} className="text-red-305" />
@@ -91,8 +150,15 @@ export default function Settings() {
             <Input
               placeholder="Hashnode Token: xxxx-xx-xxxx-xxxx-xxxxxx"
               className="w-full font-ppReg text-xs bg-dark-105 text-white-100 border-dark-200/10 outline-none focus-visible:ring-0 focus-visible:border-dark-200/20"
+              value={hnToken}
+              onChange={(e) => setHnToken(e.target.value)}
             />
-            <Button className="w-full h-[40px] mt-2 text-xs bg-blue-100 rounded-md font-ppReg">
+            <Button
+              className="w-full h-[40px] mt-2 text-xs bg-blue-100 rounded-md font-ppReg disabled:cursor-not-allowed"
+              onClick={updateHashnodeToken}
+              isLoading={updateHNTokenMutation.isPending}
+              disabled={updateHNTokenMutation.isPending}
+            >
               Authorize
             </Button>
           </FlexColStart>

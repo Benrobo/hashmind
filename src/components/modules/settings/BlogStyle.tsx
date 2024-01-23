@@ -52,26 +52,6 @@ export function BlogStyleComp() {
     mutationFn: async (data: any) => updateGptStyle(data),
   });
 
-  //   const toggleDefaultBlogStyle = (
-  //     name: GPT_RESP_STYLE_NAME,
-  //     author_name?: AUTHOR_NAMES | "dan_ariely"
-  //   ) => {
-  //     const isAuthor = name === "author_style";
-  //     if (defaultBlogStyle.name === name) {
-  //       setDefaultBlogStyle({
-  //         name: "",
-  //         author_name: "",
-  //         isAuthor: false,
-  //       });
-  //     } else {
-  //       setDefaultBlogStyle({
-  //         name,
-  //         author_name,
-  //         isAuthor,
-  //       });
-  //     }
-  //   };
-
   const saveChanges = (
     name: GPT_RESP_STYLE_NAME,
     author_name?: AUTHOR_NAMES

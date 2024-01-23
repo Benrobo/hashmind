@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import prisma from "@/prisma/prisma";
 import ZodValidation from "../utils/zodValidation";
 import {
+  updateHashnodeTokenSchema,
   pubPreferenceSchema,
   updateBlogStyleSchema,
 } from "../utils/schema_validation";
@@ -90,6 +91,46 @@ export default class UserController {
     });
 
     return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200);
+  }
+
+  public async updateHashnodeToken(req: NextRequest) {
+    const user = (req as any)["user"] as ReqUserObj;
+    const payload: { token: string } = await req.json();
+
+    await ZodValidation(updateHashnodeTokenSchema, payload, req.url);
+
+    await prisma.settings.update({
+      data: {
+        hashnode_token: payload?.token as string,
+      },
+      where: {
+        userId: user.id,
+      },
+    });
+
+    return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200);
+  }
+
+  public async isHnTokenAuthorized(req: NextRequest) {
+    const user = (req as any)["user"] as ReqUserObj;
+    const settings = await prisma.settings.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    if (!settings?.hashnode_token) {
+      throw new HttpException(
+        RESPONSE_CODE.HASHNODE_TOKEN_NOT_FOUND,
+        "Hashnode token not found",
+        404
+      );
+    }
+
+    return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200, {
+      is_authorized: true,
+      token: settings?.hashnode_token,
+    });
   }
 
   public async getUserSettings(req: NextRequest) {

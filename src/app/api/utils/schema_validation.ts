@@ -9,3 +9,7 @@ export const updateBlogStyleSchema = zod.object({
 export const pubPreferenceSchema = zod.object({
   preference: zod.enum(["draft", "publish"]),
 });
+
+export const updateHashnodeTokenSchema = zod.object({
+  token: zod.string(),
+});
