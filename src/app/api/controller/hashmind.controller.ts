@@ -23,6 +23,7 @@ export default class HashmindController {
 
     const transcript = await speechToText.openaiSTT(audio_base64);
 
+    // next using the transcript, write an openai function to retrieve blog metadat (title, style, subheading)
     console.log(transcript);
 
     return sendResponse.success(RESPONSE_CODE.SUCCESS, "test", 200);
