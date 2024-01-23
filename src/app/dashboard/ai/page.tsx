@@ -91,7 +91,6 @@ export default function AI() {
                 setAudioPlaying(true);
               }, 3000);
             }}
-            //   ref={btnRef}
           >
             Initialize AI
           </button>
@@ -112,7 +111,7 @@ export default function AI() {
         <br />
         {aiInvoke && (
           <button className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] ">
-            <Mic size={35} />
+            <Mic size={30} />
           </button>
         )}
       </FlexColCenter>

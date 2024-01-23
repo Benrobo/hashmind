@@ -6,12 +6,14 @@
     "dev": "next dev -p 2025",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dbPush": "prisma db push"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
   },
   "dependencies": {
+    "@clerk/nextjs": "^4.29.4",
     "@prisma/client": "^5.8.1",
     "@radix-ui/react-switch": "^1.0.3",
     "@tanstack/react-query": "^5.17.15",
@@ -28,6 +30,7 @@
     "react-dom": "^18",
     "react-hot-toast": "^2.4.1",
     "siriwave": "^2.4.0",
+    "svix": "^1.15.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4"

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import NextTopLoader from "@/components/toploader";
 import DataContextProvider from "@/context/DataContext";
 import { Toaster } from "react-hot-toast";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export default function RootLayout({
   children,
@@ -19,9 +20,11 @@ export default function RootLayout({
         )}
         suppressHydrationWarning
       >
-        <DataContextProvider>{children}</DataContextProvider>
-        <NextTopLoader />
-        <Toaster />
+        <ClerkProvider>
+          <DataContextProvider>{children}</DataContextProvider>
+          <NextTopLoader />
+          <Toaster />
+        </ClerkProvider>
       </body>
     </html>
   );

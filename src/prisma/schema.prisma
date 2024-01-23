@@ -1,0 +1,19 @@
+generator client {
+    provider = "prisma-client-js"
+    // previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+    provider     = "mongodb"
+    url          = env("DATABASE_URL")
+    relationMode = "prisma"
+    // extensions = [pgvector(map: "vector")]
+}
+
+model Users {
+    id       String @id @map("_id")
+    userId   String @default(cuid())
+    email    String @unique
+    username String
+    image    String
+}
