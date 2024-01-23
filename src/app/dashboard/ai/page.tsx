@@ -128,7 +128,7 @@ export default function AI() {
         {loader && <WaveLoader />}
 
         <div className={cn(aiInvoke ? "visible" : "invisible")}>
-          <ReactSiriwave theme="ios9" amplitude={amplitude} frequency={2} />
+          <ReactSiriwave theme={handleUserRequestMut.isPending ? "ios": "ios9"} amplitude={handleUserRequestMut.isPending ? 1 : amplitude} frequency={2} />
         </div>
 
         <audio
@@ -168,10 +168,11 @@ export default function AI() {
         {aiInvoke && (
           <>
             <button
-            className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] "
+            className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] disabled:cursor-not-allowed disabled:opacity-[.6] "
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
             onMouseLeave={stopRecording}
+            disabled={handleUserRequestMut.isPending}
           >
             {speaking ? <Pause size={30} /> : <Mic size={30} />}
           </button>
