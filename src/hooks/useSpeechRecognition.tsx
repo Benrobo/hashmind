@@ -1,16 +1,22 @@
 "use client";
 import React from "react";
 
-
-export default function useSpeechRecognition(){
+export default function useSpeechRecognition() {
   const [listening, setListening] = React.useState<boolean>(false);
   const [browserSupportsSR, setBrowserSupportsSR] =
     React.useState<boolean>(false);
   const [isMicAvailable, setIsMicAvailable] = React.useState<boolean>(false);
   const mediaRecorder = React.useRef<MediaRecorder | null>(null);
   const [stream, setStream] = React.useState<MediaStream | null>(null);
-  const [audioChunks, setAudioChunks] = React.useState([]); 
-  const [blob, setBlob] = React.useState<Blob | null>(null)
+  const [audioChunks, setAudioChunks] = React.useState([]);
+  const [blob, setBlob] = React.useState<Blob | null>(null);
+  const audioContextRef = React.useRef<AudioContext | null>(null);
+
+  React.useEffect(() => {
+    if (!audioContextRef.current) {
+      audioContextRef.current = new AudioContext();
+    }
+  }, []);
 
   const requestMicrophoneAccess = () => {
     navigator.mediaDevices
@@ -18,7 +24,7 @@ export default function useSpeechRecognition(){
       .then((stream) => {
         setIsMicAvailable(true);
         setBrowserSupportsSR(true);
-        setStream(stream as any)
+        setStream(stream as any);
         console.log("Microphone access granted");
       })
       .catch((err: any) => {
@@ -28,7 +34,12 @@ export default function useSpeechRecognition(){
   };
 
   const startListening = async () => {
+    if (audioContextRef.current?.state === "suspended") {
+      audioContextRef.current?.resume();
+    }
+
     const media = new MediaRecorder(stream as any);
+
     //set the MediaRecorder instance to the mediaRecorder ref
     mediaRecorder.current = media;
     //invokes the start method to start the recording process
@@ -42,15 +53,21 @@ export default function useSpeechRecognition(){
     setAudioChunks(localAudioChunks as any);
   };
 
-  const stopListening = (callback: (data: {blob: Blob, blobUrl: string | null})=> void) => {
+  const stopListening = (
+    callback: (data: { blob: Blob; blobUrl: string | null }) => void
+  ) => {
     mediaRecorder.current?.stop();
     // @ts-expect-error
     mediaRecorder.current.onstop = () => {
+      // let sampleRate = audioContextRef.current?.sampleRate;
+
       //creates a blob file from the audiochunks data
-      const audioBlob = new Blob(audioChunks, { type: "audio/ogg; codecs=opus" });
+      const audioBlob = new Blob(audioChunks, {
+        type: "audio/wav",
+      });
       const audioUrl = URL.createObjectURL(audioBlob);
-      callback({blob:audioBlob, blobUrl: audioUrl})
-      setBlob(audioBlob)
+      callback({ blob: audioBlob, blobUrl: audioUrl });
+      setBlob(audioBlob);
       setAudioChunks([]);
     };
   };
@@ -60,5 +77,5 @@ export default function useSpeechRecognition(){
     stopListening,
     requestMicrophoneAccess,
     blob,
-  }
+  };
 }

@@ -99,6 +99,7 @@ export default function AI() {
         toast.error(`Error recording`);
         return;
       }
+      console.log(blobUrl);
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
       handleUserRequestMut.mutate({
