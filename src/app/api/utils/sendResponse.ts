@@ -1,4 +1,4 @@
-import { RESPONSE_CODE } from "@api/types";
+import { RESPONSE_CODE } from "@/types";
 import { NextResponse } from "next/server";
 
 class SendResponse {

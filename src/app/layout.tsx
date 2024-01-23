@@ -1,3 +1,4 @@
+"use client";
 import { ppReg, ppB, ppEB, ppSB, ppL, blEB } from "@/config/font";
 import "../styles/globals.css";
 import { cn } from "@/lib/utils";
@@ -5,6 +6,10 @@ import NextTopLoader from "@/components/toploader";
 import DataContextProvider from "@/context/DataContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// tanstack reqct query
+const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -21,9 +26,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ClerkProvider>
-          <DataContextProvider>{children}</DataContextProvider>
-          <NextTopLoader />
-          <Toaster />
+          <QueryClientProvider client={queryClient}>
+            <DataContextProvider>{children}</DataContextProvider>
+            <NextTopLoader />
+            <Toaster />
+          </QueryClientProvider>
         </ClerkProvider>
       </body>
     </html>

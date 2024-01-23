@@ -1,4 +1,6 @@
 import React from "react";
+import { FlexColCenter, FlexRowStartCenter } from "./flex";
+import { Spinner } from "./spinner";
 
 export default function WaveLoader() {
   return (
@@ -9,5 +11,25 @@ export default function WaveLoader() {
           <div className="loading-bar" key={i}></div>
         ))}
     </div>
+  );
+}
+
+type Props = {
+  showText?: boolean;
+  text?: string;
+};
+
+export function FullPageLoader({ showText, text }: Props) {
+  return (
+    <FlexColCenter className="w-full min-h-screen dark:bg-dark-100/30 bg-white-100/30 z-[999] fixed top-0 left-0 backdrop-blur-lg">
+      <FlexRowStartCenter className="w-auto">
+        <Spinner size={20} color={"#fff"} />
+        {showText && (
+          <p className="text-white-100 text-[13px] font-ppReg">
+            {text ?? "Loading..."}
+          </p>
+        )}
+      </FlexRowStartCenter>
+    </FlexColCenter>
   );
 }

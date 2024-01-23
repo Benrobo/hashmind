@@ -1,4 +1,4 @@
-import { RESPONSE_CODE } from "@api/types";
+import { RESPONSE_CODE } from "@/types";
 
 export default class HttpException extends Error {
   public code: RESPONSE_CODE;

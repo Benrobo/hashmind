@@ -15,3 +15,8 @@ export const getGptStyle = (name: GPT_RESP_STYLE_NAME) => {
   const styles = GPT_RESP_STYLE.find((style) => style.name === name);
   return styles;
 };
+
+export const logout = () => {
+  localStorage.clear();
+  window.location.href = "/";
+};

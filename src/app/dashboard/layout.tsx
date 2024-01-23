@@ -1,7 +1,9 @@
+"use client";
+import withAuth from "@/lib/auth-helpers/withAuth";
 import ToolBar from "@components/navigations/toolbar";
 import React, { PropsWithChildren } from "react";
 
-export default function layout({ children }: PropsWithChildren) {
+function layout({ children }: PropsWithChildren) {
   return (
     <div className="w-full">
       <ToolBar />
@@ -9,3 +11,5 @@ export default function layout({ children }: PropsWithChildren) {
     </div>
   );
 }
+
+export default withAuth(layout);

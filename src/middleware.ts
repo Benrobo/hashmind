@@ -7,6 +7,7 @@ export default authMiddleware({
   publicRoutes: ["/api/(.*)", "/", "/auth", "/api/webhook/(.*)"],
   afterAuth: (auth, req, evt) => {
     // handle users who aren't authenticated
+    // console.log(auth.isPublicRoute, req.url);
     if (!auth.userId && !auth.isPublicRoute) {
       return redirectToSignIn({ returnBackUrl: req.url });
     }
@@ -14,5 +15,5 @@ export default authMiddleware({
 });
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/(api)(.*)"],
 };
