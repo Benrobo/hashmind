@@ -14,8 +14,11 @@ export const POST = CatchError(async (req: NextRequest) => {
   const wh_body = await req.json();
   const payload = JSON.stringify(wh_body);
   const headers = req.headers;
+  const svix_id = headers.get("svix-id");
+  const svix_timestamp = headers.get("svix-timestamp");
+  const svix_signature = headers.get("svix-signature");
 
-  console.log("WEBHOOK SECR", process.env.CLERK_WH_SECRET);
+  //   console.log("WEBHOOK SECR", process.env.CLERK_WH_SECRET);
 
   // Create a new Webhook instance with your webhook secret
   const wh = new Webhook(process.env.CLERK_WH_SECRET as string);
@@ -23,7 +26,11 @@ export const POST = CatchError(async (req: NextRequest) => {
   let evt: WebhookEvent;
   try {
     // Verify the webhook payload and headers
-    evt = wh.verify(payload, headers as any) as WebhookEvent;
+    evt = wh.verify(payload, {
+      "svix-id": svix_id as string,
+      "svix-timestamp": svix_timestamp as string,
+      "svix-signature": svix_signature as string,
+    }) as WebhookEvent;
   } catch (_) {
     // If the verification fails, return a 400 error
     console.log(`❌ Invalid webhook signature`);
@@ -68,9 +75,10 @@ export const POST = CatchError(async (req: NextRequest) => {
       });
 
       console.log(`✅ User ${email} created!`);
-      return;
+      return Response.json({ message: "User created" });
     }
     console.log(`❌ User ${email} already exists. `);
+    return Response.json({ message: "User already exists" });
   }
   if (eventType === "user.deleted") {
     const { id } = data as any;
@@ -80,8 +88,10 @@ export const POST = CatchError(async (req: NextRequest) => {
       await prisma.users.delete({ where: { id } });
 
       console.log(`✅ User ${id} data deleted`);
+      return Response.json({ message: "User data deleted" });
     } catch (e: any) {
       console.log(`❌ Error deleting user ${id} data`);
+      return Response.json({ message: "Error deleting user data" });
     }
   }
 });
