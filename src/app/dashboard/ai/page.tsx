@@ -29,16 +29,15 @@ export default function AI() {
   const audioElmRef = React.useRef<HTMLAudioElement>(null);
   const [loader, setLoader] = React.useState<boolean>(false);
   const [aiInvoke, setAiInvoke] = React.useState<boolean>(false);
-  const [base64Data, setBase64Data] = React.useState<string | unknown | null>(null)
+  const [base64Data, setBase64Data] = React.useState<string | unknown | null>(
+    null
+  );
   const handleUserRequestMut = useMutation({
-    mutationFn: async (data: any)=> await handleUserRequest(data)
-  })
+    mutationFn: async (data: any) => await handleUserRequest(data),
+  });
 
-  const {
-    requestMicrophoneAccess,
-    startListening,
-    stopListening,
-  } = useSpeechRecognition();
+  const { requestMicrophoneAccess, startListening, stopListening } =
+    useSpeechRecognition();
 
   React.useEffect(() => {
     hideToolBar();
@@ -69,8 +68,6 @@ export default function AI() {
     }
   }, [audioPlaying]);
 
-
-
   React.useEffect(() => {
     if (handleUserRequestMut?.error) {
       const data = (handleUserRequestMut?.error as any)?.response
@@ -86,8 +83,6 @@ export default function AI() {
     handleUserRequestMut.isPending,
   ]);
 
-
-
   function startRecording() {
     if (audioPlaying) {
       audioElmRef.current?.pause();
@@ -99,16 +94,16 @@ export default function AI() {
 
   function stopRecording() {
     setSpeaking(false);
-    stopListening(async ({blob, blobUrl})=> {
-      if(!blob){
-        toast.error(`Error recording`)
+    stopListening(async ({ blob, blobUrl }) => {
+      if (!blob) {
+        toast.error(`Error recording`);
         return;
-      }  
+      }
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
       handleUserRequestMut.mutate({
-        audio_base64: base64
-      })
+        audio_base64: base64,
+      });
     });
   }
 
@@ -128,7 +123,11 @@ export default function AI() {
         {loader && <WaveLoader />}
 
         <div className={cn(aiInvoke ? "visible" : "invisible")}>
-          <ReactSiriwave theme={handleUserRequestMut.isPending ? "ios": "ios9"} amplitude={handleUserRequestMut.isPending ? 1 : amplitude} frequency={2} />
+          <ReactSiriwave
+            theme={handleUserRequestMut.isPending ? "ios" : "ios9"}
+            amplitude={handleUserRequestMut.isPending ? 1 : amplitude}
+            frequency={2}
+          />
         </div>
 
         <audio
@@ -168,17 +167,22 @@ export default function AI() {
         {aiInvoke && (
           <>
             <button
-            className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] disabled:cursor-not-allowed disabled:opacity-[.6] "
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onMouseLeave={stopRecording}
-            disabled={handleUserRequestMut.isPending}
-          >
-            {speaking ? <Pause size={30} /> : <Mic size={30} />}
-          </button>
-          <span className="text-xs text-white-100/70 font-ppSB scale-[.75] ">
-            click and hold
-          </span>
+              className={cn(
+                "p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 disabled:cursor-not-allowed disabled:opacity-[.6] ",
+                speaking
+                  ? " border-t-[6px] active:border-t-[6px]"
+                  : " border-b-[6px] active:border-b-[2px]"
+              )}
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording}
+              disabled={handleUserRequestMut.isPending}
+            >
+              {speaking ? <Pause size={30} /> : <Mic size={30} />}
+            </button>
+            <span className="text-xs text-white-100/70 font-ppSB scale-[.75] ">
+              click and hold
+            </span>
           </>
         )}
       </FlexColCenter>
