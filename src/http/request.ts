@@ -30,3 +30,10 @@ export const checkHnTokenIsAuthorized = async () => {
   const req = await $axios.get("/user/settings/hashnode_token");
   return req.data;
 };
+
+
+// handle user request
+export const handleUserRequest = async (data: any)=> {
+  const req = await $axios.post("/hashmind/request", data);
+  return req.data;
+}

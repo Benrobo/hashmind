@@ -24,7 +24,7 @@ export default function GenAIResponses() {
         model_id: "eleven_monolingual_v1",
         voice_settings: {
           similarity_boost: 0,
-          stability: 0.5,
+          stability: 0.1,
         },
       }),
     };

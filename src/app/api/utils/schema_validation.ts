@@ -13,3 +13,7 @@ export const pubPreferenceSchema = zod.object({
 export const updateHashnodeTokenSchema = zod.object({
   token: zod.string(),
 });
+
+export const handleUserRequestSchema = zod.object({
+  audio_base64: zod.string()
+})

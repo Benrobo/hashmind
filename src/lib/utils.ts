@@ -20,3 +20,20 @@ export const logout = () => {
   localStorage.clear();
   window.location.href = "/";
 };
+
+export function handleBlobToBase64(blob: Blob){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const base64String = reader.result;
+      resolve(base64String);
+    };
+
+    reader.onerror = () => {
+      reject(new Error('Failed to read the Blob as base64.'));
+    };
+
+    reader.readAsDataURL(blob);
+  });
+}
