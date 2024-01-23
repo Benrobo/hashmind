@@ -9,18 +9,15 @@ import {
 import WaveLoader from "@/components/loader";
 import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
-import useAudioAmplitude, {
-  useAudioAmplitude2,
-  useGetBlob,
-} from "@/hooks/useAudioAmplitude";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
-import { cn } from "@/lib/utils";
+import { handleUserRequest } from "@/http/request";
+import { cn, handleBlobToBase64 } from "@/lib/utils";
+import { ResponseData } from "@/types";
+import { useMutation } from "@tanstack/react-query";
 import { Mic, MoveLeft, Pause } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-// import SpeechRecognition, {
-//   useSpeechRecognition,
-// } from "react-speech-recognition";
+import toast from "react-hot-toast";
 
 export default function AI() {
   const { hideToolBar } = useDataContext();
@@ -32,10 +29,13 @@ export default function AI() {
   const audioElmRef = React.useRef<HTMLAudioElement>(null);
   const [loader, setLoader] = React.useState<boolean>(false);
   const [aiInvoke, setAiInvoke] = React.useState<boolean>(false);
+  const [base64Data, setBase64Data] = React.useState<string | unknown | null>(null)
+  const handleUserRequestMut = useMutation({
+    mutationFn: async (data: any)=> await handleUserRequest(data)
+  })
+
   const {
     requestMicrophoneAccess,
-    listening,
-    transcript,
     startListening,
     stopListening,
   } = useSpeechRecognition();
@@ -69,23 +69,47 @@ export default function AI() {
     }
   }, [audioPlaying]);
 
+
+
   React.useEffect(() => {
-    console.log({ transcript });
-  }, [transcript, listening]);
+    if (handleUserRequestMut?.error) {
+      const data = (handleUserRequestMut?.error as any)?.response
+        ?.data as ResponseData;
+      toast.error(data?.message ?? "Something went wrong!.");
+    }
+    if (handleUserRequestMut.data) {
+      // toast.success("Updated.");
+    }
+  }, [
+    handleUserRequestMut.data,
+    handleUserRequestMut.error,
+    handleUserRequestMut.isPending,
+  ]);
+
+
 
   function startRecording() {
     if (audioPlaying) {
       audioElmRef.current?.pause();
       setAudioPlaying(false);
     }
-    console.log("hey");
     setSpeaking(true);
     startListening();
-    // SpeechRecognition.startListening();
   }
+
   function stopRecording() {
     setSpeaking(false);
-    stopListening();
+    stopListening(async ({blob, blobUrl})=> {
+      if(!blob){
+        toast.error(`Error recording`)
+        return;
+      }  
+      const base64 = await handleBlobToBase64(blob);
+      setBase64Data(base64);
+      handleUserRequestMut.mutate({
+        audio_base64: base64
+      })
+    });
   }
 
   return (
@@ -142,7 +166,8 @@ export default function AI() {
         </FlexRowCenter>
         <br />
         {aiInvoke && (
-          <button
+          <>
+            <button
             className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] "
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
@@ -150,6 +175,10 @@ export default function AI() {
           >
             {speaking ? <Pause size={30} /> : <Mic size={30} />}
           </button>
+          <span className="text-xs text-white-100/70 font-ppSB scale-[.75] ">
+            click and hold
+          </span>
+          </>
         )}
       </FlexColCenter>
 
