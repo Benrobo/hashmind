@@ -22,9 +22,9 @@ export default class HashmindController {
 
         const {audio_base64} = payload;
 
-        console.log(audio_base64.slice(0, 15))
+        console.log(audio_base64.length)
 
-        await sleep(10)
+        await sleep(5)
 
         return sendResponse.success(RESPONSE_CODE.SUCCESS, "test", 200)
     }
