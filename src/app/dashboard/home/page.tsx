@@ -19,7 +19,6 @@ export default function Dashboard() {
     return "evening";
   };
 
-  console.log({ userInfo });
   return (
     <FlexColStart className="w-full h-full">
       <FlexRowCenterBtw className="w-full px-4 py-3">

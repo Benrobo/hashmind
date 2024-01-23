@@ -10,12 +10,48 @@ datasource db {
     // extensions = [pgvector(map: "vector")]
 }
 
+enum GptStyle {
+    author_style
+    casual_conversation
+    tutorials_and_guides
+    informative_and_newsy
+}
+
+enum DefaultAuthorName {
+    malcolm_gladwell
+    dan_ariely
+    brene_brown
+    jane_austen
+    gabriel_garcia_marquez
+    seth_godin
+}
+
+enum BlogPreference {
+    draft
+    publish
+}
+
 model Users {
     id       String @id @map("_id")
-    userId   String @default(cuid())
+    userId   String @unique @default(cuid())
     email    String @unique
     username String
     image    String
 
+    settings Settings?
+
     @@map("users")
+}
+
+model Settings {
+    id                    String             @id @map("_id")
+    userId                String             @unique
+    gpt_style             GptStyle           @default(author_style)
+    default_author_name   DefaultAuthorName? @default(malcolm_gladwell)
+    publishing_preference BlogPreference     @default(draft)
+    hashnode_token        String             @default("")
+
+    user Users @relation(fields: [userId], references: [userId])
+
+    @@map("settings")
 }

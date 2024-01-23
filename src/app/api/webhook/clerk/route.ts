@@ -64,17 +64,37 @@ export const POST = CatchError(async (req: NextRequest) => {
     const user = await prisma.users.findFirst({ where: { email } });
 
     if (!user) {
-      await prisma.users.create({
+      const userId = nanoid();
+      const createUser = prisma.users.create({
         data: {
           id,
-          userId: nanoid(),
+          userId,
           email,
           image: image_url,
           username: _username,
         },
       });
 
-      console.log(`✅ User ${email} created!`);
+      const createSettings = prisma.settings.create({
+        data: {
+          id,
+          userId,
+          gpt_style: "author_style",
+          default_author_name: "dan_ariely",
+          publishing_preference: "draft",
+        },
+      });
+
+      prisma
+        .$transaction([createUser, createSettings])
+        .then(() => {
+          console.log(`✅ User ${email} created!`);
+        })
+        .catch((e) => {
+          console.log(`❌ Error creating user ${email}`);
+        });
+
+      //   console.log(`✅ User ${email} created!`);
       return Response.json({ message: "User created" });
     }
     console.log(`❌ User ${email} already exists. `);

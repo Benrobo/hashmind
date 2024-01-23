@@ -30,7 +30,7 @@ export function isAuthenticated(fn: Function) {
       );
     }
 
-    (req as any)["user"] = { id: currUser.userId };
+    (req as any)["user"] = { id: user.userId };
     return await fn(req);
   };
 }

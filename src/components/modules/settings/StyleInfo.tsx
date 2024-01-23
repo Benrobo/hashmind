@@ -21,6 +21,11 @@ type StyleInfoProps = {
     name: GPT_RESP_STYLE_NAME,
     author_name?: AUTHOR_NAMES | ""
   ) => void;
+  changes: {
+    name: GPT_RESP_STYLE_NAME | "";
+    author_name?: AUTHOR_NAMES | "";
+    isAuthor?: boolean;
+  } | null;
 };
 
 export function StyleInfo({
@@ -28,6 +33,7 @@ export function StyleInfo({
   //   activePlayerName,
   defaultBlogStyle,
   saveChanges,
+  changes,
 }: StyleInfoProps) {
   let comp = null;
 
@@ -36,6 +42,7 @@ export function StyleInfo({
       <AuthorStyle
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
+        changes={changes}
       />
     );
   }
@@ -45,6 +52,7 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="casual_conversation"
+        changes={changes}
       />
     );
   }
@@ -54,6 +62,7 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="informative_and_newsy"
+        changes={changes}
       />
     );
   }
@@ -63,6 +72,7 @@ export function StyleInfo({
         defaultBlogStyle={defaultBlogStyle}
         saveChanges={saveChanges}
         styleName="tutorials_and_guide"
+        changes={changes}
       />
     );
   }
@@ -72,7 +82,7 @@ export function StyleInfo({
 
 interface StyleProps extends StyleInfoProps {}
 
-function AuthorStyle({ defaultBlogStyle, saveChanges }: StyleProps) {
+function AuthorStyle({ defaultBlogStyle, saveChanges, changes }: StyleProps) {
   const [authorName, setAuthorName] =
     React.useState<AUTHOR_NAMES>("dan_ariely");
   const [isPlaying, setIsPlaying] = React.useState<boolean>(false);
@@ -110,7 +120,8 @@ function AuthorStyle({ defaultBlogStyle, saveChanges }: StyleProps) {
             className=" data-[state=checked]:bg-blue-101"
             checked={defaultBlogStyle?.name === "author_style"}
             onCheckedChange={(e) => {
-              saveChanges("author_style", authorName);
+              if (changes === null) return;
+              else saveChanges("author_style", authorName);
             }}
           />
           <button
