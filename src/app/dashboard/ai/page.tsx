@@ -13,10 +13,14 @@ import useAudioAmplitude, {
   useAudioAmplitude2,
   useGetBlob,
 } from "@/hooks/useAudioAmplitude";
+import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 import { cn } from "@/lib/utils";
-import { Mic, MoveLeft } from "lucide-react";
+import { Mic, MoveLeft, Pause } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+// import SpeechRecognition, {
+//   useSpeechRecognition,
+// } from "react-speech-recognition";
 
 export default function AI() {
   const { hideToolBar } = useDataContext();
@@ -24,12 +28,21 @@ export default function AI() {
   const [audioPlaying, setAudioPlaying] = React.useState<boolean>(false);
   const [amplitude, setAmplitude] = React.useState<number>(0);
   const [audioUrl, setAudioUrl] = React.useState();
+  const [speaking, setSpeaking] = React.useState<boolean>(false);
   const audioElmRef = React.useRef<HTMLAudioElement>(null);
   const [loader, setLoader] = React.useState<boolean>(false);
   const [aiInvoke, setAiInvoke] = React.useState<boolean>(false);
+  const {
+    requestMicrophoneAccess,
+    listening,
+    transcript,
+    startListening,
+    stopListening,
+  } = useSpeechRecognition();
 
   React.useEffect(() => {
     hideToolBar();
+    requestMicrophoneAccess();
   }, []);
 
   React.useEffect(() => {
@@ -37,7 +50,7 @@ export default function AI() {
       setTimeout(() => {
         setLoader(false);
         setAiInvoke(true);
-      }, 3000);
+      }, 1000);
     }
   }, [loader]);
 
@@ -55,6 +68,25 @@ export default function AI() {
       setAmplitude(4);
     }
   }, [audioPlaying]);
+
+  React.useEffect(() => {
+    console.log({ transcript });
+  }, [transcript, listening]);
+
+  function startRecording() {
+    if (audioPlaying) {
+      audioElmRef.current?.pause();
+      setAudioPlaying(false);
+    }
+    console.log("hey");
+    setSpeaking(true);
+    startListening();
+    // SpeechRecognition.startListening();
+  }
+  function stopRecording() {
+    setSpeaking(false);
+    stopListening();
+  }
 
   return (
     <FlexColStart className="relative w-full h-full min-h-screen">
@@ -89,7 +121,7 @@ export default function AI() {
               setTimeout(() => {
                 audioElmRef?.current?.play();
                 setAudioPlaying(true);
-              }, 3000);
+              }, 1000);
             }}
           >
             Initialize AI
@@ -110,8 +142,13 @@ export default function AI() {
         </FlexRowCenter>
         <br />
         {aiInvoke && (
-          <button className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] ">
-            <Mic size={30} />
+          <button
+            className="p-5 rounded-full text-4xl glowyBtn transition-all scale-[.80] hover:scale-[.95] border-purple-100 border-b-[6px] active:border-b-[2px] "
+            onMouseDown={startRecording}
+            onMouseUp={stopRecording}
+            onMouseLeave={stopRecording}
+          >
+            {speaking ? <Pause size={30} /> : <Mic size={30} />}
           </button>
         )}
       </FlexColCenter>

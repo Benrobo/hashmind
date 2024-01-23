@@ -48,6 +48,7 @@ model Users {
     queue           Queues[]
     subqueue        SubQueues[]
     contentmetadata ContentMetaData[]
+    chathistory     ChatHistory[]
 
     @@map("users")
 }
@@ -105,4 +106,16 @@ model ContentMetaData {
     user Users @relation(fields: [userId], references: [userId])
 
     @@map("contentmetadata")
+}
+
+model ChatHistory {
+    id           String   @id @map("_id")
+    userId       String
+    user_message String
+    ai_message   String
+    createdAt    DateTime @default(now())
+
+    user Users @relation(fields: [userId], references: [userId])
+
+    @@map("chathistory")
 }

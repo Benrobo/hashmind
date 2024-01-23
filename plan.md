@@ -94,3 +94,6 @@ you would need to create a separate folder to handle background-jobs as nextjs m
 or better still, use trigger.dev for long running jobs. (i dont wanna manage my own custom server for this project)
 
 tutorial: https://dev.to/triggerdotdev/creating-a-resume-builder-with-nextjs-triggerdev-and-gpt4-4gmf
+
+It turns out Brave doesn't support speech recognition yet.
+source: https://stackoverflow.com/questions/74113965/speechrecognition-emitting-network-error-event-in-brave-browser
