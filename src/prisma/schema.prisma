@@ -31,6 +31,12 @@ enum BlogPreference {
     publish
 }
 
+enum QueueStatus {
+    pending
+    completed
+    failed
+}
+
 model Users {
     id       String @id @map("_id")
     userId   String @unique @default(cuid())
@@ -38,7 +44,10 @@ model Users {
     username String
     image    String
 
-    settings Settings?
+    settings        Settings?
+    queue           Queues[]
+    subqueue        SubQueues[]
+    contentmetadata ContentMetaData[]
 
     @@map("users")
 }
@@ -54,4 +63,46 @@ model Settings {
     user Users @relation(fields: [userId], references: [userId])
 
     @@map("settings")
+}
+
+model Queues {
+    id            String      @id @map("_id")
+    userId        String
+    title         String
+    description   String
+    status        QueueStatus @default(pending)
+    jobs          Int
+    completedJobs Int
+
+    user     Users       @relation(fields: [userId], references: [userId])
+    subqueue SubQueues[]
+
+    @@map("queues")
+}
+
+model SubQueues {
+    id      String      @id @map("_id")
+    queueId String
+    userId  String
+    status  QueueStatus @default(pending)
+    title   String
+    message String
+
+    user  Users  @relation(fields: [userId], references: [userId])
+    queue Queues @relation(fields: [queueId], references: [id])
+
+    @@map("subqueues")
+}
+
+model ContentMetaData {
+    id          String @id @map("_id")
+    userId      String
+    title       String
+    sub_heading String
+    emoji       String
+    link        String
+
+    user Users @relation(fields: [userId], references: [userId])
+
+    @@map("contentmetadata")
 }

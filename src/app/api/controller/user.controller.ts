@@ -119,7 +119,7 @@ export default class UserController {
       },
     });
 
-    if (!settings?.hashnode_token) {
+    if (!settings?.hashnode_token || settings.hashnode_token.length === 0) {
       throw new HttpException(
         RESPONSE_CODE.HASHNODE_TOKEN_NOT_FOUND,
         "Hashnode token not found",
