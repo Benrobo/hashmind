@@ -43,12 +43,14 @@ export default class HashmindController {
     }
 
     if (userAction.action && userAction.title) {
+      console.log("ACTION DETECTED", userAction.action, userAction.title);
       // do the needful
     }
 
     if (userAction.aiMsg) {
-      // convert msg from text to speech and send back the buffer to client
-      const blobUrl = await textToSpeech.convertTextToSpeech(userAction.aiMsg);
+      return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200, {
+        aiMsg: userAction.aiMsg,
+      });
     }
   }
 }

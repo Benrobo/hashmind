@@ -10,8 +10,8 @@ import WaveLoader from "@/components/loader";
 import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
-import { handleUserRequest } from "@/http/request";
-import { cn, handleBlobToBase64 } from "@/lib/utils";
+import { elevenlabTTS, handleUserRequest } from "@/http/request";
+import { audioBase64ToBlob, cn, handleBlobToBase64 } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Mic, MoveLeft, Pause } from "lucide-react";
@@ -24,7 +24,9 @@ export default function AI() {
   const [humanSpeechs, setHumanSpeechs] = React.useState<string[]>([]);
   const [audioPlaying, setAudioPlaying] = React.useState<boolean>(false);
   const [amplitude, setAmplitude] = React.useState<number>(0);
-  const [audioUrl, setAudioUrl] = React.useState();
+  const [audioUrl, setAudioUrl] = React.useState(
+    "/audio/response/greetings/welcome.mp3"
+  );
   const [speaking, setSpeaking] = React.useState<boolean>(false);
   const audioElmRef = React.useRef<HTMLAudioElement>(null);
   const [loader, setLoader] = React.useState<boolean>(false);
@@ -34,6 +36,9 @@ export default function AI() {
   );
   const handleUserRequestMut = useMutation({
     mutationFn: async (data: any) => await handleUserRequest(data),
+  });
+  const handleTTSMut = useMutation({
+    mutationFn: async (data: any) => await elevenlabTTS(data),
   });
 
   const { requestMicrophoneAccess, startListening, stopListening } =
@@ -76,12 +81,30 @@ export default function AI() {
     }
     if (handleUserRequestMut.data) {
       // toast.success("Updated.");
+      const data = handleUserRequestMut.data as ResponseData;
+      const aiResponse = data?.data?.aiMsg as any;
+      // convert resp to speech
+      handleTTSMut.mutate({ text: aiResponse });
     }
   }, [
     handleUserRequestMut.data,
     handleUserRequestMut.error,
     handleUserRequestMut.isPending,
   ]);
+
+  React.useEffect(() => {
+    if (handleTTSMut?.error) {
+      const data = (handleTTSMut?.error as any)?.response?.data as ResponseData;
+      toast.error(data?.message ?? "Something went wrong!.");
+    }
+    if (handleTTSMut.data) {
+      // toast.success("Updated.");
+      const data = handleTTSMut.data as ResponseData;
+      const audioContent = data.data?.content;
+      const blobUrl = audioBase64ToBlob(audioContent);
+      playAudio(blobUrl);
+    }
+  }, [handleTTSMut.data, handleTTSMut.error, handleTTSMut.isPending]);
 
   function startRecording() {
     if (audioPlaying) {
@@ -108,6 +131,18 @@ export default function AI() {
     });
   }
 
+  function playAudio(url: string) {
+    const audio = new Audio();
+    audio.src = url;
+    audio.play();
+
+    audio.onended = () => {
+      setAudioPlaying(false);
+    };
+
+    setAudioPlaying(true);
+  }
+
   return (
     <FlexColStart className="relative w-full h-full min-h-screen">
       <FlexColStart className="w-full px-4 py-4">
@@ -125,15 +160,23 @@ export default function AI() {
 
         <div className={cn(aiInvoke ? "visible" : "invisible")}>
           <ReactSiriwave
-            theme={handleUserRequestMut.isPending ? "ios" : "ios9"}
-            amplitude={handleUserRequestMut.isPending ? 1 : amplitude}
+            theme={
+              handleUserRequestMut.isPending || handleTTSMut.isPending
+                ? "ios"
+                : "ios9"
+            }
+            amplitude={
+              handleUserRequestMut.isPending || handleTTSMut.isPending
+                ? 1
+                : amplitude
+            }
             frequency={2}
           />
         </div>
 
         <audio
           ref={audioElmRef}
-          src={"/audio/response/greetings/welcome.mp3"}
+          src={audioUrl}
           controls
           className="invisible"
         />
@@ -177,7 +220,9 @@ export default function AI() {
               onMouseDown={startRecording}
               onMouseUp={stopRecording}
               onMouseLeave={stopRecording}
-              disabled={handleUserRequestMut.isPending}
+              disabled={
+                handleUserRequestMut.isPending || handleTTSMut.isPending
+              }
             >
               {speaking ? <Pause size={30} /> : <Mic size={30} />}
             </button>

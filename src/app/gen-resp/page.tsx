@@ -31,22 +31,38 @@ export default function GenAIResponses() {
 
     try {
       setLoading(true);
-      const res = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-        options
-      );
-      const data = await res.arrayBuffer();
+      // const res = await fetch(
+      //   `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      //   options
+      // );
+      const res = await fetch(`http://localhost:2025/api/recognition/tts`, {
+        method: "POST",
+        body: JSON.stringify({ text: prompt }),
+      });
+      // const data = await res.arrayBuffer();
+      const data = await res.json();
       setLoading(false);
 
       if (!res.ok) {
         toast.error("An error occured");
         return;
       }
+      const audioContent = data.data?.content;
+      const binaryAudioData = atob(audioContent);
 
-      const blob = new Blob([data], { type: "audio/mp3" });
-      const blobUrl = URL.createObjectURL(blob);
+      // Convert binary data to ArrayBuffer
+      const arrayBuffer = new Uint8Array(binaryAudioData.length);
+      for (let i = 0; i < binaryAudioData.length; i++) {
+        arrayBuffer[i] = binaryAudioData.charCodeAt(i);
+      }
 
-      setBlobUrls([...blobUrls, blobUrl]);
+      // Create Blob from ArrayBuffer
+      const audioBlob = new Blob([arrayBuffer], { type: "audio/mpeg" });
+
+      // Create Object URL from Blob
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      setBlobUrls([...blobUrls, audioUrl]);
       //   audioRef.current!.src = blobUrl;
     } catch (e: any) {
       setLoading(false);

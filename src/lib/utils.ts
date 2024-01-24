@@ -21,7 +21,7 @@ export const logout = () => {
   window.location.href = "/";
 };
 
-export function handleBlobToBase64(blob: Blob){
+export function handleBlobToBase64(blob: Blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -31,9 +31,20 @@ export function handleBlobToBase64(blob: Blob){
     };
 
     reader.onerror = () => {
-      reject(new Error('Failed to read the Blob as base64.'));
+      reject(new Error("Failed to read the Blob as base64."));
     };
 
     reader.readAsDataURL(blob);
   });
+}
+
+export function audioBase64ToBlob(audioContent: string) {
+  const binaryAudioData = atob(audioContent);
+  const arrayBuffer = new Uint8Array(binaryAudioData.length);
+  for (let i = 0; i < binaryAudioData.length; i++) {
+    arrayBuffer[i] = binaryAudioData.charCodeAt(i);
+  }
+  const audioBlob = new Blob([arrayBuffer], { type: "audio/mpeg" });
+  const audioUrl = URL.createObjectURL(audioBlob);
+  return audioUrl;
 }
