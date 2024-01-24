@@ -4,6 +4,11 @@ import { handleUserRequestSchema } from "../utils/schema_validation";
 import sendResponse from "../utils/sendResponse";
 import { RESPONSE_CODE } from "@/types";
 import speechToText from "../services/stt.service";
+import identifyAction, {
+  IdentifyActionRespType,
+} from "../functions/identifyAction";
+import HttpException from "../utils/exception";
+import textToSpeech from "../services/tts.service";
 
 type ReqUserObj = {
   id: string;
@@ -24,8 +29,26 @@ export default class HashmindController {
     const transcript = await speechToText.openaiSTT(audio_base64);
 
     // next using the transcript, write an openai function to retrieve blog metadat (title, style, subheading)
-    console.log(transcript);
+    console.log({ transcript });
+    const userAction = (await identifyAction(
+      transcript
+    )) as IdentifyActionRespType;
 
-    return sendResponse.success(RESPONSE_CODE.SUCCESS, "test", 200);
+    if (userAction.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
+        userAction.error,
+        400
+      );
+    }
+
+    if (userAction.action && userAction.title) {
+      // do the needful
+    }
+
+    if (userAction.aiMsg) {
+      // convert msg from text to speech and send back the buffer to client
+      const blobUrl = await textToSpeech.convertTextToSpeech(userAction.aiMsg);
+    }
   }
 }
