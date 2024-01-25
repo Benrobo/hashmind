@@ -1,5 +1,8 @@
 import { inngest } from "@api/config/inngest_client";
 import generateImage from "../../functions/generateCoverImage";
+import prisma from "@/prisma/prisma";
+import HttpException from "../../utils/exception";
+import { RESPONSE_CODE } from "@/types";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -29,7 +32,58 @@ export const inngest_hashmind_main_function = inngest.createFunction(
 // cover image
 export const inngest_article_coverimage_generation_function =
   inngest.createFunction(
-    { id: "hashmind-article-coverimage-creation" },
+    {
+      id: "hashmind-article-coverimage-creation",
+      onFailure: async ({ error, event, step }) => {
+        console.log(`❌ COVER IMAGE GENERATION FAILED`, error);
+        // update queue in db
+        const jobData = event.data.event.data;
+        const jobId = jobData.jobId;
+        const mainJob = await prisma.queues.findFirst({
+          where: {
+            id: jobId,
+            userId: jobId,
+          },
+          include: { subqueue: true },
+        });
+
+        if (!mainJob) {
+          throw new HttpException(
+            RESPONSE_CODE.ERROR_UPDATING_QUEUE,
+            `Error updating queue,for failed Job with [id: ${jobId}] not found`,
+            404
+          );
+        }
+
+        const subqueue = mainJob.subqueue.find(
+          (subqueue) => subqueue.identifier === "cover-image"
+        );
+
+        await prisma.queues.update({
+          where: {
+            id: jobId,
+            userId: jobId,
+          },
+          data: {
+            completedJobs: 1,
+            subqueue: {
+              update: {
+                where: {
+                  id: subqueue?.id,
+                  identifier: "cover-image",
+                },
+                data: {
+                  status: "failed",
+                  message: "Cover image generation failed",
+                },
+              },
+            },
+          },
+        });
+
+        console.log(`❌ COVER IMAGE FAILED JOB QUEUE UPDATED`);
+      },
+    },
     { event: "hashmind/article-coverimage.creation" },
     async ({ event, step }) => {
       await step.sleep("wait-a-moment", "1s");
@@ -41,6 +95,53 @@ export const inngest_article_coverimage_generation_function =
       const coverImageUrl = coverImage.url;
 
       console.log(`✅ COVER IMAGE GENERATED`);
+
+      // update the queue in db
+      const jobId = event.data.jobId;
+      const mainJob = await prisma.queues.findFirst({
+        where: {
+          id: jobId,
+          userId: event.data.userId,
+        },
+        include: { subqueue: true },
+      });
+
+      if (!mainJob) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_QUEUE,
+          `Error updating queue, Job with [id: ${jobId}] not found`,
+          404
+        );
+      }
+
+      const subqueue = mainJob.subqueue.find(
+        (subqueue) => subqueue.identifier === "cover-image"
+      );
+
+      await prisma.queues.update({
+        where: {
+          id: jobId,
+          userId: event.data.userId,
+        },
+        data: {
+          completedJobs: 1,
+          subqueue: {
+            update: {
+              where: {
+                id: subqueue?.id,
+                identifier: "cover-image",
+              },
+              data: {
+                status: "completed",
+                message: "Cover image generated",
+              },
+            },
+          },
+        },
+      });
+
+      console.log(`✅ COVER IMAGE QUEUE UPDATED`);
+
       // invoke metadata creation function
       await step.invoke("hashmind/article-metadata.creation", {
         function: inngest_article_metadata_creation_function,
