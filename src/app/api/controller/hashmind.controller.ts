@@ -36,7 +36,7 @@ export default class HashmindController {
 
     // temp transcript
     const transcript =
-      "I need you to create a new title on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
+      "I need you to create a new article on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
 
     //! Uncomment this once you're done
     // const userAction = (await identifyAction(
@@ -70,10 +70,13 @@ export default class HashmindController {
       // create article action
       if (actionsVariants.create.includes(userAction.action)) {
         console.log(`CREATING ARTICLE EVENT FIRED`);
-        // invoke creation of new blog article event
 
+        // save queues
+        // const create
+
+        // invoke main  function event
         inngest.send({
-          name: "hashmind/article.creation",
+          name: "hashmind/main",
           data: {
             title: userAction.title,
             subtitle: userAction.subtitle,

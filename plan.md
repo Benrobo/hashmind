@@ -169,3 +169,9 @@ The AI function should be able to detect the following:
 - New Section (to be added, if not specified, return false)
 - User query (the main intent to be executed on user post i.e what should be done to the post, should it be optimize, should it be summarize or what. The query would be feed into the prompt template)
 - Cover image (to be added, if not specified, return false)
+
+Creating Post
+
+- Generate cover image
+- Generate metadata (title, description, image)
+- Generate post content
