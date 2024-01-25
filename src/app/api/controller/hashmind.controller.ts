@@ -10,6 +10,7 @@ import identifyAction, {
 import HttpException from "../utils/exception";
 import textToSpeech from "../services/tts.service";
 import { actionsVariants, supportedActions } from "../data/ai/function";
+import { inngest } from "../config/inngest_client";
 
 type ReqUserObj = {
   id: string;
@@ -29,6 +30,7 @@ export default class HashmindController {
 
     const { audio_base64 } = payload;
 
+    //! Uncomment this once you're done
     // const transcript = await speechToText.openaiSTT(audio_base64);
     // console.log({ transcript });
 
@@ -36,7 +38,7 @@ export default class HashmindController {
     const transcript =
       "I need you to create a new title on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
 
-    // trying to avoid billing during dev
+    //! Uncomment this once you're done
     // const userAction = (await identifyAction(
     //   transcript
     // )) as IdentifyActionRespType;
@@ -69,6 +71,17 @@ export default class HashmindController {
       if (actionsVariants.create.includes(userAction.action)) {
         console.log(`CREATING ARTICLE EVENT FIRED`);
         // invoke creation of new blog article event
+
+        inngest.send({
+          name: "hashmind/article.creation",
+          data: {
+            title: userAction.title,
+            subtitle: userAction.subtitle,
+            emoji: userAction.emoji,
+            keywords: userAction.keywords,
+            userId: user.id,
+          },
+        });
 
         return sendResponse.success(
           RESPONSE_CODE.ARTICLE_CREATION_QUEUED,

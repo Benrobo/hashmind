@@ -5,6 +5,7 @@ export const inngest_article_creation_function = inngest.createFunction(
   { event: "hashmind/article.creation" },
   async ({ event, step }) => {
     await step.sleep("wait-a-moment", "1s");
+    console.log("functioned triggered", event);
     return { event, body: "Hello, World!" };
   }
 );

@@ -37,7 +37,7 @@ export const handleUserRequest = async (data: any) => {
   return req.data;
 };
 
-export const elevenlabTTS = async (data: any) => {
+export const googleTTS = async (data: any) => {
   const req = await $axios.post("/recognition/tts", data);
   return req.data;
 };

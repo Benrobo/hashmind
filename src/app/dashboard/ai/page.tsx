@@ -10,7 +10,7 @@ import WaveLoader from "@/components/loader";
 import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
-import { elevenlabTTS, handleUserRequest } from "@/http/request";
+import { googleTTS, handleUserRequest } from "@/http/request";
 import { audioBase64ToBlob, cn, handleBlobToBase64 } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation } from "@tanstack/react-query";
@@ -38,7 +38,7 @@ export default function AI() {
     mutationFn: async (data: any) => await handleUserRequest(data),
   });
   const handleTTSMut = useMutation({
-    mutationFn: async (data: any) => await elevenlabTTS(data),
+    mutationFn: async (data: any) => await googleTTS(data),
   });
 
   const { requestMicrophoneAccess, startListening, stopListening } =
@@ -84,7 +84,8 @@ export default function AI() {
       const data = handleUserRequestMut.data as ResponseData;
       const aiResponse = data?.data?.aiMsg as any;
       // convert resp to speech
-      handleTTSMut.mutate({ text: aiResponse });
+      // ! Uncomment this back to enable TTS
+      // handleTTSMut.mutate({ text: aiResponse });
     }
   }, [
     handleUserRequestMut.data,
@@ -122,9 +123,12 @@ export default function AI() {
         toast.error(`Error recording`);
         return;
       }
-      console.log(blobUrl);
+      // console.log(blobUrl);
+
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
+
+      // send the audio to the server for processing to text
       handleUserRequestMut.mutate({
         audio_base64: base64,
       });
