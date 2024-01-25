@@ -2,7 +2,8 @@ import { inngest } from "@api/config/inngest_client";
 import generateImage from "../../functions/generateCoverImage";
 import prisma from "@/prisma/prisma";
 import HttpException from "../../utils/exception";
-import { RESPONSE_CODE } from "@/types";
+import { AUTHOR_NAMES, GPT_RESP_STYLE_NAME, RESPONSE_CODE } from "@/types";
+import generateArticleContent from "../../functions/generateArticleContent";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -142,18 +143,100 @@ export const inngest_article_coverimage_generation_function =
 
       console.log(`✅ COVER IMAGE QUEUE UPDATED`);
 
-      // invoke metadata creation function
-      await step.invoke("hashmind/article-metadata.creation", {
-        function: inngest_article_metadata_creation_function,
+      // invoke content creation function
+      await step.invoke("hashmind/article-content.creation", {
+        function: inngest_article_content_generation_function,
         data: {
           title: event.data.title,
           userId: event.data.userId,
           coverImage: coverImageUrl,
           jobId: event.data.jobId,
+          subtitle: event.data.subtitle,
         },
       });
 
       return { coverImageUrl };
+    }
+  );
+
+// article content
+export const inngest_article_content_generation_function =
+  inngest.createFunction(
+    {
+      id: "hashmind-article-content-creation",
+    },
+    { event: "hashmind/article-content.creation" },
+    async ({ event, step }) => {
+      console.log("CREATING ARTICLE CONTENT TRIGGERED");
+
+      const defaultUserStyle = await prisma.settings.findFirst({
+        where: {
+          userId: event.data.userId,
+        },
+      });
+
+      const response = await generateArticleContent({
+        title: event.data.title as string,
+        subtitle: event.data.subtitle as string,
+        chatHistory: "",
+        context: "",
+        userReq: {
+          style: defaultUserStyle?.gpt_style as GPT_RESP_STYLE_NAME,
+          author: (defaultUserStyle?.default_author_name as AUTHOR_NAMES) ?? "",
+        },
+      });
+
+      console.log(`✅ ARTICLE CONTENT GENERATED`);
+
+      // update the queue in db
+      const jobId = event.data.jobId;
+      const mainJob = await prisma.queues.findFirst({
+        where: {
+          id: jobId,
+          userId: event.data.userId,
+        },
+        include: { subqueue: true },
+      });
+
+      if (!mainJob) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_QUEUE,
+          `Error updating queue, Job with [id: ${jobId}] not found`,
+          404
+        );
+      }
+
+      const subqueue = mainJob.subqueue.find(
+        (subqueue) => subqueue.identifier === "article-content"
+      );
+
+      await prisma.queues.update({
+        where: {
+          id: jobId,
+          userId: event.data.userId,
+        },
+        data: {
+          completedJobs: 1,
+          subqueue: {
+            update: {
+              where: {
+                id: subqueue?.id,
+                identifier: "article-content",
+              },
+              data: {
+                status: "completed",
+                message: "Article content generated",
+              },
+            },
+          },
+        },
+      });
+
+      console.log(`✅ ARTICLE CONTENT QUEUE UPDATED`);
+
+      // invoke the function for publishing article
+
+      return {};
     }
   );
 

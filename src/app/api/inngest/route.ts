@@ -4,6 +4,7 @@ import {
   inngest_article_coverimage_generation_function,
   inngest_article_metadata_creation_function,
   inngest_hashmind_main_function,
+  inngest_article_content_generation_function,
 } from "@api/jobs/inngest/functions";
 
 // Create an API that serves zero functions
@@ -13,5 +14,6 @@ export const { GET, POST, PUT } = serve({
     inngest_hashmind_main_function,
     inngest_article_metadata_creation_function,
     inngest_article_coverimage_generation_function,
+    inngest_article_content_generation_function,
   ],
 });

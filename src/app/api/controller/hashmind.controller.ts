@@ -74,9 +74,9 @@ export default class HashmindController {
         console.log(`CREATING ARTICLE EVENT FIRED`);
 
         // save queues
-        const jobCount = 3;
+        const jobCount = 2;
         const mainQueueId = nanoid();
-        const mainQueue = await prisma.queues.create({
+        await prisma.queues.create({
           data: {
             id: mainQueueId,
             title: userAction.title,
@@ -96,14 +96,14 @@ export default class HashmindController {
                     userId: user.id,
                     identifier: "cover-image",
                   },
-                  {
-                    id: nanoid(),
-                    title: "Processing Article Metadata",
-                    status: "pending",
-                    message: "Processing article metadata",
-                    userId: user.id,
-                    identifier: "metadata",
-                  },
+                  // {
+                  //   id: nanoid(),
+                  //   title: "Processing Article Metadata",
+                  //   status: "pending",
+                  //   message: "Processing article metadata",
+                  //   userId: user.id,
+                  //   identifier: "metadata",
+                  // },
                   {
                     id: nanoid(),
                     title: "Processing Article Content",
@@ -117,7 +117,6 @@ export default class HashmindController {
             },
           },
         });
-        // const coverImageQueue = await prisma.queues.create
 
         // invoke main  function event
         inngest.send({
