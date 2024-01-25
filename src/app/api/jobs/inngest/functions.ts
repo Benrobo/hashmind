@@ -234,7 +234,19 @@ export const inngest_article_content_generation_function =
 
       console.log(`✅ ARTICLE CONTENT QUEUE UPDATED`);
 
-      // invoke the function for publishing article
+      console.log("", event.data);
+
+      // invoke function for publishing article
+      await step.invoke("hashmind/article.publish", {
+        function: inngest_publish_article_function,
+        data: {
+          title: event.data.title,
+          userId: event.data.userId,
+          coverImage: event.data.coverImage,
+          content: response.content as string,
+          jobId: event.data.jobId,
+        },
+      });
 
       return {};
     }
@@ -254,3 +266,15 @@ export const inngest_article_metadata_creation_function =
   );
 
 // ARTICLE UPDATE FUNCTIONS
+
+// PUBLISHING ARTICLE
+
+// publish article to hashnode
+export const inngest_publish_article_function = inngest.createFunction(
+  { id: "hashmind-article-publishing" },
+  { event: "hashmind/article.publish" },
+  async ({ event, step }) => {
+    // handle publishing of generated article to hashnode
+    return {};
+  }
+);

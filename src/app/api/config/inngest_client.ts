@@ -7,6 +7,7 @@ type ArticleContentGenerate<T extends HashmindMainFunc["data"]> = {
     emoji: string | null;
     keywords: string | null;
     userId: string | null;
+    coverImage: string | null;
   };
 };
 
@@ -31,6 +32,16 @@ type ArticleMetadata<T extends HashmindMainFunc["data"]> = {
   };
 };
 
+type PublishArticle<T extends HashmindMainFunc["data"]> = {
+  data: T & {
+    description: string;
+    coverImage: string;
+    content: string;
+    title: string;
+    subtitle: string;
+  };
+};
+
 type HashmindMainFunc = {
   data: {
     title?: string;
@@ -39,21 +50,26 @@ type HashmindMainFunc = {
     keywords?: string;
     userId: string;
     jobId: string;
+    coverImage?: string;
+    content?: string;
   };
 };
 
-type ResultType =
-  | ArticleMetadata<HashmindMainFunc["data"]>
-  | ArticleCoverImageCreation<HashmindMainFunc["data"]>
-  | ArticleContentGenerate<HashmindMainFunc["data"]>
-  | ArticleUpdate<HashmindMainFunc["data"]>;
+type HMTypeAlias = HashmindMainFunc["data"];
+type ResponseType =
+  | ArticleContentGenerate<HMTypeAlias>
+  | ArticleCoverImageCreation<HMTypeAlias>
+  | ArticleMetadata<HMTypeAlias>
+  | ArticleUpdate<HMTypeAlias>
+  | PublishArticle<HMTypeAlias>;
 
 type Events = {
   "hashmind/main": HashmindMainFunc;
-  "hashmind/article-content.creation": ResultType;
-  "hashmind/article-coverimage.creation": ResultType;
-  "hashmind/article-metadata.creation": ResultType;
-  "hashmind/article.update": ResultType;
+  "hashmind/article-content.creation": ResponseType;
+  "hashmind/article-coverimage.creation": ResponseType;
+  "hashmind/article-metadata.creation": ResponseType;
+  "hashmind/article.update": ResponseType;
+  "hashmind/article.publish": ResponseType;
 };
 
 // Create a client to send and receive events
