@@ -1,4 +1,5 @@
 import { inngest } from "@api/config/inngest_client";
+import generateImage from "../../functions/generateCoverImage";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -31,10 +32,15 @@ export const inngest_article_coverimage_generation_function =
     { id: "hashmind-article-coverimage-creation" },
     { event: "hashmind/article-coverimage.creation" },
     async ({ event, step }) => {
-      const coverImageUrl = "some-rand-image-url-gotten";
+      await step.sleep("wait-a-moment", "1s");
 
-      await step.sleep("wait-a-moment", "5s");
+      const coverImage = await generateImage.genCoverImageStAI({
+        subtitle: event.data.subtitle as string,
+        keywords: event.data.keywords as string,
+      });
+      const coverImageUrl = coverImage.url;
 
+      console.log(`✅ COVER IMAGE GENERATED`);
       // invoke metadata creation function
       await step.invoke("hashmind/article-metadata.creation", {
         function: inngest_article_metadata_creation_function,
