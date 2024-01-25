@@ -9,6 +9,7 @@ import identifyAction, {
 } from "../functions/identifyAction";
 import HttpException from "../utils/exception";
 import textToSpeech from "../services/tts.service";
+import { actionsVariants, supportedActions } from "../data/ai/function";
 
 type ReqUserObj = {
   id: string;
@@ -62,8 +63,37 @@ export default class HashmindController {
 
     if (userAction.action && userAction.title) {
       console.log("ACTION DETECTED");
-      console.log({ userAction });
-      // const action = userAction.action;
+      console.log(userAction);
+
+      // create article action
+      if (actionsVariants.create.includes(userAction.action)) {
+        console.log(`CREATING ARTICLE EVENT FIRED`);
+        // invoke creation of new blog article event
+
+        return sendResponse.success(
+          RESPONSE_CODE.ARTICLE_CREATION_QUEUED,
+          `Article creation queued.`,
+          200,
+          {
+            action: "CREATE_BLOG_QUEUED",
+          }
+        );
+      }
+
+      // update article action
+      if (actionsVariants.update.includes(userAction.action)) {
+        console.log(`UPDATING ARTICLE EVENT FIRED`);
+        // invoke editing of blog article event
+
+        return sendResponse.success(
+          RESPONSE_CODE.UPDATING_ARTICLE_QUEUED,
+          `Updating of article queued.`,
+          200,
+          {
+            action: "UPDATE_BLOG_QUEUED",
+          }
+        );
+      }
     }
 
     if (userAction.aiMsg) {
