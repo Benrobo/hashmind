@@ -35,17 +35,30 @@ export default class HashmindController {
     const transcript =
       "I need you to create a new title on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
 
-    const userAction = (await identifyAction(
-      transcript
-    )) as IdentifyActionRespType;
+    // trying to avoid billing during dev
+    // const userAction = (await identifyAction(
+    //   transcript
+    // )) as IdentifyActionRespType;
 
-    if (userAction.error) {
-      throw new HttpException(
-        RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
-        userAction.error,
-        400
-      );
-    }
+    // if (userAction.error) {
+    //   throw new HttpException(
+    //     RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
+    //     userAction.error,
+    //     400
+    //   );
+    // }
+
+    const userAction = {
+      error: null,
+      action: "CREATE_BLOG",
+      title:
+        "Why Artificial Intelligence is the future of humanity and how it won't change the world",
+      emoji: "🤖",
+      subtitle: "Exploring the Promise and Limitations of AI",
+      aiMsg: null,
+      keywords:
+        "Artificial Intelligence, future, humanity, limitations, promise",
+    };
 
     if (userAction.action && userAction.title) {
       console.log("ACTION DETECTED");
