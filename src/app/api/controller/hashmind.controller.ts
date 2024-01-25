@@ -11,6 +11,8 @@ import HttpException from "../utils/exception";
 import textToSpeech from "../services/tts.service";
 import { actionsVariants, supportedActions } from "../data/ai/function";
 import { inngest } from "../config/inngest_client";
+import prisma from "@/prisma/prisma";
+import { nanoid } from "nanoid";
 
 type ReqUserObj = {
   id: string;
@@ -72,7 +74,50 @@ export default class HashmindController {
         console.log(`CREATING ARTICLE EVENT FIRED`);
 
         // save queues
-        // const create
+        const jobCount = 3;
+        const mainQueueId = nanoid();
+        const mainQueue = await prisma.queues.create({
+          data: {
+            id: mainQueueId,
+            title: userAction.title,
+            description: "Generating article content",
+            jobs: jobCount,
+            status: "pending",
+            completedJobs: 0,
+            userId: user.id,
+            subqueue: {
+              createMany: {
+                data: [
+                  {
+                    id: nanoid(),
+                    title: "Processcing Cover Image",
+                    status: "pending",
+                    message: "Processing cover image",
+                    userId: user.id,
+                    identifier: "cover-image",
+                  },
+                  {
+                    id: nanoid(),
+                    title: "Processing Article Metadata",
+                    status: "pending",
+                    message: "Processing article metadata",
+                    userId: user.id,
+                    identifier: "metadata",
+                  },
+                  {
+                    id: nanoid(),
+                    title: "Processing Article Content",
+                    status: "pending",
+                    message: "Processing article content",
+                    userId: user.id,
+                    identifier: "article-content",
+                  },
+                ],
+              },
+            },
+          },
+        });
+        // const coverImageQueue = await prisma.queues.create
 
         // invoke main  function event
         inngest.send({
@@ -83,6 +128,7 @@ export default class HashmindController {
             emoji: userAction.emoji,
             keywords: userAction.keywords,
             userId: user.id,
+            jobId: mainQueueId,
           },
         });
 

@@ -38,6 +38,7 @@ type HashmindMainFunc = {
     emoji?: string;
     keywords?: string;
     userId: string;
+    jobId: string;
   };
 };
 

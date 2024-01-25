@@ -68,7 +68,7 @@ model Settings {
 }
 
 model Queues {
-    id            String      @id @map("_id")
+    id            String      @id @default(cuid()) @map("_id")
     userId        String
     title         String
     description   String
@@ -83,12 +83,13 @@ model Queues {
 }
 
 model SubQueues {
-    id      String      @id @map("_id")
-    queueId String
-    userId  String
-    status  QueueStatus @default(pending)
-    title   String
-    message String
+    id         String      @id @default(cuid()) @map("_id")
+    queueId    String
+    userId     String
+    identifier String?
+    status     QueueStatus @default(pending)
+    title      String
+    message    String
 
     user  Users  @relation(fields: [userId], references: [userId])
     queue Queues @relation(fields: [queueId], references: [id])
@@ -97,7 +98,7 @@ model SubQueues {
 }
 
 model ContentMetaData {
-    id          String @id @map("_id")
+    id          String @id @default(cuid()) @map("_id")
     userId      String
     title       String
     sub_heading String
@@ -110,7 +111,7 @@ model ContentMetaData {
 }
 
 model ChatHistory {
-    id           String   @id @map("_id")
+    id           String   @id @default(cuid()) @map("_id")
     userId       String
     user_message String
     ai_message   String

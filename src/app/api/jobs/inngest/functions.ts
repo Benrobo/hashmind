@@ -15,6 +15,7 @@ export const inngest_hashmind_main_function = inngest.createFunction(
         keywords: event.data.keywords,
         userId: event.data.userId,
         title: event.data.title,
+        jobId: event.data.jobId,
       },
     });
 
@@ -41,6 +42,7 @@ export const inngest_article_coverimage_generation_function =
           title: event.data.title,
           userId: event.data.userId,
           coverImage: coverImageUrl,
+          jobId: event.data.jobId,
         },
       });
 
