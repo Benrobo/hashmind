@@ -60,6 +60,7 @@ model Settings {
     default_author_name   DefaultAuthorName? @default(malcolm_gladwell)
     publishing_preference BlogPreference     @default(draft)
     hashnode_token        String             @default("")
+    hashnode_pub_id       String             @default("")
 
     user Users @relation(fields: [userId], references: [userId])
 

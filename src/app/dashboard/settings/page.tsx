@@ -26,6 +26,7 @@ export default function Settings() {
   const [authVisi, setAuthVisi] = React.useState<boolean>(false);
   const [tokenAuthorized, setTokenAuthorized] = React.useState<boolean>(false);
   const [hnToken, setHnToken] = React.useState<string>("");
+  const [hnPubId, setHnPubId] = React.useState<string>("");
   const updateHNTokenMutation = useMutation({
     mutationFn: async (data: any) => updateHNToken(data),
   });
@@ -64,9 +65,10 @@ export default function Settings() {
       toast.error(data?.message ?? "Something went wrong!.");
     }
     if (checkHnAuthorizeQuery.data) {
-      const token = (checkHnAuthorizeQuery.data as any)?.data?.token;
+      const { token, pubId } = (checkHnAuthorizeQuery.data as any)?.data;
       setTokenAuthorized(true);
       setHnToken(token);
+      setHnPubId(pubId);
     }
   }, [
     checkHnAuthorizeQuery.data,
@@ -79,7 +81,7 @@ export default function Settings() {
       toast.error("Please enter a valid token.");
       return;
     }
-    updateHNTokenMutation.mutate({ token: hnToken });
+    updateHNTokenMutation.mutate({ token: hnToken, pubId: hnPubId });
   }
 
   return (
@@ -153,6 +155,15 @@ export default function Settings() {
               value={hnToken}
               onChange={(e) => setHnToken(e.target.value)}
             />
+            <span className="text-white-100/50 text-xs font-ppReg mb-2 mt-1">
+              Navigate to your dashboard and copy the ID from the url
+            </span>
+            <Input
+              placeholder="Publication ID: xxxx-xx-xxxx-xxxx-xxxxxx"
+              className="w-full font-ppReg text-xs bg-dark-105 text-white-100 border-dark-200/10 outline-none focus-visible:ring-0 focus-visible:border-dark-200/20"
+              value={hnPubId}
+              onChange={(e) => setHnPubId(e.target.value)}
+            />
             <Button
               className="w-full h-[40px] mt-2 text-xs bg-blue-100 rounded-md font-ppReg disabled:cursor-not-allowed"
               onClick={updateHashnodeToken}
@@ -178,7 +189,7 @@ export default function Settings() {
 
           <br />
           {/* Set whether to enable publishing of blog direct or saving as draft */}
-          <BlogPreference />
+          {/* <BlogPreference /> */}
         </FlexColStart>
       </FlexColStart>
     </FlexColStart>

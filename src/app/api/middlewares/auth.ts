@@ -20,6 +20,9 @@ export function isAuthenticated(fn: Function) {
       where: {
         id: currUser.userId,
       },
+      include: {
+        settings: true,
+      },
     });
 
     if (!user) {
@@ -30,7 +33,11 @@ export function isAuthenticated(fn: Function) {
       );
     }
 
-    (req as any)["user"] = { id: user.userId };
+    (req as any)["user"] = {
+      id: user.userId,
+      hnToken: user.settings?.hashnode_token,
+      hnPubId: user.settings?.hashnode_pub_id,
+    };
     return await fn(req);
   };
 }

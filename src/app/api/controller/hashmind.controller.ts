@@ -12,6 +12,8 @@ import textToSpeech from "../services/tts.service";
 
 type ReqUserObj = {
   id: string;
+  hnToken: string;
+  hnPubId: string;
 };
 
 const sleep = (sec: number) =>
@@ -26,10 +28,13 @@ export default class HashmindController {
 
     const { audio_base64 } = payload;
 
-    const transcript = await speechToText.openaiSTT(audio_base64);
+    // const transcript = await speechToText.openaiSTT(audio_base64);
+    // console.log({ transcript });
 
-    // next using the transcript, write an openai function to retrieve blog metadat (title, style, subheading)
-    console.log({ transcript });
+    // temp transcript
+    const transcript =
+      "I need you to create a new title on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
+
     const userAction = (await identifyAction(
       transcript
     )) as IdentifyActionRespType;
@@ -43,8 +48,9 @@ export default class HashmindController {
     }
 
     if (userAction.action && userAction.title) {
-      console.log("ACTION DETECTED", userAction.action, userAction.title);
-      // do the needful
+      console.log("ACTION DETECTED");
+      console.log({ userAction });
+      // const action = userAction.action;
     }
 
     if (userAction.aiMsg) {

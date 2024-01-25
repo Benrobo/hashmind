@@ -8,6 +8,9 @@ export type IdentifyActionRespType = {
   error: null | string;
   action: null | string;
   title: null | string;
+  emoji: null | string;
+  subtitle: null | string;
+  keywords: null | string;
   aiMsg: null | string;
 };
 
@@ -28,7 +31,7 @@ export default async function identifyAction(request: string) {
           function: {
             name: "identify_action",
             description:
-              "Identify users intent or action from the given prompt. Actions must be returned in one word, all caps, and underscored.",
+              "Identify users intent or action from the given prompt. Actions must be returned in one word, all caps, and underscored. Also, the title and subtitle and emoji must be returned if available.",
             parameters: {
               type: "object",
               properties: {
@@ -40,10 +43,26 @@ export default async function identifyAction(request: string) {
                 },
                 title: {
                   type: "string",
-                  description: "Extract the title of the prompt if available.",
+                  description:
+                    "Extract the title of the prompt if available and make sure to be short and concise.",
+                },
+                subtitle: {
+                  type: "string",
+                  description:
+                    "Extract the subtitle from the prompt. Be short and concise.",
+                },
+                emoji: {
+                  type: "string",
+                  description:
+                    "Generate a random emoji of the title in the prompt.",
+                },
+                keywords: {
+                  type: "string",
+                  description:
+                    "Extract keywords from the prompt and return them as a string separated by comma. Make sure no duplicate are found within the keywords and that the keywords are meaningful and not random.",
                 },
               },
-              required: ["action", "title"],
+              required: ["action", "title", "subtitle", "emoji", "keywords"],
             },
           },
         },
@@ -58,17 +77,31 @@ export default async function identifyAction(request: string) {
       error: null,
       action: null,
       title: null,
+      emoji: null,
+      subtitle: null,
       aiMsg: null,
+      keywords: null,
     };
 
     // the ai tries to identify the action from the request
     if (responseMessage?.tool_calls && responseMessage?.tool_calls.length > 0) {
       const funcArguments = responseMessage.tool_calls[0].function.arguments;
-      let validJson: null | { action: string; title: string } = null;
+      let validJson: null | {
+        action: string;
+        title: string;
+        emoji: string;
+        subtitle: string;
+        keywords: string;
+      } = null;
       try {
         validJson = JSON.parse(funcArguments);
+
+        // console.log({ validJson });
         funcResp.action = validJson?.action as string;
         funcResp.title = validJson?.title as string;
+        funcResp.emoji = validJson?.emoji as string;
+        funcResp.subtitle = validJson?.subtitle as string;
+        funcResp.keywords = validJson?.keywords as string;
 
         return funcResp;
       } catch (e: any) {

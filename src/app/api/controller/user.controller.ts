@@ -14,6 +14,8 @@ import { useSearchParams } from "next/navigation";
 
 type ReqUserObj = {
   id: string;
+  hnToken: string;
+  hnPubId: string;
 };
 
 type GptStylePayload = {
@@ -93,15 +95,17 @@ export default class UserController {
     return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200);
   }
 
+  // including hashnode api token and publicationId
   public async updateHashnodeToken(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
-    const payload: { token: string } = await req.json();
+    const payload: { token: string; pubId: string } = await req.json();
 
     await ZodValidation(updateHashnodeTokenSchema, payload, req.url);
 
     await prisma.settings.update({
       data: {
         hashnode_token: payload?.token as string,
+        hashnode_pub_id: payload?.pubId as string,
       },
       where: {
         userId: user.id,
@@ -127,9 +131,18 @@ export default class UserController {
       );
     }
 
+    if (!settings?.hashnode_pub_id || settings.hashnode_pub_id.length === 0) {
+      throw new HttpException(
+        RESPONSE_CODE.HASHNODE_PUB_ID_NOT_FOUND,
+        "Hashnode publication id not found",
+        404
+      );
+    }
+
     return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200, {
       is_authorized: true,
       token: settings?.hashnode_token,
+      pubId: settings?.hashnode_pub_id,
     });
   }
 

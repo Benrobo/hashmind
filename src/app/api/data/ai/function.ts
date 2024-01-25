@@ -7,3 +7,9 @@ export const supportedActions = [
   "DELETE_BLOG",
   "LIST_BLOGS",
 ];
+
+export const actionsVariants = {
+  create: ["CREATE_BLOG", "CREATE_POST", "CREATE_ARTICLE", "CREATE", "create"],
+  update: ["UPDATE_BLOG", "UPDATE_POST", "UPDATE_ARTICLE", "UPDATE", "update"],
+  delete: ["DELETE_BLOG", "DELETE_POST", "DELETE_ARTICLE", "DELETE", "delete"],
+};

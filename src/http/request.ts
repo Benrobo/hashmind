@@ -41,3 +41,8 @@ export const elevenlabTTS = async (data: any) => {
   const req = await $axios.post("/recognition/tts", data);
   return req.data;
 };
+
+export const publishArticle = async (data: any) => {
+  const req = await $axios.post("/hashmind/article", data);
+  return req.data;
+};

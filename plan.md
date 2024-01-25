@@ -97,3 +97,75 @@ tutorial: https://dev.to/triggerdotdev/creating-a-resume-builder-with-nextjs-tri
 
 It turns out Brave doesn't support speech recognition yet.
 source: https://stackoverflow.com/questions/74113965/speechrecognition-emitting-network-error-event-in-brave-browser
+
+Create a post
+
+```graphql
+mutation PublishPost($input: PublishPostInput!) {
+  publishPost(input: $input) {
+    post {
+      id
+      slug
+      title
+      subtitle
+    }
+  }
+}
+```
+
+Update Post
+
+```gql
+mutation UpdatePost($input: UpdatePostInput!) {
+  updatePost(input: $input) {
+    post {
+      id
+      slug
+      title
+      subtitle
+    }
+  }
+}
+```
+
+```json
+{
+  "input": {
+    "title": "Test Post",
+    "subtitle": "Nothing much here",
+    "publicationId": "628d5138b4bd016fc9a325b8",
+    "contentMarkdown": "## Title here \n\n ### Code snippets \n `const a = 24;`",
+    "slug": "this-is-cool",
+    "tags": [
+      {
+        "id": "56744721958ef13879b94cad"
+      }
+    ],
+    "metaTags": {
+      "title": "",
+      "description": "",
+      "image": ""
+    }
+  }
+}
+
+update post
+{
+  "input": {
+    "id": "65b15f6705c6776b1b4276a7",
+    "subtitle": "Updated"
+  }
+}
+```
+
+Prompt to update a specific post
+
+- USER: I need you to update my post with the title "How to build a blog with Hashnode and Next.js". Add a subtitle "This is a test post", add a new section called "usefullness of ai to humanity" and add a new image to the post.
+
+The AI function should be able to detect the following:
+
+- Title
+- Subtitle
+- New Section (to be added, if not specified, return false)
+- User query (the main intent to be executed on user post i.e what should be done to the post, should it be optimize, should it be summarize or what. The query would be feed into the prompt template)
+- Cover image (to be added, if not specified, return false)

@@ -54,9 +54,11 @@ export enum RESPONSE_CODE {
   EMAIL_FAILED_TO_SEND,
   GPT_STYLE_NOT_FOUND,
   HASHNODE_TOKEN_NOT_FOUND,
+  HASHNODE_PUB_ID_NOT_FOUND,
   ERROR_TRANSCRIBING_AUDIO,
   ERROR_IDENTIFYING_ACTION,
   ERROR_CONVERTING_TEXT_TO_SPEECH,
+  ERROR_CREATING_POST,
 }
 
 export type ResponseData = {
@@ -76,4 +78,10 @@ export type UserInfo = {
   email: string;
   avatar: string;
   id: string;
+};
+
+export type ReqUserObj = {
+  id: string;
+  hnToken: string;
+  hnPubId: string;
 };
