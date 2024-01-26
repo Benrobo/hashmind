@@ -4,6 +4,10 @@ import prisma from "@/prisma/prisma";
 import HttpException from "../../utils/exception";
 import { AUTHOR_NAMES, GPT_RESP_STYLE_NAME, RESPONSE_CODE } from "@/types";
 import generateArticleContent from "../../functions/generateArticleContent";
+import hashnodeService, {
+  PublishedArtRespData,
+} from "../../services/hashnode.service";
+import { nanoid } from "nanoid";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -40,10 +44,11 @@ export const inngest_article_coverimage_generation_function =
         // update queue in db
         const jobData = event.data.event.data;
         const jobId = jobData.jobId;
+        const userId = jobData.userId;
         const mainJob = await prisma.queues.findFirst({
           where: {
             id: jobId,
-            userId: jobId,
+            userId: userId,
           },
           include: { subqueue: true },
         });
@@ -66,7 +71,6 @@ export const inngest_article_coverimage_generation_function =
             userId: jobId,
           },
           data: {
-            completedJobs: 1,
             subqueue: {
               update: {
                 where: {
@@ -81,8 +85,6 @@ export const inngest_article_coverimage_generation_function =
             },
           },
         });
-
-        console.log(`❌ COVER IMAGE FAILED JOB QUEUE UPDATED`);
       },
     },
     { event: "hashmind/article-coverimage.creation" },
@@ -94,8 +96,6 @@ export const inngest_article_coverimage_generation_function =
         keywords: event.data.keywords as string,
       });
       const coverImageUrl = coverImage.url;
-
-      console.log(`✅ COVER IMAGE GENERATED`);
 
       // update the queue in db
       const jobId = event.data.jobId;
@@ -125,7 +125,6 @@ export const inngest_article_coverimage_generation_function =
           userId: event.data.userId,
         },
         data: {
-          completedJobs: 1,
           subqueue: {
             update: {
               where: {
@@ -141,7 +140,7 @@ export const inngest_article_coverimage_generation_function =
         },
       });
 
-      console.log(`✅ COVER IMAGE QUEUE UPDATED`);
+      console.log(`✅ COVER IMAGE GENERATED`);
 
       // invoke content creation function
       await step.invoke("hashmind/article-content.creation", {
@@ -167,7 +166,7 @@ export const inngest_article_content_generation_function =
     },
     { event: "hashmind/article-content.creation" },
     async ({ event, step }) => {
-      console.log("CREATING ARTICLE CONTENT TRIGGERED");
+      console.log("CREATING ARTICLE CONTENT TRIGGERED", event.name);
 
       const defaultUserStyle = await prisma.settings.findFirst({
         where: {
@@ -185,8 +184,6 @@ export const inngest_article_content_generation_function =
           author: (defaultUserStyle?.default_author_name as AUTHOR_NAMES) ?? "",
         },
       });
-
-      console.log(`✅ ARTICLE CONTENT GENERATED`);
 
       // update the queue in db
       const jobId = event.data.jobId;
@@ -216,7 +213,6 @@ export const inngest_article_content_generation_function =
           userId: event.data.userId,
         },
         data: {
-          completedJobs: 1,
           subqueue: {
             update: {
               where: {
@@ -232,9 +228,7 @@ export const inngest_article_content_generation_function =
         },
       });
 
-      console.log(`✅ ARTICLE CONTENT QUEUE UPDATED`);
-
-      console.log("", event.data);
+      console.log(`✅ ARTICLE CONTENT GENERATED`);
 
       // invoke function for publishing article
       await step.invoke("hashmind/article.publish", {
@@ -245,6 +239,7 @@ export const inngest_article_content_generation_function =
           coverImage: event.data.coverImage,
           content: response.content as string,
           jobId: event.data.jobId,
+          subtitle: event.data.subtitle,
         },
       });
 
@@ -274,7 +269,111 @@ export const inngest_publish_article_function = inngest.createFunction(
   { id: "hashmind-article-publishing" },
   { event: "hashmind/article.publish" },
   async ({ event, step }) => {
-    // handle publishing of generated article to hashnode
+    console.log(`PUBLISHING ARTICLE EVENT FIRED`, event.name);
+
+    const userId = event.data.userId;
+    const content = event.data.content ?? "";
+    const coverImage = event.data.coverImage ?? "";
+    const emoji = event.data.emoji ?? "🚀";
+    const subtitle = event.data.subtitle ?? "";
+    const title = event.data.title ?? "";
+    const jobId = event.data.jobId;
+    const hashnodeTagId = "567ae5a72b926c3063c3061a";
+    const slug = (subtitle as string).toLowerCase().replace(/\s/g, "-");
+
+    const user = await prisma.users.findFirst({
+      where: {
+        userId,
+      },
+      include: { settings: true },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_PUBLISHING_ARTICLE,
+        `Error publishing article, User with [id: ${userId}] not found`,
+        404
+      );
+    }
+
+    console.log(`⏳ PUBLISHING ARTICLE TO HASHNODE`);
+    const publishArticle = await hashnodeService.createPost({
+      title: title as string,
+      subtitle: subtitle as string,
+      contentMarkdown: content as string,
+      slug,
+      apiKey: user?.settings?.hashnode_token as string,
+      publicationId: user?.settings?.hashnode_pub_id as string,
+      coverImageOptions: {
+        coverImageURL: coverImage as string,
+      },
+      metaTags: {
+        title: title as string,
+        description: subtitle as string,
+        image: coverImage as string,
+      },
+      tags: [{ id: hashnodeTagId }],
+    });
+
+    if (publishArticle.error) {
+      console.log(`❌ ERROR PUBLISHING ARTICLE TO HASHNODE`, publishArticle);
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_PUBLISHING_ARTICLE,
+        `Error publishing article, ${publishArticle.error}`,
+        500
+      );
+    }
+
+    const pubArticle = publishArticle.data as PublishedArtRespData;
+    const artUrl = pubArticle.url;
+    const artId = pubArticle.id;
+
+    // set main job status as completed
+    const mainJob = await prisma.queues.findFirst({
+      where: {
+        id: jobId,
+        userId: event.data.userId,
+      },
+      include: { subqueue: true },
+    });
+
+    if (!mainJob) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_QUEUE,
+        `Error updating queue, Job with [id: ${jobId}] not found`,
+        404
+      );
+    }
+
+    await prisma.queues.update({
+      where: {
+        id: jobId,
+        userId: event.data.userId,
+      },
+      data: {
+        status: "completed",
+      },
+    });
+
+    // store content in db
+    await prisma.contentMetaData.create({
+      data: {
+        id: nanoid(),
+        emoji,
+        link: artUrl,
+        title,
+        sub_heading: subtitle,
+        article_id: artId,
+        user: {
+          connect: {
+            userId,
+          },
+        },
+      },
+    });
+
+    console.log(`✅ ARTICLE PUBLISHED TO HASHNODE`);
+
     return {};
   }
 );
