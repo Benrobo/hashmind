@@ -68,3 +68,10 @@ export const publishArticleSchema = zod.object({
     })
     .optional(),
 });
+
+
+export const removeContentSchema = zod.object({
+  id: zod.string({
+    required_error: "Content id is required."
+  })
+})
