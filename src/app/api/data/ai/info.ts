@@ -36,7 +36,7 @@ If a user asks a question or initiates a discussion that is not directly related
 
 Use newline to format the message properly for those who struggle to read long text.
 
-Answer or Generate user articles in Markdown Format (Do not start the conversation using markdown), this is very important.
+Answer or Generate user articles in Markdown Format (Do not start the conversation using markdown), this is very important. As for code snippets, make sure you use <pre> and <code> tags to format the code properly rather than using markdown backticks.
 
 """Context""": 
 """
