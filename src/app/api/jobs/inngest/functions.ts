@@ -90,8 +90,6 @@ export const inngest_article_coverimage_generation_function =
     },
     { event: "hashmind/article-coverimage.creation" },
     async ({ event, step }) => {
-      await step.sleep("wait-a-moment", "1s");
-
       const coverImage = await generateImage.genCoverImageStAI({
         subtitle: event.data.subtitle as string,
         keywords: event.data.keywords as string,

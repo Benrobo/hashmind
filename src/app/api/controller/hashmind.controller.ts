@@ -153,7 +153,7 @@ export default class HashmindController {
       }
     }
 
-    if (userAction.aiMsg) {
+    if (!userAction.action && userAction.aiMsg) {
       return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200, {
         aiMsg: userAction.aiMsg,
       });

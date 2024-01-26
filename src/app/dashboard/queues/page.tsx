@@ -138,7 +138,7 @@ export default function QueuesPage() {
                     </h1>
                   </FlexColStart>
                   <FlexRowEnd className="w-auto text-xs">
-                    {Q.status === "pending" ? (
+                    {Q.subqueues.filter(q => q.status === "pending").length > 0 ? (
                       <Spinner size={15} />
                     ) : (
                       <FlexRowStart className="w-auto gap-3">
