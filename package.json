@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "dbPush": "prisma db push"
+    "dbPush": "prisma db push && npx prisma generate"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
