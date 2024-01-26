@@ -40,6 +40,7 @@ export default function AI() {
   const [base64Data, setBase64Data] = React.useState<string | unknown | null>(
     null
   );
+  const [timer, setTimer] = React.useState<number>(0);
   const router = useRouter();
   const handleUserRequestMut = useMutation({
     mutationFn: async (data: any) => await handleUserRequest(data),
@@ -140,6 +141,8 @@ export default function AI() {
   }
 
   function startRecording() {
+    const now = Date.now();
+    setTimer(now);
     audioStop();
     setSpeaking(true);
     startListening();
@@ -156,7 +159,15 @@ export default function AI() {
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
 
-      // send the audio to the server for processing to text
+      // check if the user pressed the button for less than 1 second
+      const after = Date.now();
+      const diff = after - timer;
+      if (diff < 1000) {
+        toast.error("Please speak for at least 4 second.");
+        setTimer(0);
+        return;
+      }
+
       handleUserRequestMut.mutate({
         audio_base64: base64,
       });

@@ -56,20 +56,18 @@ export default function useSpeechRecognition() {
   const stopListening = (
     callback: (data: { blob: Blob; blobUrl: string | null }) => void
   ) => {
-    mediaRecorder.current?.stop();
-    // @ts-expect-error
-    mediaRecorder.current.onstop = () => {
-      // let sampleRate = audioContextRef.current?.sampleRate;
-
-      //creates a blob file from the audiochunks data
-      const audioBlob = new Blob(audioChunks, {
-        type: "audio/wav",
-      });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      callback({ blob: audioBlob, blobUrl: audioUrl });
-      setBlob(audioBlob);
-      setAudioChunks([]);
-    };
+    if (mediaRecorder.current) {
+      mediaRecorder.current?.stop();
+      mediaRecorder.current.onstop = () => {
+        const audioBlob = new Blob(audioChunks, {
+          type: "audio/wav",
+        });
+        const audioUrl = URL.createObjectURL(audioBlob);
+        callback({ blob: audioBlob, blobUrl: audioUrl });
+        setBlob(audioBlob);
+        setAudioChunks([]);
+      };
+    } else console.log("No media recorder", mediaRecorder);
   };
 
   return {
