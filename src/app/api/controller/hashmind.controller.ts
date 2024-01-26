@@ -83,7 +83,6 @@ export default class HashmindController {
             description: "Generating article content",
             jobs: jobCount,
             status: "pending",
-            completedJobs: 0,
             userId: user.id,
             subqueue: {
               createMany: {
