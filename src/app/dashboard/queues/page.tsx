@@ -76,6 +76,15 @@ export default function QueuesPage() {
   React.useEffect(() => {
     showToolBar();
     setActivePage("queues");
+
+    // fetch queues every 5sec
+    const intervalId = setInterval(() => {
+      getQueuesQuery.refetch();
+    }, 5000);
+    
+    return ()=> {
+      clearInterval(intervalId);
+    }
   }, []);
 
   React.useEffect(() => {
@@ -110,6 +119,9 @@ export default function QueuesPage() {
 
       {/* Main */}
       <FlexColStart className="w-full px-4 py-2">
+        {
+          getQueuesQuery.isLoading && <Spinner />
+        }
         {!getQueuesQuery.isPending &&
           queues.map((Q, i) => (
             <FlexColStart
