@@ -11,8 +11,13 @@ import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 import { googleTTS, handleUserRequest } from "@/http/request";
-import { audioBase64ToBlob, cn, handleBlobToBase64 } from "@/lib/utils";
-import { ResponseData } from "@/types";
+import {
+  audioBase64ToBlob,
+  cn,
+  handleBlobToBase64,
+  retrieveAudioByAction,
+} from "@/lib/utils";
+import { HashmindAIResponseAction, ResponseData } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Mic, MoveLeft, Pause } from "lucide-react";
 import Link from "next/link";
@@ -82,10 +87,22 @@ export default function AI() {
     if (handleUserRequestMut.data) {
       // toast.success("Updated.");
       const data = handleUserRequestMut.data as ResponseData;
-      const aiResponse = data?.data?.aiMsg as any;
-      // convert resp to speech
-      // ! Uncomment this back to enable TTS
-      // handleTTSMut.mutate({ text: aiResponse });
+      const response = data?.data as any;
+
+      if (response?.aiMsg) {
+        // convert the aiMsg to audio
+        // ! Uncomment this back to enable TTS
+        // handleTTSMut.mutate({ text: response?.aiMsg });
+      } else {
+        // get the action code
+        const actionCode = response?.action as HashmindAIResponseAction;
+        if (actionCode === "ARTICLE_CREATION_QUEUED") {
+          // get the audio for this code.
+          const audioUrl = retrieveAudioByAction(actionCode);
+          if (audioUrl) playAudio(audioUrl);
+          else toast.success("Article creation queued.");
+        }
+      }
     }
   }, [
     handleUserRequestMut.data,
@@ -140,8 +157,18 @@ export default function AI() {
     audio.src = url;
     audio.play();
 
+    // stop audio if one is being played
+    if (audioPlaying || audio.currentTime > 0) {
+      audioElmRef.current?.pause();
+      audio.pause();
+      audio.currentTime = 0;
+      setAudioPlaying(false);
+      setAmplitude(0);
+    }
+
     audio.onended = () => {
       setAudioPlaying(false);
+      setAmplitude(0);
     };
 
     setAudioPlaying(true);
