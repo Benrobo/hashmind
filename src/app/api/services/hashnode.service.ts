@@ -30,7 +30,12 @@ export type CreatePostType = {
 type FuncResp = {
   error?: null | string;
   success?: null | string;
-  data?: null;
+  data?: null | any | PublishedArtRespData;
+};
+
+export type PublishedArtRespData = {
+  id: string;
+  url: string;
 };
 
 class HashnodeService {
@@ -56,12 +61,10 @@ class HashnodeService {
       const reqBody = {
         query: `mutation PublishPost($input: PublishPostInput!) {
             publishPost(input: $input) {
-                post {
-                    id
-                    slug
-                    title
-                    subtitle
-                }
+              post {
+                id
+                url
+              }
             }
         }`,
         variables: {
@@ -88,7 +91,7 @@ class HashnodeService {
 
       const respData = resp.data?.data;
       funcResp.success = "Article created successfully";
-      funcResp.data = respData.publishPost.post;
+      funcResp.data = respData.publishPost.post as PublishedArtRespData;
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
