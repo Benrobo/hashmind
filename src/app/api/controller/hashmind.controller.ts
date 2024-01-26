@@ -20,9 +20,6 @@ type ReqUserObj = {
   hnPubId: string;
 };
 
-const sleep = (sec: number) =>
-  new Promise((res) => setTimeout(res, sec * 1000));
-
 export default class HashmindController {
   async handleUserRequest(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
@@ -105,7 +102,7 @@ export default class HashmindController {
                   },
                   {
                     id: nanoid(),
-                    title: "Publishing Article Metadata",
+                    title: "Publishing Article",
                     status: "pending",
                     message: "Publishing article to hashnode",
                     userId: user.id,

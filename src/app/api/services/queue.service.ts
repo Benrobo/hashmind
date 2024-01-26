@@ -77,6 +77,61 @@ class Queue {
 
     return true;
   }
+
+  async getAllQueues(userId: string) {
+    const queues = await prisma.queues.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        subqueue: true,
+      },
+    });
+
+    return queues;
+  }
+
+  async deleteQueue(queueId: string, userId: string) {
+    const queue = await prisma.queues.findUnique({
+      where: {
+        id: queueId,
+        userId,
+      },
+    });
+
+    if (!queue) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_DELETING_QUEUE,
+        `Queue not found`,
+        404
+      );
+    }
+
+    if (queue.userId !== userId) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_DELETING_QUEUE,
+        `Unauthorized`,
+        401
+      );
+    }
+
+    // first delete the subqueues
+    const childDeletion = prisma.subQueues.deleteMany({
+      where: {
+        queueId,
+      },
+    });
+
+    const parentDeletion = prisma.queues.delete({
+      where: {
+        id: queueId,
+      },
+    });
+
+    await prisma.$transaction([childDeletion, parentDeletion]);
+
+    return true;
+  }
 }
 
 const queueService = new Queue();

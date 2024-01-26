@@ -4,10 +4,16 @@ import {
   FlexColStartCenter,
   FlexRowCenterBtw,
   FlexRowEnd,
+  FlexRowStart,
+  FlexRowStartCenter,
 } from "@/components/flex";
 import { Spinner } from "@/components/spinner";
+import Button from "@/components/ui/button";
 import { useDataContext } from "@/context/DataContext";
+import { deleteQueue, getQueues } from "@/http/request";
 import { cn } from "@/lib/utils";
+import { ResponseData } from "@/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Check,
   CheckCheck,
@@ -15,20 +21,76 @@ import {
   Hourglass,
   MoveLeft,
   ShieldAlert,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { set } from "nprogress";
 import React from "react";
+import toast from "react-hot-toast";
 
-export default function Dashboard() {
+type QueuesValues = {
+  id: string;
+  jobs: number;
+  title: string;
+  status: "completed" | "failed" | "pending";
+  description: string;
+  completed: number;
+  failed: number;
+  pending: number;
+  subqueues: {
+    id: string;
+    message: string;
+    status: "completed" | "failed" | "pending";
+    identifier: string;
+    title: string;
+  }[];
+};
+
+export default function QueuesPage() {
   const { showToolBar, setActivePage } = useDataContext();
-  const [dropdownVisi, setDropdownVisi] = React.useState<boolean>(false);
+  const [dropdownVisi, setDropdownVisi] = React.useState<string>("");
+  const [deletingQ, setDeletingQ] = React.useState<string>("");
+  const [queues, setQueues] = React.useState<QueuesValues[]>([]);
+  const getQueuesQuery = useQuery({
+    queryKey: ["getQueues"],
+    queryFn: async () => await getQueues(),
+  });
+  const deleteQueueMutation = useMutation({
+    mutationFn: async (data: any) => await deleteQueue(data),
+    onSuccess: () => {
+      getQueuesQuery.refetch();
+    },
+    onError: (data: any) => {
+      const error =
+        (data?.response?.data as ResponseData)?.message ??
+        "Something went wrong!.";
+      toast.error(error);
+    },
+  });
 
-  const toggleDropdownVisi = () => setDropdownVisi(!dropdownVisi);
+  const toggleDropdownVisi = (data: string) => {
+    if (data === dropdownVisi) setDropdownVisi("");
+    else setDropdownVisi(data);
+  };
 
   React.useEffect(() => {
     showToolBar();
     setActivePage("queues");
   }, []);
+
+  React.useEffect(() => {
+    if (getQueuesQuery?.error) {
+      const data = (getQueuesQuery?.error as any)?.response
+        ?.data as ResponseData;
+      toast.error(data?.message ?? "Something went wrong!.");
+    }
+    if (getQueuesQuery.data) {
+      const data = getQueuesQuery.data as ResponseData;
+      const queue = data.data as QueuesValues[];
+      setQueues(queue);
+    }
+  }, [getQueuesQuery.data, getQueuesQuery.error, getQueuesQuery.isPending]);
+
   return (
     <FlexColStart className="w-full h-full">
       <FlexRowCenterBtw className="w-full px-4 py-3">
@@ -48,61 +110,89 @@ export default function Dashboard() {
 
       {/* Main */}
       <FlexColStart className="w-full px-4 py-2">
-        <FlexColStart className="w-full h-auto bg-dark-200 rounded-lg px-4 py-4 gap-0 transition-all">
-          <button className="w-full" onClick={toggleDropdownVisi}>
-            <FlexRowCenterBtw className="w-full">
-              <FlexColStart className="w-full leading-none gap-0">
-                <h1 className="font-ppSB text-sm text-white-100">
-                  Queues Title
-                </h1>
-              </FlexColStart>
-              <FlexRowEnd className="w-full text-xs">
-                {false ? (
-                  <Spinner size={15} />
-                ) : (
-                  <FlexRowCenterBtw className="w-fit">
-                    <span className="text-xs flex gap-1">
-                      <CheckCheck size={15} className="text-green-400" />
-                      <span className="text-white-100">3</span>
-                    </span>
+        {!getQueuesQuery.isPending &&
+          queues.map((Q, i) => (
+            <FlexColStart
+              key={i}
+              className="w-full h-auto bg-dark-200 rounded-lg px-4 py-4 gap-0 transition-all"
+            >
+              <div key={i} className="w-full">
+                <FlexRowCenterBtw className="w-full">
+                  <FlexColStart className="w-fit leading-none gap-0">
+                    <h1 className="font-ppSB text-sm text-white-100">
+                      {Q.title.length > 20
+                        ? Q.title.slice(0, 20) + "..."
+                        : Q.title}
+                    </h1>
+                  </FlexColStart>
+                  <FlexRowEnd className="w-auto text-xs">
+                    {Q.status === "pending" ? (
+                      <Spinner size={15} />
+                    ) : (
+                      <FlexRowStart className="w-auto gap-3">
+                        <button
+                          onClick={() => {
+                            setDeletingQ(Q.id);
+                            deleteQueueMutation.mutate({ id: Q.id });
+                          }}
+                          className="p-0 m-0 h-0"
+                          disabled={deleteQueueMutation.isPending}
+                        >
+                          {deleteQueueMutation.isPending &&
+                          deletingQ === Q.id ? (
+                            <Spinner size={12} />
+                          ) : (
+                            <Trash2 size={15} className="text-red-305" />
+                          )}
+                        </button>
 
-                    <span className="text-xs flex gap-1">
-                      <ShieldAlert size={15} className="text-red-305" />
-                      <span className="text-white-100">1</span>
+                        <span className="text-xs flex gap-1">
+                          <CheckCheck size={15} className="text-green-400" />
+                          <span className="text-white-100">{Q.completed}</span>
+                        </span>
+
+                        {Q.failed > 0 && (
+                          <span className="text-xs flex gap-1">
+                            <ShieldAlert size={15} className="text-red-305" />
+                            <span className="text-white-100">{Q.failed}</span>
+                          </span>
+                        )}
+                      </FlexRowStart>
+                    )}
+                    <span className="font-ppL text-white-300">
+                      {Q.completed} / {Q.jobs}
                     </span>
-                  </FlexRowCenterBtw>
+                    <button onClick={() => toggleDropdownVisi(Q.id)}>
+                      <ChevronRight
+                        size={15}
+                        className={cn(
+                          "ml-3 text-white-100 transition-all",
+                          dropdownVisi === Q.id && "transform rotate-90"
+                        )}
+                      />
+                    </button>
+                  </FlexRowEnd>
+                </FlexRowCenterBtw>
+              </div>
+
+              <FlexColStart
+                className={cn(
+                  "w-full ml-3 transition-all gap-1",
+                  dropdownVisi === Q.id ? "mt-4 h-auto" : "h-0 overflow-hidden"
                 )}
-                <span className="font-ppL text-white-300">1 / 4</span>
-                <ChevronRight
-                  size={15}
-                  className={cn(
-                    "ml-3 text-white-100 transition-all",
-                    dropdownVisi && "transform rotate-90"
-                  )}
-                />
-              </FlexRowEnd>
-            </FlexRowCenterBtw>
-          </button>
-
-          <FlexColStart
-            className={cn(
-              "w-full ml-3 transition-all gap-1",
-              dropdownVisi ? "mt-4 h-auto" : "h-0 overflow-hidden"
-            )}
-          >
-            {/* child queue content */}
-            <QueueContent
-              title="Processing cover image"
-              status="completed"
-              message="Cover image generated successfully."
-            />
-            <QueueContent
-              title="Processing blog images"
-              status="pending"
-              message="error processing blog images."
-            />
-          </FlexColStart>
-        </FlexColStart>
+              >
+                {/* child queue content */}
+                {Q.subqueues.map((subQ, i) => (
+                  <QueueContent
+                    key={i}
+                    title={subQ.title}
+                    status={subQ.status}
+                    message={subQ.message}
+                  />
+                ))}
+              </FlexColStart>
+            </FlexColStart>
+          ))}
       </FlexColStart>
     </FlexColStart>
   );
@@ -114,7 +204,7 @@ type QueueContentProps = {
   message: string;
 };
 
-function QueueContent({ title, status, message }: QueueContentProps) {
+function QueueContent({ title, status, message, ...rest }: QueueContentProps) {
   const [queueVisi, setQueueVisi] = React.useState<string>();
   const toggleQueueVisi = (name: string) => {
     if (status === "pending") return;
@@ -123,7 +213,10 @@ function QueueContent({ title, status, message }: QueueContentProps) {
   };
 
   return (
-    <FlexColStartCenter className="w-full border-white-100/20 border-[.5px] px-2 py-2 rounded-md">
+    <FlexColStartCenter
+      {...rest}
+      className="w-full border-white-100/20 border-[.5px] px-2 py-2 rounded-md"
+    >
       <button
         className="w-full disabled:cursor-not-allowed"
         onClick={() => {

@@ -46,3 +46,14 @@ export const publishArticle = async (data: any) => {
   const req = await $axios.post("/hashmind/article", data);
   return req.data;
 };
+
+// Queues
+export const getQueues = async () => {
+  const req = await $axios.get("/queue");
+  return req.data;
+};
+
+export const deleteQueue = async (data: any) => {
+  const req = await $axios.delete("/queue", { data });
+  return req.data;
+};

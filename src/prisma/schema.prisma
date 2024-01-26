@@ -62,7 +62,7 @@ model Settings {
     hashnode_token        String             @default("")
     hashnode_pub_id       String             @default("")
 
-    user Users @relation(fields: [userId], references: [userId])
+    user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
     @@map("settings")
 }
@@ -91,7 +91,7 @@ model SubQueues {
     message    String
 
     user  Users  @relation(fields: [userId], references: [userId])
-    queue Queues @relation(fields: [queueId], references: [id])
+    queue Queues @relation(fields: [queueId], references: [id], onDelete: Cascade)
 
     @@map("subqueues")
 }

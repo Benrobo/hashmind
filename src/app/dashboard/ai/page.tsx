@@ -21,6 +21,7 @@ import { HashmindAIResponseAction, ResponseData } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import { Mic, MoveLeft, Pause } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
 
@@ -39,6 +40,7 @@ export default function AI() {
   const [base64Data, setBase64Data] = React.useState<string | unknown | null>(
     null
   );
+  const router = useRouter();
   const handleUserRequestMut = useMutation({
     mutationFn: async (data: any) => await handleUserRequest(data),
   });
@@ -48,6 +50,8 @@ export default function AI() {
 
   const { requestMicrophoneAccess, startListening, stopListening } =
     useSpeechRecognition();
+
+  const audio = audioElmRef.current!;
 
   React.useEffect(() => {
     hideToolBar();
@@ -65,12 +69,6 @@ export default function AI() {
 
   // a temp fix for the audio playing state
   React.useEffect(() => {
-    if (audioElmRef.current) {
-      audioElmRef.current.onended = () => {
-        setAudioPlaying(false);
-      };
-    }
-
     if (!audioPlaying) {
       setAmplitude(0);
     } else {
@@ -124,11 +122,25 @@ export default function AI() {
     }
   }, [handleTTSMut.data, handleTTSMut.error, handleTTSMut.isPending]);
 
-  function startRecording() {
-    if (audioPlaying) {
-      audioElmRef.current?.pause();
+  if (audio) {
+    audio.onended = () => {
+      audio.currentTime = 0;
       setAudioPlaying(false);
-    }
+    };
+    audio.addEventListener("error", (event) => {
+      console.error("Audio error");
+    });
+  }
+
+  function audioStop() {
+    audio.pause();
+    audio.src = "";
+    audio.currentTime = 0;
+    setAudioPlaying(false);
+  }
+
+  function startRecording() {
+    audioStop();
     setSpeaking(true);
     startListening();
   }
@@ -140,7 +152,6 @@ export default function AI() {
         toast.error(`Error recording`);
         return;
       }
-      // console.log(blobUrl);
 
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
@@ -153,23 +164,14 @@ export default function AI() {
   }
 
   function playAudio(url: string) {
-    const audio = new Audio();
     audio.src = url;
     audio.play();
 
     // stop audio if one is being played
     if (audioPlaying || audio.currentTime > 0) {
-      audioElmRef.current?.pause();
-      audio.pause();
-      audio.currentTime = 0;
-      setAudioPlaying(false);
+      audioStop();
       setAmplitude(0);
     }
-
-    audio.onended = () => {
-      setAudioPlaying(false);
-      setAmplitude(0);
-    };
 
     setAudioPlaying(true);
   }
@@ -177,12 +179,19 @@ export default function AI() {
   return (
     <FlexColStart className="relative w-full h-full min-h-screen">
       <FlexColStart className="w-full px-4 py-4">
-        <Link href="/dashboard/home">
+        <button
+          // href="/dashboard/home"
+          onClick={() => {
+            audio.pause();
+            audio.src = "";
+            router.push("/dashboard/home");
+          }}
+        >
           <MoveLeft
             className="text-white-100 p-2 rounded-md bg-dark-100 "
             size={30}
           />
-        </Link>
+        </button>
       </FlexColStart>
 
       {/* Voice assist container */}
@@ -211,13 +220,15 @@ export default function AI() {
           controls
           className="invisible"
         />
+
         {!loader && !aiInvoke && (
           <button
             className="px-8 py-2 rounded-md glowyBtn scale-[.80] hover:scale-[.95] border-purple-100 border-b-[5px] active:border-b-[2px] transition-all text-1xl font-ppReg"
             onClick={() => {
               setLoader(true);
               setTimeout(() => {
-                audioElmRef?.current?.play();
+                audio.load();
+                audio.play();
                 setAudioPlaying(true);
               }, 1000);
             }}
