@@ -8,6 +8,7 @@ import hashnodeService, {
   PublishedArtRespData,
 } from "../../services/hashnode.service";
 import { nanoid } from "nanoid";
+import queueService from "../../services/queue.service";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -99,45 +100,18 @@ export const inngest_article_coverimage_generation_function =
 
       // update the queue in db
       const jobId = event.data.jobId;
-      const mainJob = await prisma.queues.findFirst({
-        where: {
-          id: jobId,
-          userId: event.data.userId,
-        },
-        include: { subqueue: true },
-      });
 
-      if (!mainJob) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_UPDATING_QUEUE,
-          `Error updating queue, Job with [id: ${jobId}] not found`,
-          404
-        );
-      }
-
-      const subqueue = mainJob.subqueue.find(
-        (subqueue) => subqueue.identifier === "cover-image"
-      );
-
-      await prisma.queues.update({
-        where: {
-          id: jobId,
-          userId: event.data.userId,
-        },
-        data: {
-          subqueue: {
-            update: {
-              where: {
-                id: subqueue?.id,
-                identifier: "cover-image",
-              },
-              data: {
-                status: "completed",
-                message: "Cover image generated",
-              },
-            },
+      await queueService.updateQueue({
+        jobId,
+        userId: event.data.userId,
+        status: "completed",
+        subqueues: [
+          {
+            status: "completed",
+            message: "Cover image generated",
+            identifier: "cover-image",
           },
-        },
+        ],
       });
 
       console.log(`✅ COVER IMAGE GENERATED`);
@@ -163,6 +137,26 @@ export const inngest_article_content_generation_function =
   inngest.createFunction(
     {
       id: "hashmind-article-content-creation",
+      onFailure: async ({ error, event, step }) => {
+        console.log(`❌ ARTICLE CONTENT GENERATION FAILED`, error);
+        // update queue in db
+        const jobData = event.data.event.data;
+        const jobId = jobData.jobId;
+        const userId = jobData.userId;
+
+        await queueService.updateQueue({
+          jobId,
+          userId,
+          status: "failed",
+          subqueues: [
+            {
+              status: "failed",
+              message: "Article content generation failed",
+              identifier: "article-content",
+            },
+          ],
+        });
+      },
     },
     { event: "hashmind/article-content.creation" },
     async ({ event, step }) => {
@@ -187,45 +181,18 @@ export const inngest_article_content_generation_function =
 
       // update the queue in db
       const jobId = event.data.jobId;
-      const mainJob = await prisma.queues.findFirst({
-        where: {
-          id: jobId,
-          userId: event.data.userId,
-        },
-        include: { subqueue: true },
-      });
 
-      if (!mainJob) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_UPDATING_QUEUE,
-          `Error updating queue, Job with [id: ${jobId}] not found`,
-          404
-        );
-      }
-
-      const subqueue = mainJob.subqueue.find(
-        (subqueue) => subqueue.identifier === "article-content"
-      );
-
-      await prisma.queues.update({
-        where: {
-          id: jobId,
-          userId: event.data.userId,
-        },
-        data: {
-          subqueue: {
-            update: {
-              where: {
-                id: subqueue?.id,
-                identifier: "article-content",
-              },
-              data: {
-                status: "completed",
-                message: "Article content generated",
-              },
-            },
+      await queueService.updateQueue({
+        jobId,
+        userId: event.data.userId,
+        status: "completed",
+        subqueues: [
+          {
+            status: "completed",
+            message: "Article content generated",
+            identifier: "article-content",
           },
-        },
+        ],
       });
 
       console.log(`✅ ARTICLE CONTENT GENERATED`);
@@ -266,7 +233,29 @@ export const inngest_article_metadata_creation_function =
 
 // publish article to hashnode
 export const inngest_publish_article_function = inngest.createFunction(
-  { id: "hashmind-article-publishing" },
+  {
+    id: "hashmind-article-publishing",
+    onFailure: async ({ error, event, step }) => {
+      console.log(`❌ ARTICLE PUBLISHING FAILED`, error);
+      // update queue in db
+      const jobData = event.data.event.data;
+      const jobId = jobData.jobId;
+      const userId = jobData.userId;
+
+      await queueService.updateQueue({
+        jobId,
+        userId,
+        status: "failed",
+        subqueues: [
+          {
+            status: "failed",
+            message: "Article publishing failed",
+            identifier: "article-publishing",
+          },
+        ],
+      });
+    },
+  },
   { event: "hashmind/article.publish" },
   async ({ event, step }) => {
     console.log(`PUBLISHING ARTICLE EVENT FIRED`, event.name);
@@ -329,31 +318,26 @@ export const inngest_publish_article_function = inngest.createFunction(
     const artId = pubArticle.id;
 
     // set main job status as completed
-    const mainJob = await prisma.queues.findFirst({
-      where: {
-        id: jobId,
-        userId: event.data.userId,
-      },
-      include: { subqueue: true },
+    const updateQueue = await queueService.updateQueue({
+      jobId,
+      userId,
+      status: "completed",
+      subqueues: [
+        {
+          status: "completed",
+          message: "Article published",
+          identifier: "article-publishing",
+        },
+      ],
     });
 
-    if (!mainJob) {
+    if (!updateQueue) {
       throw new HttpException(
-        RESPONSE_CODE.ERROR_UPDATING_QUEUE,
-        `Error updating queue, Job with [id: ${jobId}] not found`,
-        404
+        RESPONSE_CODE.ERROR_PUBLISHING_ARTICLE,
+        `Error publishing article, failed to update queue`,
+        500
       );
     }
-
-    await prisma.queues.update({
-      where: {
-        id: jobId,
-        userId: event.data.userId,
-      },
-      data: {
-        status: "completed",
-      },
-    });
 
     // store content in db
     await prisma.contentMetaData.create({
