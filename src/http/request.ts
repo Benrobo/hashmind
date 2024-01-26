@@ -57,3 +57,15 @@ export const deleteQueue = async (data: any) => {
   const req = await $axios.delete("/queue", { data });
   return req.data;
 };
+
+// Content Metadata
+export const getContents = async () => {
+  const req = await $axios.get("/user/blog/content");
+  return req.data;
+};
+
+export const deleteContent = async (data: any) => {
+  const req = await $axios.post("/user/blog/content", data);
+  return req.data;
+};
+
