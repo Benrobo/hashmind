@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { GPT_RESP_STYLE_NAME } from "@/types";
+import { GPT_RESP_STYLE_NAME, HashmindAIResponseAction } from "@/types";
 import { GPT_RESP_STYLE } from "@/data/gpt";
 
 dayjs.extend(relativeTime);
@@ -47,4 +47,11 @@ export function audioBase64ToBlob(audioContent: string) {
   const audioBlob = new Blob([arrayBuffer], { type: "audio/mpeg" });
   const audioUrl = URL.createObjectURL(audioBlob);
   return audioUrl;
+}
+
+export function retrieveAudioByAction(action: HashmindAIResponseAction) {
+  if (action === "ARTICLE_CREATION_QUEUED") {
+    return `/audio/response/api-resp/art-queued.mp3`;
+  }
+  return null;
 }

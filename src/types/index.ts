@@ -93,3 +93,5 @@ export type ReqUserObj = {
   hnToken: string;
   hnPubId: string;
 };
+
+export type HashmindAIResponseAction = "ARTICLE_CREATION_QUEUED";
