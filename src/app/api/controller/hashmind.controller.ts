@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import ZodValidation from "../utils/zodValidation";
 import { handleUserRequestSchema } from "../utils/schema_validation";
 import sendResponse from "../utils/sendResponse";
-import { RESPONSE_CODE } from "@/types";
+import { HashmindAIResponseAction, RESPONSE_CODE } from "@/types";
 import speechToText from "../services/stt.service";
 import identifyAction, {
   IdentifyActionRespType,
@@ -135,7 +135,7 @@ export default class HashmindController {
           `Article creation queued.`,
           200,
           {
-            action: "CREATE_BLOG_QUEUED",
+            action: "ARTICLE_CREATION_QUEUED" as HashmindAIResponseAction,
           }
         );
       }
