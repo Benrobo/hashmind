@@ -79,17 +79,24 @@ class HashnodeService {
         },
       };
 
-      // console.log(reqBody);
+      // ! Uncomment this once you're done
+      // const resp = await $http({
+      //   method: "POST",
+      //   data: reqBody,
+      //   headers: {
+      //     Authorization: apiKey,
+      //   },
+      // });
 
-      const resp = await $http({
-        method: "POST",
-        data: reqBody,
-        headers: {
-          Authorization: apiKey,
+      // const respData = resp.data?.data;
+      const respData = {
+        publishPost: {
+          post: {
+            id: "123",
+            url: "https://google.com",
+          },
         },
-      });
-
-      const respData = resp.data?.data;
+      };
       funcResp.success = "Article created successfully";
       funcResp.data = respData.publishPost.post as PublishedArtRespData;
       return funcResp;
