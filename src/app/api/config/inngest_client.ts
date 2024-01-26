@@ -39,6 +39,7 @@ type PublishArticle<T extends HashmindMainFunc["data"]> = {
     content: string;
     title: string;
     subtitle: string;
+    jobId: string;
   };
 };
 
