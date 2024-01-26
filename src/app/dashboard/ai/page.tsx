@@ -127,9 +127,9 @@ export default function AI() {
       audio.currentTime = 0;
       setAudioPlaying(false);
     };
-    audio.addEventListener("error", (event) => {
-      console.error("Audio error");
-    });
+    // audio.addEventListener("error", (event) => {
+    //   console.error("Audio error");
+    // });
   }
 
   function audioStop() {
