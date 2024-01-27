@@ -144,22 +144,11 @@ export default async function identifyAction(request: string) {
             funcResp.action = parseArg.action;
           }
           funcResp.functions.push(funcName as gptFunctions);
-          funcResp.title = (validJson.get(funcName)?.title as string) ?? null;
-          funcResp.emoji = (validJson.get(funcName)?.emoji as string) ?? null;
-          funcResp.subtitle =
-            (validJson.get(funcName)?.subtitle as string) ?? null;
-          funcResp.keywords =
-            (validJson.get(funcName)?.keywords as string) ?? null;
 
-          // for update blog action
-          funcResp.updateTitle =
-            (validJson.get(funcName)?.updateTitle as string) ?? null;
-          funcResp.updateContent =
-            (validJson.get(funcName)?.updateContent as string) ?? null;
-          funcResp.updateSubtitle =
-            (validJson.get(funcName)?.updateSubtitle as string) ?? null;
-          funcResp.updateCoverImage =
-            (validJson.get(funcName)?.updateCoverImage as string) ?? null;
+          for (const prop in parseArg) {
+            // @ts-ignore
+            funcResp[prop] = validJson.get(funcName)?.[prop] ?? null;
+          }
         } catch (e: any) {
           // an invalid json was returned from ai model
           console.log(e);
