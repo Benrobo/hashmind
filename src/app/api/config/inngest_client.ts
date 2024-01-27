@@ -1,3 +1,4 @@
+import { updateBlogContentNotationType } from "@/types";
 import { EventSchemas, Inngest } from "inngest";
 
 type ArticleContentGenerate<T extends HashmindMainFunc["data"]> = {
@@ -53,6 +54,8 @@ type HashmindMainFunc = {
     jobId: string;
     coverImage?: string;
     content?: string;
+    // for updating article content
+    updateContentNotation?: updateBlogContentNotationType;
   };
 };
 
