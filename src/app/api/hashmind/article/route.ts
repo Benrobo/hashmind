@@ -38,3 +38,19 @@ export const POST = CatchError(
     });
   })
 );
+
+export const GET = CatchError(
+  isAuthenticated(async (req: NextRequest) => {
+    const user = (req as any)["user"] as ReqUserObj;
+    const { id, hnPubId, hnToken } = user;
+
+    const articles = await hashnodeService.getUserArticles(hnToken);
+
+    return sendResponse.success(
+      RESPONSE_CODE.SUCCESS,
+      "Success",
+      200,
+      articles
+    );
+  })
+);
