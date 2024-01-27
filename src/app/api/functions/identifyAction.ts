@@ -4,7 +4,10 @@ import HttpException from "../utils/exception";
 import genConversation from "../utils/genConversation";
 import { supportedActions } from "../data/ai/function";
 
+type gptFunctions = "identify_action" | "identify_update_blog_action";
+
 export type IdentifyActionRespType = {
+  functions: gptFunctions[];
   error: null | string;
   action: null | string;
   title: null | string;
@@ -12,6 +15,12 @@ export type IdentifyActionRespType = {
   subtitle: null | string;
   keywords: null | string;
   aiMsg: null | string;
+
+  // for update blog action
+  updateTitle?: null | string;
+  updateContent?: null | string;
+  updateSubtitle?: null | string;
+  updateCoverImage?: null | string;
 };
 
 // identify user actions / intent from request
@@ -66,6 +75,40 @@ export default async function identifyAction(request: string) {
             },
           },
         },
+        {
+          type: "function",
+          function: {
+            name: "identify_update_blog_action",
+            description:
+              "Identify users intent or action from the given prompt. You need to decide from the given prompt if they want to update either (title, subtitle, cover image, content)",
+            parameters: {
+              type: "object",
+              properties: {
+                updateTitle: {
+                  type: "string",
+                  description:
+                    "Determine if the user wants to update the title of the blog post, if they need to update the title, add the new title as value. return null if not",
+                },
+                updateContent: {
+                  type: "string",
+                  description:
+                    "Determine if the user wants to update the title of the blog post. return null if not",
+                },
+                updateSubtitle: {
+                  type: "string",
+                  description:
+                    "Determine if the user wants to update the subtitle of the blog post. return null if not",
+                },
+                updateCoverImage: {
+                  type: "string",
+                  description:
+                    "Determine if the user wants to update the cover image of the article, if they requested one, extract the keywords of what they need the image to be, otherwise use the extracted keywords from the identify_action function. return null if not",
+                },
+              },
+              required: ["updateTitle", "updateContent", "updateSubtitle"],
+            },
+          },
+        },
       ],
       tool_choice: "auto", // auto is default, but we'll be explicit
     });
@@ -73,43 +116,56 @@ export default async function identifyAction(request: string) {
     const responseMessage = response.choices[0].message;
 
     // what get sent back to the client
-    let funcResp: IdentifyActionRespType = {
+    let funcResp = {
+      // initial values
+      functions: [],
       error: null,
       action: null,
       title: null,
       emoji: null,
       subtitle: null,
-      aiMsg: null,
       keywords: null,
-    };
+      aiMsg: null,
+    } as IdentifyActionRespType;
 
     // the ai tries to identify the action from the request
     if (responseMessage?.tool_calls && responseMessage?.tool_calls.length > 0) {
-      const funcArguments = responseMessage.tool_calls[0].function.arguments;
-      let validJson: null | {
-        action: string;
-        title: string;
-        emoji: string;
-        subtitle: string;
-        keywords: string;
-      } = null;
-      try {
-        validJson = JSON.parse(funcArguments);
+      let validJson = new Map<string, IdentifyActionRespType>();
+      for (let i = 0; i < responseMessage.tool_calls.length; i++) {
+        const toolCall = responseMessage.tool_calls[i];
+        const funcName = toolCall.function.name;
+        const funcArguments = toolCall.function.arguments;
 
-        // console.log({ validJson });
-        funcResp.action = validJson?.action as string;
-        funcResp.title = validJson?.title as string;
-        funcResp.emoji = validJson?.emoji as string;
-        funcResp.subtitle = validJson?.subtitle as string;
-        funcResp.keywords = validJson?.keywords as string;
+        try {
+          const parseArg = JSON.parse(funcArguments);
+          validJson.set(funcName, parseArg);
 
-        return funcResp;
-      } catch (e: any) {
-        // an invalid json was returned from ai model
-        console.log(e);
-        funcResp.error = `Something went wrong identifying your action, please try again`;
+          if (!funcResp.action && parseArg.action) {
+            funcResp.action = parseArg.action;
+          }
+          funcResp.functions.push(funcName as gptFunctions);
+          funcResp.title = (validJson.get(funcName)?.title as string) ?? null;
+          funcResp.emoji = (validJson.get(funcName)?.emoji as string) ?? null;
+          funcResp.subtitle =
+            (validJson.get(funcName)?.subtitle as string) ?? null;
+          funcResp.keywords =
+            (validJson.get(funcName)?.keywords as string) ?? null;
+
+          // for update blog action
+          funcResp.updateTitle =
+            (validJson.get(funcName)?.updateTitle as string) ?? null;
+          funcResp.updateContent =
+            (validJson.get(funcName)?.updateContent as string) ?? null;
+          funcResp.updateSubtitle =
+            (validJson.get(funcName)?.updateSubtitle as string) ?? null;
+          funcResp.updateCoverImage =
+            (validJson.get(funcName)?.updateCoverImage as string) ?? null;
+        } catch (e: any) {
+          // an invalid json was returned from ai model
+          console.log(e);
+          funcResp.error = `Something went wrong identifying your action, please try again`;
+        }
       }
-
       return funcResp;
     }
 
@@ -130,3 +186,6 @@ export default async function identifyAction(request: string) {
     );
   }
 }
+
+// identify update blog action
+export async function identifyUpdateBlogAction(request: string) {}
