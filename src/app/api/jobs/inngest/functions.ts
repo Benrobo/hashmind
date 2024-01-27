@@ -399,6 +399,12 @@ export const inngest_update_article_content_function = inngest.createFunction(
     const title = event.data.title!;
     const userId = event.data.userId;
 
+    // What should the AI do to the content based on users action
+    // (ADD, REPLACE, REMOVE) would be use later to structure the prompt
+    const contentNotation = event.data.updateContentNotation;
+
+    console.log({ contentNotation });
+
     const resp = await hashnodeService.getUserArticles(apiKey as string);
     const userArticles = resp.data;
     const articleToUpdate = await identifyArticleToUpdate(title, userArticles);
