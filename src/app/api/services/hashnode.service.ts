@@ -38,6 +38,11 @@ export type PublishedArtRespData = {
   url: string;
 };
 
+export type UserArticlesRespData = {
+  id: string;
+  title: string;
+};
+
 class HashnodeService {
   async createPost({
     title,
@@ -99,6 +104,62 @@ class HashnodeService {
       };
       funcResp.success = "Article created successfully";
       funcResp.data = respData.publishPost.post as PublishedArtRespData;
+      return funcResp;
+    } catch (e: any) {
+      const msg = e.response?.data?.errors[0]?.message ?? e.message;
+      console.log(msg);
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Something went wrong creating article.`,
+        400
+      );
+    }
+  }
+
+  async getUserArticles(apiKey: string) {
+    if (!apiKey) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Unauthorized, missing api key.`,
+        401
+      );
+    }
+
+    const funcResp: FuncResp = { error: null, success: null, data: null };
+    try {
+      const reqBody = {
+        query: `query GetPost {
+          me {
+            posts(pageSize:20, page:1) {
+              nodes {
+                id
+                title
+              }
+            }
+          }
+        }`,
+      };
+
+      // ! Uncomment this once you're done
+      const resp = await $http({
+        method: "POST",
+        data: reqBody,
+        headers: {
+          Authorization: apiKey,
+        },
+      });
+
+      const respData = resp.data?.data;
+      // const respData = {
+      //   publishPost: {
+      //     post: {
+      //       id: "123",
+      //       url: "https://google.com",
+      //     },
+      //   },
+      // };
+      funcResp.success = "Article created successfully";
+      funcResp.data = respData.me.posts.nodes as UserArticlesRespData;
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
