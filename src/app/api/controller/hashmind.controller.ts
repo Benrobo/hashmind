@@ -2,7 +2,11 @@ import { NextRequest } from "next/server";
 import ZodValidation from "../utils/zodValidation";
 import { handleUserRequestSchema } from "../utils/schema_validation";
 import sendResponse from "../utils/sendResponse";
-import { HashmindAIResponseAction, RESPONSE_CODE } from "@/types";
+import {
+  HashmindAIResponseAction,
+  RESPONSE_CODE,
+  updateBlogContentNotationType,
+} from "@/types";
 import speechToText from "../services/stt.service";
 import identifyAction, {
   IdentifyActionRespType,
@@ -76,16 +80,20 @@ export default class HashmindController {
       functions: ["identify_action", "identify_update_blog_action"],
       error: null,
       action: "UPDATE_BLOG",
-      title: null,
+      // title: null,
+      title: "Why Artificial Intelligence is the future of humanity",
       emoji: null,
       subtitle: null,
       keywords: null,
       aiMsg: null,
-      updateTitle: "Why Artificial Intelligence is the future of humanity",
-      // updateTitle: null,
+      // updateTitle: "Why Artificial Intelligence is the future of humanity",
+      updateTitle: null,
       updateContent: "limitations of AI, promise of AI",
-      updateSubtitle: "Discussing the impact of AI on society and human life",
-      updateCoverImage: "Utopian future, AI, harmony",
+      updateSubtitle: null,
+      // updateSubtitle: "Discussing the impact of AI on society and human life",
+      updateCoverImage: null,
+      // updateCoverImage: "Utopian future, AI, harmony",
+      updateContentNotation: "ADD",
     };
 
     const _action = userAction.action;
@@ -169,6 +177,7 @@ export default class HashmindController {
         console.log(`UPDATING ARTICLE EVENT FIRED`);
 
         // check if article title was provided
+        // source of truth towards updating an article
         if (!userAction.title) {
           return sendResponse.error(
             RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
@@ -232,6 +241,9 @@ export default class HashmindController {
               content: userAction.updateContent,
               userId: user.id,
               jobId,
+              updateContentNotation:
+                userAction.updateContentNotation as updateBlogContentNotationType,
+              title: userAction.title,
             },
           });
 
