@@ -43,6 +43,15 @@ export type UserArticlesRespData = {
   title: string;
 };
 
+export type ArticleById = {
+  id: string;
+  title: string;
+  content?: {
+    markdown: string;
+  };
+  subtitle?: string;
+};
+
 class HashnodeService {
   async createPost({
     title,
@@ -171,6 +180,56 @@ class HashnodeService {
       );
     }
   }
+
+  async getArticleById({ id, apiKey }: { apiKey: string; id: string }) {
+    if (!apiKey || !id) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Unauthorized, missing api key or article id.`,
+        400
+      );
+    }
+
+    const funcResp: FuncResp = { error: null, success: null, data: null };
+    try {
+      const reqBody = {
+        query: `query Post($id: ID!) {
+          post(id: $id){
+            id
+            title
+            subtitle
+            content {
+              markdown
+            }
+          }
+        }`,
+        variables: { id },
+      };
+
+      const resp = await $http({
+        method: "POST",
+        data: reqBody,
+        headers: {
+          Authorization: apiKey,
+        },
+      });
+
+      const respData = resp.data?.data;
+      funcResp.success = "Article fetched successfully";
+      funcResp.data = respData.post as ArticleById;
+      return funcResp;
+    } catch (e: any) {
+      const msg = e.response?.data?.errors[0]?.message ?? e.message;
+      console.log(msg);
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_FETCHING_ARTICLE,
+        `Something went wrong fetching article.`,
+        400
+      );
+    }
+  }
+
+  async updateArticle() {}
 }
 
 const hashnodeService = new HashnodeService();
