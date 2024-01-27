@@ -119,9 +119,10 @@ export default function QueuesPage() {
 
       {/* Main */}
       <FlexColStart className="w-full px-4 py-2">
-        {
-          getQueuesQuery.isLoading && <Spinner />
-        }
+        {getQueuesQuery.isLoading && <Spinner />}
+        {queues.length === 0 && <span className="text-white-100 font-ppReg text-xs">
+          No active queues
+        </span> }
         {!getQueuesQuery.isPending &&
           queues.map((Q, i) => (
             <FlexColStart
