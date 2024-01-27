@@ -176,5 +176,56 @@ export default async function identifyAction(request: string) {
   }
 }
 
-// identify update blog action
-export async function identifyUpdateBlogAction(request: string) {}
+//! Would need to use embeddings here.
+// identify the article that requires update using the title provided
+export async function identifyArticleToUpdate(
+  title: string,
+  metadata: { title: string; id: string }[]
+) {
+  try {
+    const messages = genConversation({
+      role: "user",
+      message: `Title: ${title} \n\n Metadata: ${metadata}`,
+    }) as any;
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo-1106",
+      messages,
+      tools: [
+        {
+          type: "function",
+          function: {
+            name: "find_article_to_update",
+            description: `Find the article to update from the given metadata. Return only the article id and title if found or identified, else return null. Metadata: ${metadata}. `,
+            parameters: {
+              type: "object",
+              properties: {
+                title: {
+                  type: "string",
+                  description: "The found article id from the metadata",
+                },
+                article_id: {
+                  type: "string",
+                  description: `The article id of the article to update. Do not include id of article that isn't found in the metadata, return null as value if not found. Metadata: ${metadata}.`,
+                },
+              },
+              metadata,
+              required: ["title", "article_id"],
+            },
+          },
+        },
+      ],
+      tool_choice: "auto", // auto is default, but we'll be explicit
+    });
+
+    const responseMessage = response.choices[0].message;
+
+    console.log(responseMessage.tool_calls);
+  } catch (e: any) {
+    console.log(e);
+    throw new HttpException(
+      RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+      `Error identifying ai action`,
+      500
+    );
+  }
+}
