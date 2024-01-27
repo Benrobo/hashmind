@@ -37,6 +37,11 @@ enum QueueStatus {
     failed
 }
 
+enum MessageUserType {
+    user
+    assistant
+}
+
 model Users {
     id       String @id @map("_id")
     userId   String @unique @default(cuid())
@@ -111,11 +116,11 @@ model ContentMetaData {
 }
 
 model ChatHistory {
-    id           String   @id @default(cuid()) @map("_id")
-    userId       String
-    user_message String
-    ai_message   String
-    createdAt    DateTime @default(now())
+    id        String           @id @default(cuid()) @map("_id")
+    userId    String
+    message   String
+    type      MessageUserType?
+    createdAt DateTime         @default(now())
 
     user Users @relation(fields: [userId], references: [userId])
 

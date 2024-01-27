@@ -175,3 +175,14 @@ Creating Post
 - Generate cover image
 - Generate metadata (title, description, image)
 - Generate post content
+
+UPDATING ARTICLE
+AI should be able to identify what the user wants to update and what the user wants to add to the post.
+
+Possible user request action for update:
+
+- Update title
+- Update subtitle
+- Update cover image
+- Update post content
+- Add new section
