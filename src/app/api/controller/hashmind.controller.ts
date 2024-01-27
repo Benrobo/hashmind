@@ -34,8 +34,19 @@ export default class HashmindController {
     // console.log({ transcript });
 
     // temp transcript
+    // const transcript =
+    //   "I need you to create a new article on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
     const transcript =
-      "I need you to create a new article on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
+      "Hi, so I need you to update one of my article on hashnode with the title Why Artificial Intelligence is the future of humanity and how it won't change the world. Update the section of the article that talks about the limitations of AI. I want you to add a new section that talks about the promise of AI. Also, add a new cover image depicting a Utopian future where AI live in harmony with humans.";
+
+    // save (User) transcript to chathistory
+    // await prisma.chatHistory.create({
+    //   data: {
+    //     message: transcript,
+    //     userId: user.id,
+    //     type: "user",
+    //   },
+    // });
 
     //! Uncomment this once you're done
     // const userAction = (await identifyAction(
@@ -51,23 +62,38 @@ export default class HashmindController {
     // }
 
     const userAction = {
+      // error: null,
+      // action: "CREATE_BLOG",
+      // title:
+      //   "Why Artificial Intelligence is the future of humanity and how it won't change the world",
+      // emoji: "🤖",
+      // subtitle: "Exploring the Promise and Limitations of AI",
+      // aiMsg: null,
+      // keywords:
+      //   "Artificial Intelligence, future, humanity, limitations, promise",
+
+      // update
+      functions: ["identify_action", "identify_update_blog_action"],
       error: null,
-      action: "CREATE_BLOG",
-      title:
-        "Why Artificial Intelligence is the future of humanity and how it won't change the world",
-      emoji: "🤖",
-      subtitle: "Exploring the Promise and Limitations of AI",
+      action: "UPDATE_BLOG",
+      title: null,
+      emoji: null,
+      subtitle: null,
+      keywords: null,
       aiMsg: null,
-      keywords:
-        "Artificial Intelligence, future, humanity, limitations, promise",
+      updateTitle: "Why Artificial Intelligence is the future of humanity",
+      updateContent: "limitations of AI, promise of AI",
+      updateSubtitle: "Discussing the impact of AI on society and human life",
+      updateCoverImage: "Utopian future, AI, harmony",
     };
 
-    if (userAction.action && userAction.title) {
+    const _action = userAction.action;
+    if (_action) {
       console.log("ACTION DETECTED");
       console.log(userAction);
 
       // create article action
-      if (actionsVariants.create.includes(userAction.action)) {
+      if (actionsVariants.create.includes(_action as string)) {
         console.log(`CREATING ARTICLE EVENT FIRED`);
 
         // save queues
@@ -76,7 +102,7 @@ export default class HashmindController {
         await prisma.queues.create({
           data: {
             id: mainQueueId,
-            title: userAction.title,
+            title: userAction.title ?? "No Title",
             description: "Generating article content",
             jobs: jobCount,
             status: "pending",
@@ -118,10 +144,10 @@ export default class HashmindController {
         inngest.send({
           name: "hashmind/main",
           data: {
-            title: userAction.title,
-            subtitle: userAction.subtitle,
-            emoji: userAction.emoji,
-            keywords: userAction.keywords,
+            title: userAction.title ?? "",
+            subtitle: userAction.subtitle ?? "",
+            emoji: userAction.emoji ?? "🚀",
+            keywords: userAction.keywords ?? "",
             userId: user.id,
             jobId: mainQueueId,
           },
@@ -138,8 +164,9 @@ export default class HashmindController {
       }
 
       // update article action
-      if (actionsVariants.update.includes(userAction.action)) {
+      if (actionsVariants.update.includes(_action)) {
         console.log(`UPDATING ARTICLE EVENT FIRED`);
+
         // invoke editing of blog article event
 
         return sendResponse.success(
@@ -153,7 +180,18 @@ export default class HashmindController {
       }
     }
 
-    if (!userAction.action && userAction.aiMsg) {
+    // no action detected (this happens if a usre tries conversing with the AI)
+    if (!_action && userAction.aiMsg) {
+      // save (User) transcript to chathistory
+      await prisma.chatHistory.create({
+        data: {
+          message: userAction.aiMsg ?? "",
+          userId: user.id,
+          type: "assistant",
+        },
+      });
+
+      // send ai response to client
       return sendResponse.success(RESPONSE_CODE.SUCCESS, "Success", 200, {
         aiMsg: userAction.aiMsg,
       });
