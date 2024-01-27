@@ -1,8 +1,11 @@
-import { RESPONSE_CODE } from "@/types";
+import { RESPONSE_CODE, updateBlogContentNotationType } from "@/types";
 import openai from "../config/openai";
 import HttpException from "../utils/exception";
 import genConversation from "../utils/genConversation";
-import { supportedActions } from "../data/ai/function";
+import {
+  supportedActions,
+  updateBlogContentNotation,
+} from "../data/ai/function";
 
 type gptFunctions = "identify_action" | "identify_update_blog_action";
 
@@ -21,6 +24,7 @@ export type IdentifyActionRespType = {
   updateContent?: null | string;
   updateSubtitle?: null | string;
   updateCoverImage?: null | string;
+  updateContentNotation?: updateBlogContentNotationType;
 };
 
 // identify user actions / intent from request
@@ -104,8 +108,19 @@ export default async function identifyAction(request: string) {
                   description:
                     "Determine if the user wants to update the cover image of the article, if they requested one, extract the keywords of what they need the image to be, otherwise use the extracted keywords from the identify_action function. return null if not",
                 },
+                updateContentNotation: {
+                  type: "string",
+                  description: `Determine what the user want to perform on the article content. Possible notations are ${updateBlogContentNotation.join(
+                    ","
+                  )}. Return the notation that best suites the user request.`,
+                },
               },
-              required: ["updateTitle", "updateContent", "updateSubtitle"],
+              required: [
+                "updateTitle",
+                "updateContent",
+                "updateSubtitle",
+                "updateContentNotation",
+              ],
             },
           },
         },
