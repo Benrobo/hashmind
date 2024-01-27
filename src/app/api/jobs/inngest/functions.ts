@@ -9,6 +9,7 @@ import hashnodeService, {
 } from "../../services/hashnode.service";
 import { nanoid } from "nanoid";
 import queueService from "../../services/queue.service";
+import { identifyArticleToUpdate } from "../../functions/identifyAction";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -369,6 +370,19 @@ export const inngest_update_article_content_function = inngest.createFunction(
   { event: "hashmind/article.content.update" },
   async ({ event, step }) => {
     console.log("UPDATING ARTICLE CONTENT TRIGGERED", event);
+    const user = await prisma.users.findFirst({
+      where: { userId: event.data.userId },
+      include: { settings: true },
+    });
+    const apiKey = user?.settings?.hashnode_token;
+    const title = event.data.title!;
+    const userId = event.data.userId;
+
+    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const userArticles = resp.data;
+    const articleToUpdate = await identifyArticleToUpdate(title, userArticles);
+
+    // console.?
 
     //
     return {};
