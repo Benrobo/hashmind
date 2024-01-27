@@ -3,7 +3,9 @@ import generateImage from "../../functions/generateCoverImage";
 import prisma from "@/prisma/prisma";
 import HttpException from "../../utils/exception";
 import { AUTHOR_NAMES, GPT_RESP_STYLE_NAME, RESPONSE_CODE } from "@/types";
-import generateArticleContent from "../../functions/generateArticleContent";
+import generateArticleContent, {
+  gptUpdateArticleContent,
+} from "../../functions/articleContent";
 import hashnodeService, {
   PublishedArtRespData,
 } from "../../services/hashnode.service";
@@ -419,17 +421,39 @@ export const inngest_update_article_content_function = inngest.createFunction(
 
     const articleId = articleToUpdate.article_id;
 
-    console.log(event.data.content);
+    // Get hashnode article by id aswell as content
+    const article = await hashnodeService.getArticleById({
+      id: articleId!,
+      apiKey: apiKey as string,
+    });
 
-    // !TODO: Update the function call to identify action, include a new "updateContentNotation" field which tells what the user want for eg ADD, REMOVE, REPLACE. Then update the content accordingly
-
-    // Get hashnode article by id
+    if (article.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, ${article.error}`,
+        500
+      );
+    }
 
     // Get the content
+    const articleContent = article.data.content.markdown;
 
-    // send to gpt to generate new content based on the requirement of the content
+    // ask gpt to generate new content based on the requirement of the content
+    const newUpdatedArticle = await gptUpdateArticleContent({
+      articleContent,
+      updatedContent: event.data.content!,
+      notation: contentNotation!,
+      request: event.data.request!,
+      gpt_style: {
+        style: user?.settings?.gpt_style as GPT_RESP_STYLE_NAME,
+        author: user?.settings?.default_author_name as AUTHOR_NAMES,
+      },
+    });
 
-    //
+    console.log(newUpdatedArticle.content);
+    // call hashnode to update article
+    const updated = await hashnodeService.updateArticle();
+
     return {};
   }
 );
