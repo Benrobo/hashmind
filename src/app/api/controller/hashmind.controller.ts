@@ -244,6 +244,7 @@ export default class HashmindController {
               updateContentNotation:
                 userAction.updateContentNotation as updateBlogContentNotationType,
               title: userAction.title,
+              request: transcript,
             },
           });
 
