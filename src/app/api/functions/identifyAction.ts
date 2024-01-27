@@ -176,17 +176,22 @@ export default async function identifyAction(request: string) {
   }
 }
 
-//! Would need to use embeddings here.
 // identify the article that requires update using the title provided
 export async function identifyArticleToUpdate(
   title: string,
   metadata: { title: string; id: string }[]
 ) {
   try {
-    const messages = genConversation({
-      role: "user",
-      message: `Title: ${title} \n\n Metadata: ${metadata}`,
-    }) as any;
+    const stringifyMetadata = JSON.stringify(metadata);
+    const messages = genConversation([
+      {
+        role: "user",
+        message: `Find the article to update from the given metadata. Return only the article id if found or identified, else return null as value if not found or when the title has no match with any of the metadata details. Do not return an id that doesn't match what the title is in the metadata (this is important), if it doesn't match, return "null" as the value.`,
+      },
+      { role: "assistant", message: `Metadata: ${stringifyMetadata}` },
+      { role: "user", message: `Title: "${title}"` },
+    ]) as any;
+
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo-1106",
       messages,
@@ -195,21 +200,17 @@ export async function identifyArticleToUpdate(
           type: "function",
           function: {
             name: "find_article_to_update",
-            description: `Find the article to update from the given metadata. Return only the article id and title if found or identified, else return null. Metadata: ${metadata}. `,
+            description: `Find the article to update from the given metadata. Return only the article id if found or identified, else return null as value if not found or when the title has no match with any of the metadata details. Do not return an id that doesn't match what the title is in the metadata (this is important). `,
             parameters: {
               type: "object",
               properties: {
-                title: {
-                  type: "string",
-                  description: "The found article id from the metadata",
-                },
                 article_id: {
                   type: "string",
-                  description: `The article id of the article to update. Do not include id of article that isn't found in the metadata, return null as value if not found. Metadata: ${metadata}.`,
+                  description: `The article id from the metadata if found, else null.`,
                 },
               },
               metadata,
-              required: ["title", "article_id"],
+              required: ["article_id"],
             },
           },
         },
@@ -219,7 +220,39 @@ export async function identifyArticleToUpdate(
 
     const responseMessage = response.choices[0].message;
 
-    console.log(responseMessage.tool_calls);
+    // what get sent back to the client
+    let funcResp = {
+      // initial values
+      article_id: null,
+      error: null,
+    } as { article_id: string | null; error: string | null };
+
+    const toolCall = responseMessage?.tool_calls?.[0];
+    if (toolCall) {
+      const funcArguments = toolCall.function.arguments;
+      try {
+        const parseArg = JSON.parse(funcArguments);
+
+        // check if the article id exists in metadata
+        const articleExists = metadata.find(
+          (item) => item.id === parseArg.article_id
+        );
+
+        if (!articleExists) {
+          funcResp.error = `Article not found`;
+          return funcResp;
+        }
+
+        funcResp.article_id = parseArg.article_id;
+        return funcResp;
+      } catch (e: any) {
+        // an invalid json was returned from ai model
+        console.log(e);
+        funcResp.error = `Something went wrong identifying your action, please try again`;
+      }
+    }
+
+    return funcResp;
   } catch (e: any) {
     console.log(e);
     throw new HttpException(

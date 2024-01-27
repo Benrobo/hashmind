@@ -36,17 +36,29 @@ export function formatChatHistory(history: { ai: string; user: string }[]) {
   return chatHistory;
 }
 
-export default function genConversation({
-  role,
-  message,
-  name,
-}: Props): ReturnType[] {
+export default function genConversation(data: Props | Props[]): ReturnType[] {
   const defaultConv: ReturnType[] = [
     {
       role: "system",
       content: updateMindInfo("", "No chat history available"),
     },
   ];
-  defaultConv.push({ role: role as Role, content: message, name });
+
+  if (Array.isArray(data)) {
+    data.forEach((item) => {
+      defaultConv.push({
+        role: item.role,
+        content: item.message,
+        name: item.name,
+      });
+    });
+  } else {
+    defaultConv.push({
+      role: data.role,
+      content: data.message,
+      name: data.name,
+    });
+  }
+
   return defaultConv;
 }

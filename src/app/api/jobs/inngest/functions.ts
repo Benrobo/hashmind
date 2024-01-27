@@ -366,6 +366,27 @@ export const inngest_publish_article_function = inngest.createFunction(
 export const inngest_update_article_content_function = inngest.createFunction(
   {
     id: "hashmind-update-article-content",
+    onFailure: async ({ error, event, step }) => {
+      console.log(`❌ ARTICLE CONTENT UPDATE FAILED`, error);
+      // update queue in db
+      const jobData = event.data.event.data;
+      const jobId = jobData.jobId;
+      const userId = jobData.userId;
+
+      await queueService.updateQueue({
+        jobId,
+        userId,
+        status: "failed",
+        subqueues: [
+          {
+            status: "failed",
+            message:
+              "Article content update failed. Either the title wasn't found or something else occured.",
+            identifier: "article-content-update",
+          },
+        ],
+      });
+    },
   },
   { event: "hashmind/article.content.update" },
   async ({ event, step }) => {
@@ -382,7 +403,25 @@ export const inngest_update_article_content_function = inngest.createFunction(
     const userArticles = resp.data;
     const articleToUpdate = await identifyArticleToUpdate(title, userArticles);
 
-    // console.?
+    if (articleToUpdate.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, Article with the title [${title}] not found`,
+        500
+      );
+    }
+
+    const articleId = articleToUpdate.article_id;
+
+    console.log(event.data.content);
+
+    // !TODO: Update the function call to identify action, include a new "updateContentNotation" field which tells what the user want for eg ADD, REMOVE, REPLACE. Then update the content accordingly
+
+    // Get hashnode article by id
+
+    // Get the content
+
+    // send to gpt to generate new content based on the requirement of the content
 
     //
     return {};
