@@ -13,3 +13,5 @@ export const actionsVariants = {
   update: ["UPDATE_BLOG", "UPDATE_POST", "UPDATE_ARTICLE", "UPDATE", "update"],
   delete: ["DELETE_BLOG", "DELETE_POST", "DELETE_ARTICLE", "DELETE", "delete"],
 };
+
+export const updateBlogContentNotation = ["ADD", "REMOVE", "REPLACE"];
