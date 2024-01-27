@@ -81,8 +81,8 @@ export default class HashmindController {
       subtitle: null,
       keywords: null,
       aiMsg: null,
-      // updateTitle: "Why Artificial Intelligence is the future of humanity",
-      updateTitle: null,
+      updateTitle: "Why Artificial Intelligence is the future of humanity",
+      // updateTitle: null,
       updateContent: "limitations of AI, promise of AI",
       updateSubtitle: "Discussing the impact of AI on society and human life",
       updateCoverImage: "Utopian future, AI, harmony",
@@ -201,28 +201,6 @@ export default class HashmindController {
         });
 
         // invoke editing of blog article event individually
-        if (userAction.updateContent) {
-          inngest.send({
-            name: "hashmind/article.content.update",
-            data: {
-              content: userAction.updateContent,
-              userId: user.id,
-              jobId,
-            },
-          });
-
-          await prisma.subQueues.create({
-            data: {
-              id: nanoid(),
-              title: "Updating article content",
-              status: "pending",
-              message: "Updating article content",
-              userId: user.id,
-              identifier: "article-content",
-              queueId: mainQueue.id,
-            },
-          });
-        }
 
         if (userAction.updateTitle) {
           inngest.send({
@@ -242,6 +220,29 @@ export default class HashmindController {
               message: "Updating article title",
               userId: user.id,
               identifier: "article-title",
+              queueId: mainQueue.id,
+            },
+          });
+        }
+
+        if (userAction.updateContent) {
+          inngest.send({
+            name: "hashmind/article.content.update",
+            data: {
+              content: userAction.updateContent,
+              userId: user.id,
+              jobId,
+            },
+          });
+
+          await prisma.subQueues.create({
+            data: {
+              id: nanoid(),
+              title: "Updating article content",
+              status: "pending",
+              message: "Updating article content",
+              userId: user.id,
+              identifier: "article-content",
               queueId: mainQueue.id,
             },
           });
