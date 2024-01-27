@@ -13,6 +13,17 @@ type UpdateQueueProps = {
   }[];
 };
 
+type CreateQueueProps = {
+  jobId: string;
+  userId: string;
+  status: "pending" | "completed" | "failed";
+  subqueues: {
+    status: "pending" | "completed" | "failed";
+    identifier: string;
+    message: string;
+  }[];
+};
+
 // manage queues in database
 class Queue {
   async updateQueue({ jobId, userId, status, subqueues }: UpdateQueueProps) {

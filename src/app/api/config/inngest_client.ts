@@ -71,6 +71,10 @@ type Events = {
   "hashmind/article-metadata.creation": ResponseType;
   "hashmind/article.update": ResponseType;
   "hashmind/article.publish": ResponseType;
+  "hashmind/article.content.update": ResponseType;
+  "hashmind/article.title.update": ResponseType;
+  "hashmind/article.subtitle.update": ResponseType;
+  "hashmind/article.coverImage.update": ResponseType;
 };
 
 // Create a client to send and receive events

@@ -33,7 +33,9 @@ export const inngest_hashmind_main_function = inngest.createFunction(
   }
 );
 
-// ARTICLE GENERATION FUNCTIONS
+/* 
+  ARTICLE MANAGEMENT FUNCTIONS
+*/
 
 // cover image
 export const inngest_article_coverimage_generation_function =
@@ -225,10 +227,6 @@ export const inngest_article_metadata_creation_function =
     }
   );
 
-// ARTICLE UPDATE FUNCTIONS
-
-// PUBLISHING ARTICLE
-
 // publish article to hashnode
 export const inngest_publish_article_function = inngest.createFunction(
   {
@@ -359,3 +357,43 @@ export const inngest_publish_article_function = inngest.createFunction(
     return {};
   }
 );
+
+/**
+  UPDATING ARTICLE FUNCTIONS 
+*/
+
+export const inngest_update_article_content_function = inngest.createFunction(
+  {
+    id: "hashmind-update-article-content",
+  },
+  { event: "hashmind/article.content.update" },
+  async ({ event, step }) => {
+    console.log("UPDATING ARTICLE CONTENT TRIGGERED", event);
+
+    //
+    return {};
+  }
+);
+
+export const inngest_update_article_title_function = inngest.createFunction(
+  {
+    id: "hashmind-update-article-title",
+  },
+  { event: "hashmind/article.title.update" },
+  async ({ event, step }) => {
+    console.log("UPDATING ARTICLE TITLE TRIGGERED", event);
+    return {};
+  }
+);
+
+export const inngest_update_article_coverImage_function =
+  inngest.createFunction(
+    {
+      id: "hashmind-update-article-coverImage",
+    },
+    { event: "hashmind/article.coverImage.update" },
+    async ({ event, step }) => {
+      console.log("UPDATING ARTICLE COVER-IMAGE EVENT TRIGGERED", event);
+      return {};
+    }
+  );

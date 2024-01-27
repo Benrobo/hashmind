@@ -69,7 +69,8 @@ export enum RESPONSE_CODE {
   ERROR_PUBLISHING_ARTICLE,
   ERROR_DELETING_QUEUE,
   CONTENT_NOT_FIND,
-  CONTENT_DELETED
+  CONTENT_DELETED,
+  ERROR_UPDATING_ARTICLE,
 }
 
 export type ResponseData = {
@@ -97,4 +98,6 @@ export type ReqUserObj = {
   hnPubId: string;
 };
 
-export type HashmindAIResponseAction = "ARTICLE_CREATION_QUEUED";
+export type HashmindAIResponseAction =
+  | "ARTICLE_CREATION_QUEUED"
+  | "ARTICLE_TITLE_NOT_PROVIDED";

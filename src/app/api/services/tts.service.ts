@@ -57,7 +57,7 @@ class TTS {
           audioEncoding: "LINEAR16",
           effectsProfileId: ["medium-bluetooth-speaker-class-device"],
           pitch: 0,
-          speakingRate: 1.3,
+          speakingRate: 1.2,
         },
       };
 

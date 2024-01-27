@@ -81,7 +81,8 @@ export default class HashmindController {
       subtitle: null,
       keywords: null,
       aiMsg: null,
-      updateTitle: "Why Artificial Intelligence is the future of humanity",
+      // updateTitle: "Why Artificial Intelligence is the future of humanity",
+      updateTitle: null,
       updateContent: "limitations of AI, promise of AI",
       updateSubtitle: "Discussing the impact of AI on society and human life",
       updateCoverImage: "Utopian future, AI, harmony",
@@ -167,12 +168,135 @@ export default class HashmindController {
       if (actionsVariants.update.includes(_action)) {
         console.log(`UPDATING ARTICLE EVENT FIRED`);
 
-        // invoke editing of blog article event
+        // check if article title was provided
+        if (!userAction.title) {
+          return sendResponse.error(
+            RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+            `Article title not provided.`,
+            400,
+            {
+              action: "ARTICLE_TITLE_NOT_PROVIDED" as HashmindAIResponseAction,
+            }
+          );
+        }
+
+        // keep count of the number of jobs
+        let jobsCount = 0;
+        const jobId = nanoid();
+
+        if (userAction.updateTitle) jobsCount++;
+        if (userAction.updateContent) jobsCount++;
+        if (userAction.updateSubtitle) jobsCount++;
+        if (userAction.updateCoverImage) jobsCount++;
+
+        const mainQueue = await prisma.queues.create({
+          data: {
+            id: jobId,
+            title: "Updating article",
+            description: "Updating hashnode article",
+            jobs: jobsCount,
+            status: "pending",
+            userId: user.id,
+          },
+        });
+
+        // invoke editing of blog article event individually
+        if (userAction.updateContent) {
+          inngest.send({
+            name: "hashmind/article.content.update",
+            data: {
+              content: userAction.updateContent,
+              userId: user.id,
+              jobId,
+            },
+          });
+
+          await prisma.subQueues.create({
+            data: {
+              id: nanoid(),
+              title: "Updating article content",
+              status: "pending",
+              message: "Updating article content",
+              userId: user.id,
+              identifier: "article-content",
+              queueId: mainQueue.id,
+            },
+          });
+        }
+
+        if (userAction.updateTitle) {
+          inngest.send({
+            name: "hashmind/article.title.update",
+            data: {
+              title: userAction.updateTitle,
+              userId: user.id,
+              jobId,
+            },
+          });
+
+          await prisma.subQueues.create({
+            data: {
+              id: nanoid(),
+              title: "Updating article title",
+              status: "pending",
+              message: "Updating article title",
+              userId: user.id,
+              identifier: "article-title",
+              queueId: mainQueue.id,
+            },
+          });
+        }
+
+        if (userAction.updateSubtitle) {
+          inngest.send({
+            name: "hashmind/article.subtitle.update",
+            data: {
+              subtitle: userAction.updateSubtitle,
+              userId: user.id,
+              jobId,
+            },
+          });
+
+          await prisma.subQueues.create({
+            data: {
+              id: nanoid(),
+              title: "Updating article subtitle",
+              status: "pending",
+              message: "Updating article subtitle",
+              userId: user.id,
+              identifier: "article-subtitle",
+              queueId: mainQueue.id,
+            },
+          });
+        }
+
+        if (userAction.updateCoverImage) {
+          inngest.send({
+            name: "hashmind/article.coverImage.update",
+            data: {
+              coverImage: userAction.updateCoverImage,
+              userId: user.id,
+              jobId,
+            },
+          });
+
+          await prisma.subQueues.create({
+            data: {
+              id: nanoid(),
+              title: "Updating article cover image",
+              status: "pending",
+              message: "Updating article cover image",
+              userId: user.id,
+              identifier: "article-cover-image",
+              queueId: mainQueue.id,
+            },
+          });
+        }
 
         return sendResponse.success(
           RESPONSE_CODE.UPDATING_ARTICLE_QUEUED,
           `Updating of article queued.`,
-          200,
+          400,
           {
             action: "UPDATE_BLOG_QUEUED",
           }

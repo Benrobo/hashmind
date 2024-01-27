@@ -53,5 +53,8 @@ export function retrieveAudioByAction(action: HashmindAIResponseAction) {
   if (action === "ARTICLE_CREATION_QUEUED") {
     return `/audio/response/api-resp/art-queued.mp3`;
   }
+  if (action === "ARTICLE_TITLE_NOT_PROVIDED") {
+    return `/audio/response/api-resp/title-missing.mp3`;
+  }
   return null;
 }

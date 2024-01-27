@@ -81,6 +81,14 @@ export default function AI() {
     if (handleUserRequestMut?.error) {
       const data = (handleUserRequestMut?.error as any)?.response
         ?.data as ResponseData;
+      const errData = data?.data as any;
+
+      if (errData?.action === "ARTICLE_TITLE_NOT_PROVIDED") {
+        const audioUrl = retrieveAudioByAction(errData?.action);
+        if (audioUrl) playAudio(audioUrl);
+        else toast.error("Please provide a title for the article.");
+        return;
+      }
       toast.error(data?.message ?? "Something went wrong!.");
     }
     if (handleUserRequestMut.data) {
@@ -162,11 +170,11 @@ export default function AI() {
       // check if the user pressed the button for less than 1 second
       const after = Date.now();
       const diff = after - timer;
-      if (diff < 1000) {
-        toast.error("Please speak for at least 4 second.");
-        setTimer(0);
-        return;
-      }
+      // if (diff < 1000) {
+      //   toast.error("Please speak for at least 4 second.");
+      //   setTimer(0);
+      //   return;
+      // }
 
       handleUserRequestMut.mutate({
         audio_base64: base64,
