@@ -1,5 +1,13 @@
-import { AUTHOR_NAMES, GPT_RESP_STYLE_NAME, RESPONSE_CODE } from "@/types";
-import { Role, updateMindInfo } from "../utils/genConversation";
+import {
+  AUTHOR_NAMES,
+  GPT_RESP_STYLE_NAME,
+  RESPONSE_CODE,
+  updateBlogContentNotationType,
+} from "@/types";
+import genConversation, {
+  Role,
+  updateMindInfo,
+} from "../utils/genConversation";
 import { getGptStyle } from "@/lib/utils";
 import openai from "../config/openai";
 import HttpException from "../utils/exception";
@@ -97,5 +105,36 @@ export default async function generateArticleContent({
       `Error generating article content`,
       400
     );
+  }
+}
+
+type UpdateArticleContProps = {
+  content: string;
+  notation: updateBlogContentNotationType;
+  id: string;
+  apiKey: string;
+};
+
+export async function updateArticleContent({
+  content,
+  notation,
+  id,
+  apiKey,
+}: UpdateArticleContProps) {
+  try {
+    // const
+    const messages = genConversation([
+      {
+        role: "user",
+        message: ``,
+      },
+    ]);
+  } catch (e: any) {}
+}
+
+function getPrompt(notation: updateBlogContentNotationType, content: string) {
+  switch (notation) {
+    case "ADD":
+      return `Add the following content to the article: \n\n ${content}`;
   }
 }
