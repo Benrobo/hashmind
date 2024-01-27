@@ -56,6 +56,7 @@ type HashmindMainFunc = {
     content?: string;
     // for updating article content
     updateContentNotation?: updateBlogContentNotationType;
+    request?: string;
   };
 };
 
