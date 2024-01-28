@@ -17,7 +17,6 @@ class GenerateImage {
   async genCoverImageStAI({ subtitle, keywords }: CoverImage) {
     try {
       // using stability.ai
-
       const path =
         "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image";
 
@@ -49,21 +48,21 @@ class GenerateImage {
       };
 
       // ! Uncomment this once you're done (to prevent costs)
-      // const resp = await axios.post(path, body, { headers });
-      // const data = resp.data;
+      const resp = await axios.post(path, body, { headers });
+      const data = resp.data;
 
-      // const base64 = data?.artifacts?.[0]?.base64;
-      // const validBase64 = `data:image/png;base64,${base64}`;
+      const base64 = data?.artifacts?.[0]?.base64;
+      const validBase64 = `data:image/png;base64,${base64}`;
 
-      // // upload base64 to cloudinary
-      // const cloudinaryResp = await cloudinary.v2.uploader.upload(validBase64, {
-      //   folder: "hashmind",
-      //   use_filename: true,
-      // });
+      // upload base64 to cloudinary
+      const cloudinaryResp = await cloudinary.v2.uploader.upload(validBase64, {
+        folder: "hashmind",
+        use_filename: true,
+      });
 
       return {
-        // url: cloudinaryResp.secure_url,
-        url: "https://res.cloudinary.com/dmi4vivcw/image/upload/v1706181623/hashmind/ub48z2mfyjoeembpr742.png",
+        url: cloudinaryResp.secure_url,
+        // url: "https://res.cloudinary.com/dmi4vivcw/image/upload/v1706181623/hashmind/ub48z2mfyjoeembpr742.png",
       };
     } catch (e: any) {
       const msg = e.response.data?.errors?.message ?? e?.message;
