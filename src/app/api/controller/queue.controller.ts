@@ -28,11 +28,21 @@ class QueueController {
         (q) => q.status === "pending"
       ).length;
 
+      const hasCompleted =
+        queues.subqueue.filter((q) => q.status === "completed").length > 0;
+      const hasFailed =
+        queues.subqueue.filter((q) => q.status === "failed").length > 0;
+      const _status = hasCompleted
+        ? "completed"
+        : hasFailed
+        ? "failed"
+        : "pending";
+
       formattedResp.push({
         id: queues.id,
         jobs: jobsCount,
         title: queues.title,
-        status: queues.status,
+        status: _status,
         description: queues.description,
         completed: completedJobs,
         failed: failedJobs,
