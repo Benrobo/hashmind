@@ -52,6 +52,30 @@ export type ArticleById = {
   subtitle?: string;
 };
 
+type UpdateArticle = {
+  apiKey: string;
+  update: {
+    id: string;
+    title?: string;
+    subtitle?: string;
+    contentMarkdown?: {
+      markdown: string;
+    };
+    tags?: {
+      id: string;
+    }[];
+    coverImageOptions?: {
+      coverImageURL: string;
+    };
+    slug?: string;
+    metaTags?: {
+      title: string;
+      description: string;
+      image: string;
+    };
+  };
+};
+
 class HashnodeService {
   async createPost({
     title,
@@ -229,7 +253,58 @@ class HashnodeService {
     }
   }
 
-  async updateArticle() {}
+  async updateArticle({ apiKey, update }: UpdateArticle) {
+    try {
+      if (!apiKey) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_CREATING_POST,
+          `Unauthorized, missing api key`,
+          401
+        );
+      }
+
+      const funcResp: FuncResp = { error: null, success: null, data: null };
+
+      const reqBody = {
+        query: `mutation UpdatePost($input: UpdatePostInput!) {
+          updatePost(input: $input) {
+            post{
+              id
+            }
+          }
+        }`,
+        variables: {
+          input: {
+            ...update,
+          },
+        },
+      };
+
+      // ! Uncomment this once you're done
+      const resp = await $http({
+        method: "POST",
+        data: reqBody,
+        headers: {
+          Authorization: apiKey,
+        },
+      });
+
+      const respData = resp.data?.data;
+
+      funcResp.success = "Article updated successfully";
+      funcResp.data = respData?.updatePost.post as UpdateArticle;
+      return funcResp;
+    } catch (e: any) {
+      const msg = e.response?.data?.errors[0]?.message ?? e.message;
+      console.log(msg);
+      console.log(e);
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Something went wrong updating article.`,
+        400
+      );
+    }
+  }
 }
 
 const hashnodeService = new HashnodeService();
