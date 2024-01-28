@@ -5,7 +5,6 @@ import { RESPONSE_CODE } from "@/types";
 type UpdateQueueProps = {
   jobId: string;
   userId: string;
-  status: "pending" | "completed" | "failed";
   subqueues: {
     status: "pending" | "completed" | "failed";
     identifier: string;
@@ -16,7 +15,6 @@ type UpdateQueueProps = {
 type CreateQueueProps = {
   jobId: string;
   userId: string;
-  status: "pending" | "completed" | "failed";
   subqueues: {
     status: "pending" | "completed" | "failed";
     identifier: string;
@@ -26,7 +24,7 @@ type CreateQueueProps = {
 
 // manage queues in database
 class Queue {
-  async updateQueue({ jobId, userId, status, subqueues }: UpdateQueueProps) {
+  async updateQueue({ jobId, userId, subqueues }: UpdateQueueProps) {
     const queue = await prisma.queues.findUnique({
       where: {
         id: jobId,
@@ -76,15 +74,6 @@ class Queue {
         });
       }
     }
-
-    await prisma.queues.update({
-      where: {
-        id: jobId,
-      },
-      data: {
-        status,
-      },
-    });
 
     return true;
   }
