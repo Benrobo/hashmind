@@ -81,10 +81,10 @@ export default function QueuesPage() {
     const intervalId = setInterval(() => {
       getQueuesQuery.refetch();
     }, 5000);
-    
-    return ()=> {
+
+    return () => {
       clearInterval(intervalId);
-    }
+    };
   }, []);
 
   React.useEffect(() => {
@@ -120,9 +120,11 @@ export default function QueuesPage() {
       {/* Main */}
       <FlexColStart className="w-full px-4 py-2">
         {getQueuesQuery.isLoading && <Spinner />}
-        {queues.length === 0 && <span className="text-white-100 font-ppReg text-xs">
-          No active queues
-        </span> }
+        {queues.length === 0 && (
+          <span className="text-white-100 font-ppReg text-xs">
+            No active queues
+          </span>
+        )}
         {!getQueuesQuery.isPending &&
           queues.map((Q, i) => (
             <FlexColStart
@@ -131,50 +133,53 @@ export default function QueuesPage() {
             >
               <div key={i} className="w-full">
                 <FlexRowCenterBtw className="w-full">
-                  <FlexColStart className="w-fit leading-none gap-0">
+                  <FlexColStart className="w-auto leading-none gap-0">
                     <h1 className="font-ppSB text-sm text-white-100">
                       {Q.title.length > 20
                         ? Q.title.slice(0, 20) + "..."
                         : Q.title}
                     </h1>
                   </FlexColStart>
-                  <FlexRowEnd className="w-auto text-xs">
-                    {Q.subqueues.filter(q => q.status === "pending").length > 0 ? (
-                      <Spinner size={15} />
-                    ) : (
-                      <FlexRowStart className="w-auto gap-3">
-                        <button
-                          onClick={() => {
-                            setDeletingQ(Q.id);
-                            deleteQueueMutation.mutate({ id: Q.id });
-                          }}
-                          className="p-0 m-0 h-0"
-                          disabled={deleteQueueMutation.isPending}
-                        >
-                          {deleteQueueMutation.isPending &&
-                          deletingQ === Q.id ? (
-                            <Spinner size={12} />
-                          ) : (
-                            <Trash2 size={15} className="text-red-305" />
-                          )}
-                        </button>
+                  <FlexRowEnd className="w-auto text-xs ">
+                    {Q.subqueues.filter((q) => q.status === "pending").length >
+                      0 && <Spinner size={15} />}
 
+                    <FlexRowStart className="w-auto gap-3 ">
+                      <button
+                        onClick={() => {
+                          setDeletingQ(Q.id);
+                          deleteQueueMutation.mutate({ id: Q.id });
+                        }}
+                        className=""
+                        disabled={deleteQueueMutation.isPending}
+                      >
+                        {deleteQueueMutation.isPending && deletingQ === Q.id ? (
+                          <Spinner size={12} />
+                        ) : (
+                          <Trash2 size={15} className="text-red-305" />
+                        )}
+                      </button>
+                      {Q.subqueues.filter((q) => q.status === "pending")
+                        .length === 0 && (
                         <span className="text-xs flex gap-1">
                           <CheckCheck size={15} className="text-green-400" />
                           <span className="text-white-100">{Q.completed}</span>
                         </span>
+                      )}
 
-                        {Q.failed > 0 && (
+                      {Q.subqueues.filter((q) => q.status === "pending")
+                        .length === 0 &&
+                        Q.failed > 0 && (
                           <span className="text-xs flex gap-1">
                             <ShieldAlert size={15} className="text-red-305" />
                             <span className="text-white-100">{Q.failed}</span>
                           </span>
                         )}
-                      </FlexRowStart>
-                    )}
+                    </FlexRowStart>
                     <span className="font-ppL text-white-300">
                       {Q.completed} / {Q.jobs}
                     </span>
+
                     <button onClick={() => toggleDropdownVisi(Q.id)}>
                       <ChevronRight
                         size={15}
