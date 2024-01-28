@@ -107,7 +107,6 @@ export const inngest_article_coverimage_generation_function =
       await queueService.updateQueue({
         jobId,
         userId: event.data.userId,
-        status: "completed",
         subqueues: [
           {
             status: "completed",
@@ -150,7 +149,6 @@ export const inngest_article_content_generation_function =
         await queueService.updateQueue({
           jobId,
           userId,
-          status: "failed",
           subqueues: [
             {
               status: "failed",
@@ -188,7 +186,6 @@ export const inngest_article_content_generation_function =
       await queueService.updateQueue({
         jobId,
         userId: event.data.userId,
-        status: "completed",
         subqueues: [
           {
             status: "completed",
@@ -217,19 +214,6 @@ export const inngest_article_content_generation_function =
     }
   );
 
-// metadata
-export const inngest_article_metadata_creation_function =
-  inngest.createFunction(
-    {
-      id: "hashmind-article-metadata-creation",
-    },
-    { event: "hashmind/article-metadata.creation" },
-    async ({ event, step }) => {
-      console.log("CREATING ARTICLE METADATA", event);
-      return {};
-    }
-  );
-
 // publish article to hashnode
 export const inngest_publish_article_function = inngest.createFunction(
   {
@@ -244,7 +228,6 @@ export const inngest_publish_article_function = inngest.createFunction(
       await queueService.updateQueue({
         jobId,
         userId,
-        status: "failed",
         subqueues: [
           {
             status: "failed",
@@ -320,7 +303,6 @@ export const inngest_publish_article_function = inngest.createFunction(
     const updateQueue = await queueService.updateQueue({
       jobId,
       userId,
-      status: "completed",
       subqueues: [
         {
           status: "completed",
@@ -370,7 +352,7 @@ export const inngest_update_article_content_function = inngest.createFunction(
     id: "hashmind-update-article-content",
     onFailure: async ({ error, event, step }) => {
       console.log(`❌ ARTICLE CONTENT UPDATE FAILED`, error);
-      // update queue in db
+
       const jobData = event.data.event.data;
       const jobId = jobData.jobId;
       const userId = jobData.userId;
@@ -378,7 +360,6 @@ export const inngest_update_article_content_function = inngest.createFunction(
       await queueService.updateQueue({
         jobId,
         userId,
-        status: "failed",
         subqueues: [
           {
             status: "failed",
@@ -420,8 +401,6 @@ export const inngest_update_article_content_function = inngest.createFunction(
     }
 
     const articleId = articleToUpdate.article_id;
-
-    // Get hashnode article by id aswell as content
     const article = await hashnodeService.getArticleById({
       id: articleId!,
       apiKey: apiKey as string,
@@ -435,10 +414,8 @@ export const inngest_update_article_content_function = inngest.createFunction(
       );
     }
 
-    // Get the content
     const articleContent = article.data.content.markdown;
 
-    // ask gpt to generate new content based on the requirement of the content
     const newUpdatedArticle = await gptUpdateArticleContent({
       articleContent,
       updatedContent: event.data.content!,
@@ -450,21 +427,162 @@ export const inngest_update_article_content_function = inngest.createFunction(
       },
     });
 
-    console.log(newUpdatedArticle.content);
-    // call hashnode to update article
-    const updated = await hashnodeService.updateArticle();
+    // console.log(newUpdatedArticle.content);
 
-    return {};
+    const updated = await hashnodeService.updateArticle({
+      apiKey: apiKey as string,
+      update: {
+        id: articleId!,
+        contentMarkdown: {
+          markdown: newUpdatedArticle.content as string,
+        },
+      },
+    });
+
+    if (updated.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, ${updated.error}`,
+        500
+      );
+    }
+
+    const jobId = event.data.jobId;
+    const hasUpdated = await queueService.updateQueue({
+      jobId: jobId!,
+      userId: userId!,
+      subqueues: [
+        {
+          status: "completed",
+          message: "Article content updated",
+          identifier: "article-content",
+        },
+      ],
+    });
+
+    if (!hasUpdated) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, failed to update queue`,
+        500
+      );
+    }
+
+    console.log(`✅ ARTICLE CONTENT UPDATED`);
+
+    return;
   }
 );
 
 export const inngest_update_article_title_function = inngest.createFunction(
   {
     id: "hashmind-update-article-title",
+    onFailure: async ({ error, event, step }) => {
+      console.log(`❌ ARTICLE TITLE UPDATE FAILED`, error);
+
+      const jobData = event.data.event.data;
+      const jobId = jobData.jobId;
+      const userId = jobData.userId;
+
+      await queueService.updateQueue({
+        jobId,
+        userId,
+        subqueues: [
+          {
+            status: "failed",
+            message: "Article title update failed",
+            identifier: "article-title",
+          },
+        ],
+      });
+    },
   },
   { event: "hashmind/article.title.update" },
   async ({ event, step }) => {
-    console.log("UPDATING ARTICLE TITLE TRIGGERED", event);
+    console.log("UPDATING ARTICLE TITLE TRIGGERED");
+
+    const user = await prisma.users.findFirst({
+      where: { userId: event.data.userId },
+      include: { settings: true },
+    });
+    const apiKey = user?.settings?.hashnode_token;
+    const prevTitle = event.data.title!;
+    const newTitle = event.data.newTitle!;
+    const userId = event.data.userId;
+
+    console.log({ newTitle });
+
+    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const userArticles = resp.data;
+
+    // find the article to update based on title
+    const articleToUpdate = await identifyArticleToUpdate(
+      prevTitle,
+      userArticles
+    );
+
+    if (articleToUpdate.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, Article with the title [${prevTitle}] not found`,
+        500
+      );
+    }
+
+    const articleId = articleToUpdate.article_id;
+    const article = await hashnodeService.getArticleById({
+      id: articleId!,
+      apiKey: apiKey as string,
+    });
+
+    if (article.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article title, ${article.error}`,
+        500
+      );
+    }
+
+    // update article title
+    const updated = await hashnodeService.updateArticle({
+      apiKey: apiKey as string,
+      update: {
+        id: articleId!,
+        title: newTitle,
+      },
+    });
+
+    if (updated.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, ${updated.error}`,
+        500
+      );
+    }
+
+    const jobId = event.data.jobId;
+    const hasUpdated = await queueService.updateQueue({
+      jobId: jobId!,
+      userId: userId!,
+      subqueues: [
+        {
+          status: "completed",
+          message: "Article title updated",
+          identifier: "article-title",
+        },
+      ],
+    });
+
+    if (!hasUpdated) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error updating article, failed to update queue`,
+        500
+      );
+    }
+
+    console.log(`✅ ARTICLE TITLE UPDATED`);
+
     return {};
   }
 );
@@ -476,7 +594,95 @@ export const inngest_update_article_coverImage_function =
     },
     { event: "hashmind/article.coverImage.update" },
     async ({ event, step }) => {
-      console.log("UPDATING ARTICLE COVER-IMAGE EVENT TRIGGERED", event);
+      console.log("UPDATING ARTICLE COVER-IMAGE EVENT TRIGGERED");
+
+      const user = await prisma.users.findFirst({
+        where: { userId: event.data.userId },
+        include: { settings: true },
+      });
+      const apiKey = user?.settings?.hashnode_token;
+      const title = event.data.title!;
+      const userId = event.data.userId;
+      const coverImageKeywords = event.data.coverImage;
+
+      const resp = await hashnodeService.getUserArticles(apiKey as string);
+      const userArticles = resp.data;
+
+      // find the article to update based on title
+      const articleToUpdate = await identifyArticleToUpdate(
+        title,
+        userArticles
+      );
+
+      if (articleToUpdate.error) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+          `Error updating article coverImage, Article with the title [${title}] not found`,
+          500
+        );
+      }
+
+      const articleId = articleToUpdate.article_id;
+      const article = await hashnodeService.getArticleById({
+        id: articleId!,
+        apiKey: apiKey as string,
+      });
+
+      if (article.error) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+          `Error updating article coverImage, ${article.error}`,
+          500
+        );
+      }
+
+      // generate new image
+      const coverImage = await generateImage.genCoverImageStAI({
+        subtitle: title,
+        keywords: coverImageKeywords!,
+      });
+
+      // update article title
+      const updated = await hashnodeService.updateArticle({
+        apiKey: apiKey as string,
+        update: {
+          id: articleId!,
+          coverImageOptions: {
+            coverImageURL: coverImage.url,
+          },
+        },
+      });
+
+      if (updated.error) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+          `Error updating article, ${updated.error}`,
+          500
+        );
+      }
+
+      const jobId = event.data.jobId;
+      const hasUpdated = await queueService.updateQueue({
+        jobId: jobId!,
+        userId: userId!,
+        subqueues: [
+          {
+            status: "completed",
+            message: "Article coverImage updated",
+            identifier: "article-cover-image",
+          },
+        ],
+      });
+
+      if (!hasUpdated) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+          `Error updating article coverImage, failed to update queue`,
+          500
+        );
+      }
+
+      console.log(`✅ ARTICLE TITLE UPDATED`);
       return {};
     }
   );
