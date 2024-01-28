@@ -17,6 +17,7 @@ import { actionsVariants, supportedActions } from "../data/ai/function";
 import { inngest } from "../config/inngest_client";
 import prisma from "@/prisma/prisma";
 import { nanoid } from "nanoid";
+import { userActionTestData } from "../data/test_data";
 
 type ReqUserObj = {
   id: string;
@@ -65,36 +66,7 @@ export default class HashmindController {
     //   );
     // }
 
-    const userAction = {
-      // error: null,
-      // action: "CREATE_BLOG",
-      // title:
-      //   "Why Artificial Intelligence is the future of humanity and how it won't change the world",
-      // emoji: "🤖",
-      // subtitle: "Exploring the Promise and Limitations of AI",
-      // aiMsg: null,
-      // keywords:
-      //   "Artificial Intelligence, future, humanity, limitations, promise",
-
-      // update
-      functions: ["identify_action", "identify_update_blog_action"],
-      error: null,
-      action: "UPDATE_BLOG",
-      // title: null,
-      title: "Why Artificial Intelligence is the future of humanity",
-      emoji: null,
-      subtitle: null,
-      keywords: null,
-      aiMsg: null,
-      // updateTitle: "Why Artificial Intelligence is the future of humanity",
-      updateTitle: null,
-      updateContent: "limitations of AI, promise of AI",
-      updateSubtitle: null,
-      // updateSubtitle: "Discussing the impact of AI on society and human life",
-      updateCoverImage: null,
-      // updateCoverImage: "Utopian future, AI, harmony",
-      updateContentNotation: "ADD",
-    };
+    const userAction = userActionTestData;
 
     const _action = userAction.action;
     if (_action) {
@@ -114,7 +86,6 @@ export default class HashmindController {
             title: userAction.title ?? "No Title",
             description: "Generating article content",
             jobs: jobCount,
-            status: "pending",
             userId: user.id,
             subqueue: {
               createMany: {
@@ -201,10 +172,9 @@ export default class HashmindController {
         const mainQueue = await prisma.queues.create({
           data: {
             id: jobId,
-            title: "Updating article",
+            title: "Updating Article",
             description: "Updating hashnode article",
             jobs: jobsCount,
-            status: "pending",
             userId: user.id,
           },
         });
@@ -215,9 +185,10 @@ export default class HashmindController {
           inngest.send({
             name: "hashmind/article.title.update",
             data: {
-              title: userAction.updateTitle,
+              title: userAction.title, // prev title
               userId: user.id,
               jobId,
+              newTitle: userAction.updateTitle, // new title
             },
           });
 
@@ -291,6 +262,7 @@ export default class HashmindController {
               coverImage: userAction.updateCoverImage,
               userId: user.id,
               jobId,
+              title: userAction.title,
             },
           });
 
@@ -310,7 +282,7 @@ export default class HashmindController {
         return sendResponse.success(
           RESPONSE_CODE.UPDATING_ARTICLE_QUEUED,
           `Updating of article queued.`,
-          400,
+          200,
           {
             action: "UPDATE_BLOG_QUEUED",
           }
