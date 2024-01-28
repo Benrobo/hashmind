@@ -73,11 +73,11 @@ model Settings {
 }
 
 model Queues {
-    id          String      @id @default(cuid()) @map("_id")
+    id          String @id @default(cuid()) @map("_id")
     userId      String
     title       String
     description String
-    status      QueueStatus @default(pending)
+    // status      QueueStatus @default(pending)
     jobs        Int
 
     user     Users       @relation(fields: [userId], references: [userId])
