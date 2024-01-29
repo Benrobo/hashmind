@@ -40,6 +40,8 @@ export default function AI() {
   const [base64Data, setBase64Data] = React.useState<string | unknown | null>(
     null
   );
+  const [delArt, setDelArt] = React.useState<boolean>(false);
+  const [delArtModal, setDelArtModal] = React.useState<boolean>(false);
   const [timer, setTimer] = React.useState<number>(0);
   const router = useRouter();
   const handleUserRequestMut = useMutation({
@@ -104,13 +106,12 @@ export default function AI() {
         // get the action code
         const actionCode = response?.action as HashmindAIResponseAction;
         if (actionCode === "ARTICLE_CREATION_QUEUED") {
-          // get the audio for this code.
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
           else toast.success("Article creation queued.");
         }
         if (actionCode === "DELETE_ARTICLE_REQUESTED") {
-          // get the audio for this code.
+          setDelArt(true);
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
           else
@@ -144,6 +145,8 @@ export default function AI() {
     audio.onended = () => {
       audio.currentTime = 0;
       setAudioPlaying(false);
+      setDelArt(false);
+      setDelArtModal(true);
     };
     // audio.addEventListener("error", (event) => {
     //   console.error("Audio error");
@@ -291,7 +294,9 @@ export default function AI() {
               onMouseUp={stopRecording}
               onMouseLeave={stopRecording}
               disabled={
-                handleUserRequestMut.isPending || handleTTSMut.isPending
+                delArt ||
+                handleUserRequestMut.isPending ||
+                handleTTSMut.isPending
               }
             >
               {speaking ? <Pause size={30} /> : <Mic size={30} />}
@@ -301,6 +306,19 @@ export default function AI() {
             </span>
           </>
         )}
+      </FlexColCenter>
+
+      {/* Modal */}
+      <FlexColCenter className="w-full h-screen fixed top-0 backdrop-blur bg-dark-105/20 bg-opacity-85 z-[999] ">
+          <FlexColStartCenter className="w-full max-w-[400px] mx-auto text-center">
+            <p className="font-ppSB text-white-100 text-1xl text-center">
+              Article Deletion
+            </p>
+            <p className="text-xs font-ppReg text-white-100/50">
+              You've requested for an article to be deleted are you sure about this.?
+            </p>
+            <br />
+          </FlexColStartCenter>
       </FlexColCenter>
 
       <BlurBgRadial className="w-[70%] absolute opacity-1 top-[-50%] left-5 bg-white-300 blur-[450px] " />
