@@ -19,7 +19,7 @@ export const userActionTestData = {
   action: "DELETE_BLOG",
   // title: null,
   // title: "Why Artificial Intelligence is the future of humanity",
-  title: "Title that doesn't exists.",
+  title: "Test title 2.",
   emoji: null,
   subtitle: null,
   keywords: null,

@@ -50,7 +50,7 @@ export function audioBase64ToBlob(audioContent: string) {
 }
 
 export function retrieveAudioByAction(action: HashmindAIResponseAction) {
-  if (action === "ARTICLE_CREATION_QUEUED") {
+  if (["ARTICLE_DELETION_QUEUED", "ARTICLE_CREATION_QUEUED"].includes(action)) {
     return `/audio/response/api-resp/art-queued.mp3`;
   }
   if (action === "ARTICLE_TITLE_NOT_PROVIDED") {

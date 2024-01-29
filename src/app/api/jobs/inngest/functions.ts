@@ -735,6 +735,8 @@ export const inngest_delete_article_function =
         userArticles
       );
 
+      console.log({articleToUpdate})
+
       if (articleToUpdate.error) {
         throw new HttpException(
           RESPONSE_CODE.ERROR_UPDATING_ARTICLE,

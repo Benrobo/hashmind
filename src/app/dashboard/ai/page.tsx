@@ -107,10 +107,14 @@ export default function AI() {
       } else {
         // get the action code
         const actionCode = response?.action as HashmindAIResponseAction;
-        if (actionCode === "ARTICLE_CREATION_QUEUED") {
+        if (["ARTICLE_CREATION_QUEUED", "ARTICLE_DELETION_QUEUED"].includes(actionCode)) {
+          if(delArt || delArtModal){
+            setDelArt(false);
+            setDelArtModal(false)
+          }
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
-          else toast.success("Article creation queued.");
+          else toast.success("Processing in queue.");
         }
         if (actionCode === "DELETE_ARTICLE_REQUESTED") {
           setDelArt(true);
