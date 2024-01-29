@@ -64,3 +64,14 @@ export function retrieveAudioByAction(action: HashmindAIResponseAction) {
   }
   return null;
 }
+
+
+export function removeLeadingTrailingBackticks(inputString: string) {
+    // Remove leading backticks
+    let result = inputString.replace(/^`+/g, '');
+
+    // Remove trailing backticks
+    result = result.replace(/`+$/g, '').replace(/markdown+/g, '');
+
+    return result;
+}

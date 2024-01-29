@@ -12,6 +12,7 @@ import hashnodeService, {
 import { nanoid } from "nanoid";
 import queueService from "../../services/queue.service";
 import { identifyArticleToUpdate } from "../../functions/identifyAction";
+import { removeLeadingTrailingBackticks } from "@/lib/utils";
 
 // Main function
 export const inngest_hashmind_main_function = inngest.createFunction(
@@ -204,7 +205,7 @@ export const inngest_article_content_generation_function =
           title: event.data.title,
           userId: event.data.userId,
           coverImage: event.data.coverImage,
-          content: response.content as string,
+          content: removeLeadingTrailingBackticks(response.content as string),
           jobId: event.data.jobId,
           subtitle: event.data.subtitle,
         },
