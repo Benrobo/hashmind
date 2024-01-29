@@ -118,7 +118,7 @@ export default function QueuesPage() {
       </FlexRowCenterBtw>
 
       {/* Main */}
-      <FlexColStart className="w-full px-4 py-2">
+      <FlexColStart className="w-full px-4 py-2 pb-[8em]">
         {getQueuesQuery.isLoading && <Spinner />}
         {queues.length === 0 && (
           <span className="text-white-100 font-ppReg text-xs">

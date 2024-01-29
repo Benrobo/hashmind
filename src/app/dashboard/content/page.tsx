@@ -107,9 +107,9 @@ export default function BlogContent() {
               <a href={c.link} target="_blank" className="text-white-100">
                 <ExternalLink size={15} />
               </a>
-              <a href={`https://hashnode.com/edit/${c.article_id}`} target="_blank" className="text-white-100">
+              {/* <a href={`https://hashnode.com/edit/${c.article_id}`} target="_blank" className="text-white-100">
                 <Pencil size={15} />
-              </a>
+              </a> */}
               <button className="text-red-305" onClick={()=>{
                 setContentDelId(c.id);
                 deleteContMutation.mutate({id: c.id});
