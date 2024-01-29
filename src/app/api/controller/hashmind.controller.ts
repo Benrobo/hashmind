@@ -41,98 +41,17 @@ export default class HashmindController {
 
     const { audio_base64, usersIntent } = payload;
 
-    // USERS INTENT PRESENT
-    if (usersIntent) {
-      const possibleIntents = ["DELETE"];
-      if (possibleIntents.includes(usersIntent)) {
-        // check if user has a title in cache
-        const cache = await redis.get(user.id);
-        if (!cache) {
-          return sendResponse.success(
-            RESPONSE_CODE.ERROR_DELETING_ARTICLE,
-            `No article title found in cache.`,
-            200,
-            {
-              action: "ARTICLE_DELETING_TITLE_NOTFOUND",
-            }
-          );
-        }
+    // const transcript = await speechToText.openaiSTT(audio_base64);
 
-        const title = (cache as any)?.title;
-        const jobId = nanoid();
-
-        await prisma.queues.create({
-          data: {
-            id: jobId,
-            userId: user.id,
-            description: "Article deletion job",
-            title: "Article deletion",
-            jobs: 1,
-            subqueue: {
-              createMany: {
-                data: [
-                  {
-                    title: "Deleting article",
-                    message: "deleting article processing",
-                    identifier: "article-deletion",
-                    status: "pending",
-                    userId: user.id,
-                  },
-                ],
-              },
-            },
-          },
-        });
-
-        // invoke event
-        await inngest.send({
-          name: "hashmind/article.delete",
-          data: {
-            jobId,
-            title,
-            userId: user.id,
-          },
-        });
-
-        return sendResponse.success(
-          RESPONSE_CODE.SUCCESS,
-          "Deleting of article queued",
-          200,
-          {
-            action: "ARTICLE_DELETION_QUEUED",
-          }
-        );
-      } else {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
-          `Invalid intent provided.`,
-          400
-        );
-      }
-      return;
-    }
-
-    // 🚀 CONTINUE THE FLOW if not present
-    // It implies user didn't intend to delete an article
-
-    //! Uncomment this once you're done
-    const transcript = await speechToText.openaiSTT(audio_base64);
-    console.log({ transcript });
+    // console.log({ transcript });
 
     // temp transcript
-    // const transcript = transcriptTestData;
-
-    await prisma.chatHistory.create({
-      data: {
-        message: transcript,
-        userId: user.id,
-        type: "user",
-      },
-    });
+    const transcript = transcriptTestData;
 
     return await processUserRequests({
       user: user!,
       transcript,
+      usersIntent: usersIntent!
     });
   }
 }

@@ -250,7 +250,7 @@ export const inngest_publish_article_function = inngest.createFunction(
     const title = event.data.title ?? "";
     const jobId = event.data.jobId;
     const hashnodeTagId = "567ae5a72b926c3063c3061a";
-    const slug = (subtitle as string).toLowerCase().replace(/\s/g, "-");
+    const slug = subtitle.toLowerCase().replace(/\s/g, "-");
 
     const user = await prisma.users.findFirst({
       where: {

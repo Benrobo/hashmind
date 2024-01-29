@@ -134,8 +134,8 @@ export default function QueuesPage() {
                 <FlexRowCenterBtw className="w-full">
                   <FlexColStart className="w-auto leading-none gap-0">
                     <h1 className="font-ppSB text-sm text-white-100">
-                      {Q.title.length > 30
-                        ? Q.title.slice(0, 30) + "..."
+                      {Q.title.length > 25
+                        ? Q.title.slice(0, 25) + "..."
                         : Q.title}
                     </h1>
                   </FlexColStart>

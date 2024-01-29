@@ -44,7 +44,9 @@ export default async function identifyAction(request: string) {
           function: {
             name: "identify_action",
             description:
-              "Identify users intent or action from the given prompt. Actions must be returned in one word, all caps, and underscored. Also, the title and subtitle and emoji must be returned if available.",
+              `Identify users intent or action from the given prompt. Actions must be returned in one word, all caps, and underscored. Also, the title and subtitle and emoji must be returned if available.
+              Also, Identify users intent or action from the given prompt. You need to decide from the given prompt if they want to update either (title, subtitle, cover image, content) or not.
+              `,
             parameters: {
               type: "object",
               properties: {
@@ -57,12 +59,12 @@ export default async function identifyAction(request: string) {
                 title: {
                   type: "string",
                   description:
-                    "Extract the title of the prompt if available and make sure to be short and concise.",
+                    "Extract the title from the prompt if available and make sure to be short and concise. This is very important, it must not be empty. Make it short maximum 50 characters",
                 },
                 subtitle: {
                   type: "string",
                   description:
-                    "Extract the subtitle from the prompt. Be short and concise.",
+                    "Extract the subtitle from the prompt. Make it short maximum 50 characters. This is very important, it must not be empty",
                 },
                 emoji: {
                   type: "string",
@@ -74,24 +76,10 @@ export default async function identifyAction(request: string) {
                   description:
                     "Extract keywords from the prompt and return them as a string separated by comma. Make sure no duplicate are found within the keywords and that the keywords are meaningful and not random.",
                 },
-              },
-              required: ["action", "title", "subtitle", "emoji", "keywords"],
-            },
-          },
-        },
-        {
-          type: "function",
-          function: {
-            name: "identify_update_blog_action",
-            description:
-              "Identify users intent or action from the given prompt. You need to decide from the given prompt if they want to update either (title, subtitle, cover image, content)",
-            parameters: {
-              type: "object",
-              properties: {
                 updateTitle: {
                   type: "string",
                   description:
-                    "Determine if the user wants to update the title of the blog post, if they need to update the title, add the new title as value. return null if not",
+                    "Determine if the user wants to update the title of the article, if they need to update the title, add the new title as value. return null if not",
                 },
                 updateContent: {
                   type: "string",
@@ -115,15 +103,13 @@ export default async function identifyAction(request: string) {
                   )}. Return the notation that best suites the user request.`,
                 },
               },
-              required: [
-                "updateTitle",
+              required: ["action", "title", "subtitle", "emoji", "keywords", "updateTitle",
                 "updateContent",
                 "updateSubtitle",
-                "updateContentNotation",
-              ],
+                "updateContentNotation",],
             },
           },
-        },
+        }
       ],
       tool_choice: "auto", // auto is default, but we'll be explicit
     });

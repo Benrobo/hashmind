@@ -21,9 +21,19 @@ type ProcessUserReqType = {
     hnPubId: string;
   };
   transcript: string;
+  usersIntent: "DELETE";
 };
 
-const createArticleQueue = async (
+type UserIntentHandler = {
+  usersIntent: "DELETE";
+  user: {
+    id: string;
+    hnToken: string;
+    hnPubId: string;
+  };
+};
+
+const createArticleEvent = async (
   userAction: IdentifyActionRespType,
   user: any
 ): Promise<any> => {
@@ -90,7 +100,7 @@ const createArticleQueue = async (
   );
 };
 
-const updateArticleQueue = async (
+const updateArticleEvent = async (
   userAction: IdentifyActionRespType,
   user: any
 ): Promise<any> => {
@@ -214,11 +224,10 @@ const updateArticleQueue = async (
   );
 };
 
-const deleteArticleQueue = async (
+const deleteArticleEvent = async (
   userAction: IdentifyActionRespType,
   user: any
 ): Promise<any> => {
-  // store title in cache
   await redis.set(user.id, JSON.stringify({ title: userAction.title }));
   await redis.expire(user.id, 60); // expire in 60min
 
@@ -251,13 +260,90 @@ const handleNoActionDetected = async (
   }
 };
 
-export default async function processUserRequests({
-  user,
-  transcript,
-}: ProcessUserReqType): Promise<any> {
+const handleUsersIntent = async (props: UserIntentHandler) => {
+  const { user, usersIntent } = props;
+
+  if (usersIntent) {
+    const possibleIntents = ["DELETE"];
+    if (possibleIntents.includes(usersIntent)) {
+      const cache = await redis.get(user.id);
+
+      if (!cache) {
+        return sendResponse.success(
+          RESPONSE_CODE.ERROR_DELETING_ARTICLE,
+          `No article title found in cache.`,
+          200,
+          {
+            action: "ARTICLE_DELETING_TITLE_NOTFOUND",
+          }
+        );
+      }
+
+      const title = (cache as any)?.title;
+      const jobId = nanoid();
+
+      await prisma.queues.create({
+        data: {
+          id: jobId,
+          userId: user.id,
+          description: "Article deletion job",
+          title: "Article deletion",
+          jobs: 1,
+          subqueue: {
+            createMany: {
+              data: [
+                {
+                  title: "Deleting article",
+                  message: "deleting article processing",
+                  identifier: "article-deletion",
+                  status: "pending",
+                  userId: user.id,
+                },
+              ],
+            },
+          },
+        },
+      });
+
+      await inngest.send({
+        name: "hashmind/article.delete",
+        data: {
+          jobId,
+          title,
+          userId: user.id,
+        },
+      });
+
+      return sendResponse.success(
+        RESPONSE_CODE.SUCCESS,
+        "Deleting of article queued",
+        200,
+        { action: "ARTICLE_DELETION_QUEUED" }
+      );
+    } else {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
+        `Invalid intent provided.`,
+        400
+      );
+    }
+  }
+};
+
+export default async function processUserRequests(
+  props: ProcessUserReqType
+): Promise<any> {
+  const { user, transcript, usersIntent } = props;
+
+  if (usersIntent) {
+    return await handleUsersIntent(props);
+  }
+
   const userAction = (await identifyAction(
     transcript
   )) as IdentifyActionRespType;
+
+  console.log(userAction);
 
   if (userAction.error) {
     throw new HttpException(
@@ -267,28 +353,36 @@ export default async function processUserRequests({
     );
   }
 
+  if(!userAction.action || !userAction.title){
+    console.log("NO ACTION")
+    return await processUserRequests(props)
+  }
+
+
   const _action = userAction.action;
 
   if (_action) {
-    console.log("ACTION DETECTED");
-    console.log(userAction);
+    console.log("ACTION DETECTED: ", _action);
 
     if (!userAction.subtitle || !userAction.title) {
-      return await processUserRequests({ user, transcript });
+        console.log("NO TITLE OR SUBTITLE", userAction.title, userAction.subtitle)
+        return;
+    //   return await processUserRequests(props);
     }
 
     if (actionsVariants.create.includes(_action as string)) {
-      return createArticleQueue(userAction, user);
+      return createArticleEvent(userAction, user);
     }
 
     if (actionsVariants.update.includes(_action)) {
-      return updateArticleQueue(userAction, user);
+      return updateArticleEvent(userAction, user);
     }
 
     if (actionsVariants.delete.includes(_action)) {
-      return deleteArticleQueue(userAction, user);
+      return deleteArticleEvent(userAction, user);
     }
   }
 
+  console.log("NO ACTION DETECTED")
   return handleNoActionDetected(userAction, user);
 }

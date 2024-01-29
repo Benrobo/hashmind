@@ -37,7 +37,9 @@ export const userActionTestData = {
 };
 
 export const transcriptTestData =
-  "Hi, I need you to delete the previous article you wrote on the topic Why Artificial Intelligence is the future of humanity and how it won't change the world.";
+  "Hi, I need you to create an article on the topic Building and Validating Web Endpoints with Fiber in Golang. ";
+  // "Update the article content with the title The benefit of being an indie hacker. I need you to add an image to the article content where the word 'Autonomy and Creative Control' exists."
+  // "Update the cover image of my article titled 'the benefit of being an indie hacker' to depict a computer and freedom."
 
 //   "Hi, so I need you to update one of my article on hashnode with the title Why Artificial Intelligence is the future of humanity and how it won't change the world. Update the section of the article that talks about the limitations of AI. I want you to add a new section that talks about the promise of AI. Also, add a new cover image depicting a Utopian future where AI live in harmony with humans.";
 
