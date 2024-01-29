@@ -5,8 +5,10 @@ import {
   FlexColStart,
   FlexColStartCenter,
   FlexRowCenter,
+  FlexRowCenterBtw,
 } from "@/components/flex";
 import WaveLoader from "@/components/loader";
+import Button from "@/components/ui/button";
 import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
@@ -45,7 +47,7 @@ export default function AI() {
   const [timer, setTimer] = React.useState<number>(0);
   const router = useRouter();
   const handleUserRequestMut = useMutation({
-    mutationFn: async (data: any) => await handleUserRequest(data),
+    mutationFn: async (data: {audio_base64?: string, usersIntent?: string}) => await handleUserRequest(data),
   });
   const handleTTSMut = useMutation({
     mutationFn: async (data: any) => await googleTTS(data),
@@ -146,7 +148,7 @@ export default function AI() {
       audio.currentTime = 0;
       setAudioPlaying(false);
       setDelArt(false);
-      setDelArtModal(true);
+      if(delArt)setDelArtModal(true);
     };
     // audio.addEventListener("error", (event) => {
     //   console.error("Audio error");
@@ -189,7 +191,7 @@ export default function AI() {
       // }
 
       handleUserRequestMut.mutate({
-        audio_base64: base64,
+        audio_base64: base64 as string,
       });
     });
   }
@@ -309,7 +311,10 @@ export default function AI() {
       </FlexColCenter>
 
       {/* Modal */}
-      <FlexColCenter className="w-full h-screen fixed top-0 backdrop-blur bg-dark-105/20 bg-opacity-85 z-[999] ">
+      <FlexColCenter className={cn(
+        "w-full h-screen fixed top-0 backdrop-blur-lg bg-dark-105/20 bg-opacity-85 z-[999] transition-all",
+        delArtModal ? "translate-y-[1]" : "translate-y-[50em]"
+      )}>
           <FlexColStartCenter className="w-full max-w-[400px] mx-auto text-center">
             <p className="font-ppSB text-white-100 text-1xl text-center">
               Article Deletion
@@ -318,6 +323,30 @@ export default function AI() {
               You've requested for an article to be deleted are you sure about this.?
             </p>
             <br />
+            <br />
+            <FlexRowCenterBtw>
+              <Button 
+              
+              onClick={()=> {
+                handleUserRequestMut.mutate({
+                  audio_base64: "" as string,
+                  usersIntent: "DELETE"
+                });
+              }} 
+              disabled={handleUserRequestMut.isPending}
+              isLoading={handleUserRequestMut.isPending}
+              className="cursor-pointer transition-all bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] focus:bg-blue-101 font-ppReg">
+                Yes
+              </Button>
+
+              <Button 
+              
+              onClick={()=> setDelArtModal(false)} 
+              disabled={handleUserRequestMut.isPending}
+              className="cursor-pointer transition-all bg-red-305 text-white px-6 py-2 rounded-lg border-red-400 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] focus:bg-red-305 font-ppReg hover:bg-red-305">
+                No
+              </Button>
+            </FlexRowCenterBtw>
           </FlexColStartCenter>
       </FlexColCenter>
 

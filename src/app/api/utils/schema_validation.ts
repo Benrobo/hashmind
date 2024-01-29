@@ -28,7 +28,7 @@ export const updateHashnodeTokenSchema = zod.object({
 });
 
 export const handleUserRequestSchema = zod.object({
-  audio_base64: zod.string(),
+  audio_base64: zod.string().optional(),
   usersIntent: zod.string().optional(),
 });
 
