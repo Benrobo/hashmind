@@ -68,7 +68,7 @@ export default class HashmindController {
             description: "Article deletion job",
             title: "Article deletion",
             jobs: 1,
-            subqueue:{
+            subqueue: {
               createMany: {
                 data: [
                   {
@@ -76,13 +76,13 @@ export default class HashmindController {
                     message: "deleting article processing",
                     identifier: "article-deletion",
                     status: "pending",
-                    userId: user.id
-                  }
-                ]
-              }
-            }
-          }
-        })
+                    userId: user.id,
+                  },
+                ],
+              },
+            },
+          },
+        });
 
         // invoke event
         await inngest.send({
@@ -90,8 +90,8 @@ export default class HashmindController {
           data: {
             jobId,
             title,
-            userId: user.id
-          }
+            userId: user.id,
+          },
         });
 
         return sendResponse.success(
@@ -99,9 +99,9 @@ export default class HashmindController {
           "Deleting of article queued",
           200,
           {
-            action: "ARTICLE_DELETION_QUEUED"
+            action: "ARTICLE_DELETION_QUEUED",
           }
-        )
+        );
       } else {
         throw new HttpException(
           RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
@@ -132,7 +132,7 @@ export default class HashmindController {
 
     return await processUserRequests({
       user: user!,
-      transcript
-    })
+      transcript,
+    });
   }
 }

@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "dbPush": "prisma db push && npx prisma generate",
-    "format": "npx prettier --write 'src/**/*.{jsx,js,ts,tsx}'"
+    "format": "npx prettier --write './**/*.{jsx,js,ts,tsx,json}'"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"
