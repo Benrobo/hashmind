@@ -116,10 +116,14 @@ export default function AI() {
           setDelArt(true);
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
-          else
-            toast.success(
-              "You've requested to delete an article, are you sure??."
-            );
+          else toast.success("About to delete an article, are you sure??");
+        }
+        if (actionCode === "ARTICLE_DELETING_TITLE_NOTFOUND") {
+          setDelArt(false);
+          setDelArtModal(false)
+          const audioUrl = retrieveAudioByAction(actionCode);
+          if (audioUrl) playAudio(audioUrl);
+          else toast.success("No title provided.");
         }
       }
     }

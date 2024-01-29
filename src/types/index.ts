@@ -105,6 +105,8 @@ export type ReqUserObj = {
 export type HashmindAIResponseAction =
   | "ARTICLE_CREATION_QUEUED"
   | "ARTICLE_TITLE_NOT_PROVIDED"
-  | "DELETE_ARTICLE_REQUESTED";
+  | "DELETE_ARTICLE_REQUESTED" 
+  | "ARTICLE_DELETION_QUEUED"
+  | "ARTICLE_DELETING_TITLE_NOTFOUND"
 
 export type updateBlogContentNotationType = "ADD" | "REMOVE" | "REPLACE";

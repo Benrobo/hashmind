@@ -44,6 +44,7 @@ type PublishArticle<T extends HashmindMainFunc["data"]> = {
   };
 };
 
+// All other function would inherit their types properties from.
 type HashmindMainFunc = {
   data: {
     title?: string;
@@ -80,6 +81,7 @@ type Events = {
   "hashmind/article.title.update": ResponseType;
   "hashmind/article.subtitle.update": ResponseType;
   "hashmind/article.coverImage.update": ResponseType;
+  "hashmind/article.delete": ResponseType
 };
 
 // Create a client to send and receive events

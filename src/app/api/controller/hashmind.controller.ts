@@ -52,15 +52,55 @@ export default class HashmindController {
             `No article title found in cache.`,
             200,
             {
-              aiMsg: `It seems you requested for an article to be deleted, but I couldn't find any article title in cache. Please try again.`,
+              action: "ARTICLE_DELETING_TITLE_NOTFOUND",
             }
           );
         }
 
-        // const title = cache?.title
-        console.log({ cache });
+        const title = (cache as any)?.title;
+        const jobId = nanoid();
 
-        // invoke the function
+        await prisma.queues.create({
+          data: {
+            id: jobId,
+            userId: user.id,
+            description: "Article deletion job",
+            title: "Article deletion",
+            jobs: 1,
+            subqueue:{
+              createMany: {
+                data: [
+                  {
+                    title: "Deleting article",
+                    message: "deleting article processing",
+                    identifier: "article-deletion",
+                    status: "pending",
+                    userId: user.id
+                  }
+                ]
+              }
+            }
+          }
+        })
+
+        // invoke event
+        await inngest.send({
+          name: "hashmind/article.delete",
+          data: {
+            jobId,
+            title,
+            userId: user.id
+          }
+        });
+
+        return sendResponse.success(
+          RESPONSE_CODE.SUCCESS,
+          "Deleting of article queued",
+          200,
+          {
+            action: "ARTICLE_DELETION_QUEUED"
+          }
+        )
       } else {
         throw new HttpException(
           RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,

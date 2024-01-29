@@ -305,6 +305,57 @@ class HashnodeService {
       );
     }
   }
+
+  async deleteArticle({ id, apiKey }: { apiKey: string; id: string }){
+    if (!apiKey) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_DELETING_ARTICLE,
+        `Unauthorized, missing api key`,
+        401
+      );
+    }
+
+    const funcResp: FuncResp = { error: null, success: null, data: null };
+    try {
+      const reqBody = {
+        query: `mutation RemovePost($input: RemovePostInput!) {
+            removePost(input: $input) {
+              post {
+                id
+                title
+              }
+            }
+        }`,
+        variables: {
+          input: {
+            id
+          },
+        },
+      };
+
+      // ! Uncomment this once you're done
+      const resp = await $http({
+        method: "POST",
+        data: reqBody,
+        headers: {
+          Authorization: apiKey,
+        },
+      });
+
+      const respData = resp.data?.data;
+      funcResp.success = "Article created successfully";
+      funcResp.data = respData.removePost.post as {id: string, title: string};
+      return funcResp;
+    } catch (e: any) {
+      const msg = e.response?.data?.errors[0]?.message ?? e.message;
+      console.log(msg);
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Something went wrong creating article.`,
+        400
+      );
+    }
+  }
 }
 
 const hashnodeService = new HashnodeService();
