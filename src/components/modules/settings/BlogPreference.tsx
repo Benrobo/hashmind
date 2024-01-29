@@ -30,8 +30,7 @@ function BlogPreference() {
               preference !== "draft"
                 ? "bg-blue-101 text-white-100"
                 : "bg-dark-100 text-white-100/40"
-            )}
-          >
+            )}>
             save
           </button>
           <Switch

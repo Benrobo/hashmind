@@ -48,8 +48,7 @@ export default function ToolBar() {
           !toolbarVisible
             ? "animate-leave translate-y-[10em]"
             : "animate-enter -translate-y-[1em]"
-        )}
-      >
+        )}>
         {navigations.map((nav, i) => (
           <Link
             href={nav.path}
@@ -65,8 +64,7 @@ export default function ToolBar() {
                 ? "bg-blue-100 -translate-y-[1em] text-white-100"
                 : activePage?.toLowerCase() === nav.name.toLowerCase() &&
                     "text-blue-100"
-            )}
-          >
+            )}>
             {renderIcon(
               nav.name.toLowerCase(),
               nav.main ? nav.name.toLowerCase() : activePage

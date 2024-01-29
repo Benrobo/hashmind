@@ -1,11 +1,6 @@
 // any related data for functions calling would be added here
 
-export const supportedActions = [
-  "CREATE_BLOG",
-  "UPDATE_BLOG",
-  "DELETE_BLOG",
-  "LIST_BLOGS",
-];
+export const supportedActions = ["CREATE_BLOG", "UPDATE_BLOG", "DELETE_BLOG"];
 
 export const actionsVariants = {
   create: ["CREATE_BLOG", "CREATE_POST", "CREATE_ARTICLE", "CREATE", "create"],

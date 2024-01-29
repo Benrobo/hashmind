@@ -81,8 +81,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       disabled={(isLoading ?? disabled) || disabled}
       className={classNames}
-      {...props}
-    >
+      {...props}>
       <div className="w-full h-full absolute top-0 flex flex-col items-center justify-center">
         <svg
           width={spinnerSize ?? "20"}
@@ -92,8 +91,7 @@ const Button: React.FC<ButtonProps> = ({
           className={twMerge(
             " animate-spin transition delay-[.2] ",
             isLoading ? "opacity-1 visible" : "opacity-0 hidden"
-          )}
-        >
+          )}>
           <path
             fill={spinnerColor ?? "#fff"}
             d="M12 21a9 9 0 1 1 6.18-15.55a.75.75 0 0 1 0 1.06a.74.74 0 0 1-1.06 0A7.51 7.51 0 1 0 19.5 12a.75.75 0 0 1 1.5 0a9 9 0 0 1-9 9Z"
@@ -104,16 +102,14 @@ const Button: React.FC<ButtonProps> = ({
         className={twMerge(
           "flex items-center justify-center gap-2",
           isLoading ? "opacity-0" : "opacity-1"
-        )}
-      >
+        )}>
         {leftIcon}
         {children}
         {rightIcon && (
           <span
             style={{
               opacity: isLoading ? 0 : 1,
-            }}
-          >
+            }}>
             {rightIcon}
           </span>
         )}

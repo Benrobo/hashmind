@@ -67,7 +67,7 @@ export default class HashmindController {
             description: "Article deletion job",
             title: "Article deletion",
             jobs: 1,
-            subqueue:{
+            subqueue: {
               createMany: {
                 data: [
                   {
@@ -75,13 +75,13 @@ export default class HashmindController {
                     message: "deleting article processing",
                     identifier: "article-deletion",
                     status: "pending",
-                    userId: user.id
-                  }
-                ]
-              }
-            }
-          }
-        })
+                    userId: user.id,
+                  },
+                ],
+              },
+            },
+          },
+        });
 
         // invoke event
         await inngest.send({
@@ -89,8 +89,8 @@ export default class HashmindController {
           data: {
             jobId,
             title,
-            userId: user.id
-          }
+            userId: user.id,
+          },
         });
 
         return sendResponse.success(
@@ -98,9 +98,9 @@ export default class HashmindController {
           "Deleting of article queued",
           200,
           {
-            action: "ARTICLE_DELETION_QUEUED"
+            action: "ARTICLE_DELETION_QUEUED",
           }
-        )
+        );
       } else {
         throw new HttpException(
           RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
@@ -115,11 +115,11 @@ export default class HashmindController {
     // It implies user didn't intend to delete an article
 
     //! Uncomment this once you're done
-    // const transcript = await speechToText.openaiSTT(audio_base64);
-    // console.log({ transcript });
+    const transcript = await speechToText.openaiSTT(audio_base64);
+    console.log({ transcript });
 
     // temp transcript
-    const transcript = transcriptTestData;
+    // const transcript = transcriptTestData;
 
     await prisma.chatHistory.create({
       data: {
@@ -130,19 +130,19 @@ export default class HashmindController {
     });
 
     //! Uncomment this once you're done
-    // const userAction = (await identifyAction(
-    //   transcript
-    // )) as IdentifyActionRespType;
+    const userAction = (await identifyAction(
+      transcript
+    )) as IdentifyActionRespType;
 
-    // if (userAction.error) {
-    //   throw new HttpException(
-    //     RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
-    //     userAction.error,
-    //     400
-    //   );
-    // }
+    if (userAction.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
+        userAction.error,
+        400
+      );
+    }
 
-    const userAction = userActionTestData;
+    // const userAction = userActionTestData;
 
     const _action = userAction.action;
     if (_action) {
@@ -289,7 +289,8 @@ export default class HashmindController {
               userId: user.id,
               jobId,
               updateContentNotation:
-                userAction.updateContentNotation as updateBlogContentNotationType,
+                userAction.updateContentNotation ??
+                ("ADD" as updateBlogContentNotationType),
               title: userAction.title,
               request: transcript,
             },

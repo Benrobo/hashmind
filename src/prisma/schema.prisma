@@ -13,7 +13,7 @@ datasource db {
 enum GptStyle {
     author_style
     casual_conversation
-    tutorials_and_guides
+    tutorials_and_guide
     informative_and_newsy
 }
 

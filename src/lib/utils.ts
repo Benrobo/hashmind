@@ -59,7 +59,7 @@ export function retrieveAudioByAction(action: HashmindAIResponseAction) {
   if (action === "DELETE_ARTICLE_REQUESTED") {
     return `/audio/response/api-resp/delete-art.mp3`;
   }
-   if (action === "ARTICLE_DELETING_TITLE_NOTFOUND") {
+  if (action === "ARTICLE_DELETING_TITLE_NOTFOUND") {
     return `/audio/response/api-resp/art-title-notfound.mp3`;
   }
   return null;

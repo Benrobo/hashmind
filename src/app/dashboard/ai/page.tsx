@@ -47,7 +47,8 @@ export default function AI() {
   const [timer, setTimer] = React.useState<number>(0);
   const router = useRouter();
   const handleUserRequestMut = useMutation({
-    mutationFn: async (data: {audio_base64?: string, usersIntent?: string}) => await handleUserRequest(data),
+    mutationFn: async (data: { audio_base64?: string; usersIntent?: string }) =>
+      await handleUserRequest(data),
   });
   const handleTTSMut = useMutation({
     mutationFn: async (data: any) => await googleTTS(data),
@@ -100,17 +101,23 @@ export default function AI() {
       const data = handleUserRequestMut.data as ResponseData;
       const response = data?.data as any;
 
+      console.log({ response });
+
       if (response?.aiMsg) {
         // convert the aiMsg to audio
         // ! Uncomment this back to enable TTS
-        // handleTTSMut.mutate({ text: response?.aiMsg });
+        handleTTSMut.mutate({ text: response?.aiMsg });
       } else {
         // get the action code
         const actionCode = response?.action as HashmindAIResponseAction;
-        if (["ARTICLE_CREATION_QUEUED", "ARTICLE_DELETION_QUEUED"].includes(actionCode)) {
-          if(delArt || delArtModal){
+        if (
+          ["ARTICLE_CREATION_QUEUED", "ARTICLE_DELETION_QUEUED"].includes(
+            actionCode
+          )
+        ) {
+          if (delArt || delArtModal) {
             setDelArt(false);
-            setDelArtModal(false)
+            setDelArtModal(false);
           }
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
@@ -124,7 +131,7 @@ export default function AI() {
         }
         if (actionCode === "ARTICLE_DELETING_TITLE_NOTFOUND") {
           setDelArt(false);
-          setDelArtModal(false)
+          setDelArtModal(false);
           const audioUrl = retrieveAudioByAction(actionCode);
           if (audioUrl) playAudio(audioUrl);
           else toast.success("No title provided.");
@@ -156,7 +163,7 @@ export default function AI() {
       audio.currentTime = 0;
       setAudioPlaying(false);
       setDelArt(false);
-      if(delArt)setDelArtModal(true);
+      if (delArt) setDelArtModal(true);
     };
     // audio.addEventListener("error", (event) => {
     //   console.error("Audio error");
@@ -189,14 +196,13 @@ export default function AI() {
       const base64 = await handleBlobToBase64(blob);
       setBase64Data(base64);
 
-      // check if the user pressed the button for less than 1 second
       const after = Date.now();
       const diff = after - timer;
-      // if (diff < 1000) {
-      //   toast.error("Please speak for at least 4 second.");
-      //   setTimer(0);
-      //   return;
-      // }
+      if (diff < 1000) {
+        toast.error("Please speak for at least 4 second.");
+        setTimer(0);
+        return;
+      }
 
       handleUserRequestMut.mutate({
         audio_base64: base64 as string,
@@ -226,8 +232,7 @@ export default function AI() {
             audio.pause();
             audio.src = "";
             router.push("/dashboard/home");
-          }}
-        >
+          }}>
           <MoveLeft
             className="text-white-100 p-2 rounded-md bg-dark-100 "
             size={30}
@@ -272,8 +277,7 @@ export default function AI() {
                 audio.play();
                 setAudioPlaying(true);
               }, 1000);
-            }}
-          >
+            }}>
             Initialize AI
           </button>
         )}
@@ -284,8 +288,7 @@ export default function AI() {
           {humanSpeechs.map((speech) => (
             <span
               key={speech}
-              className="p-2 m-1 rounded-md bg-dark-100 text-xs text-white-100"
-            >
+              className="p-2 m-1 rounded-md bg-dark-100 text-xs text-white-100">
               {speech}
             </span>
           ))}
@@ -307,8 +310,7 @@ export default function AI() {
                 delArt ||
                 handleUserRequestMut.isPending ||
                 handleTTSMut.isPending
-              }
-            >
+              }>
               {speaking ? <Pause size={30} /> : <Mic size={30} />}
             </button>
             <span className="text-xs text-white-100/70 font-ppSB scale-[.75] ">
@@ -319,43 +321,43 @@ export default function AI() {
       </FlexColCenter>
 
       {/* Modal */}
-      <FlexColCenter className={cn(
-        "w-full h-screen fixed top-0 backdrop-blur-lg bg-dark-105/20 bg-opacity-85 z-[999] transition-all",
-        delArtModal ? "translate-y-[1]" : "translate-y-[50em]"
-      )}>
-          <FlexColStartCenter className="w-full max-w-[400px] mx-auto text-center">
-            <p className="font-ppSB text-white-100 text-1xl text-center">
-              Article Deletion
-            </p>
-            <p className="text-xs font-ppReg text-white-100/50">
-              You've requested for an article to be deleted are you sure about this.?
-            </p>
-            <br />
-            <br />
-            <FlexRowCenterBtw>
-              <Button 
-              
-              onClick={()=> {
+      <FlexColCenter
+        className={cn(
+          "w-full h-screen fixed top-0 backdrop-blur-lg bg-dark-105/20 bg-opacity-85 z-[999] transition-all",
+          delArtModal ? "translate-y-[1]" : "translate-y-[50em]"
+        )}>
+        <FlexColStartCenter className="w-full max-w-[400px] mx-auto text-center">
+          <p className="font-ppSB text-white-100 text-1xl text-center">
+            Article Deletion
+          </p>
+          <p className="text-xs font-ppReg text-white-100/50">
+            You've requested for an article to be deleted are you sure about
+            this.?
+          </p>
+          <br />
+          <br />
+          <FlexRowCenterBtw>
+            <Button
+              onClick={() => {
                 handleUserRequestMut.mutate({
                   audio_base64: "" as string,
-                  usersIntent: "DELETE"
+                  usersIntent: "DELETE",
                 });
-              }} 
+              }}
               disabled={handleUserRequestMut.isPending}
               isLoading={handleUserRequestMut.isPending}
               className="cursor-pointer transition-all bg-blue-500 text-white px-6 py-2 rounded-lg border-blue-600 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] focus:bg-blue-101 font-ppReg">
-                Yes
-              </Button>
+              Yes
+            </Button>
 
-              <Button 
-              
-              onClick={()=> setDelArtModal(false)} 
+            <Button
+              onClick={() => setDelArtModal(false)}
               disabled={handleUserRequestMut.isPending}
               className="cursor-pointer transition-all bg-red-305 text-white px-6 py-2 rounded-lg border-red-400 border-b-[4px] hover:brightness-110 hover:-translate-y-[1px] hover:border-b-[6px] active:border-b-[2px] active:brightness-90 active:translate-y-[2px] focus:bg-red-305 font-ppReg hover:bg-red-305">
-                No
-              </Button>
-            </FlexRowCenterBtw>
-          </FlexColStartCenter>
+              No
+            </Button>
+          </FlexRowCenterBtw>
+        </FlexColStartCenter>
       </FlexColCenter>
 
       <BlurBgRadial className="w-[70%] absolute opacity-1 top-[-50%] left-5 bg-white-300 blur-[450px] " />

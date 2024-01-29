@@ -103,8 +103,7 @@ export default function Settings() {
           <button
             className="w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-[.7]"
             onClick={toggleAuthVisi}
-            disabled={checkHnAuthorizeQuery.isPending}
-          >
+            disabled={checkHnAuthorizeQuery.isPending}>
             <FlexRowCenterBtw className="w-full">
               <FlexRowStartCenter>
                 <Image
@@ -137,15 +136,13 @@ export default function Settings() {
             className={cn(
               "w-full transition-all overflow-hidden p-0 gap-0",
               authVisi ? "h-auto mt-3" : "h-[0px] mt-0"
-            )}
-          >
+            )}>
             <span className="text-white-100/50 text-xs font-ppReg mb-2">
               Your hashnode token{" "}
               <a
                 className="text-blue-101 underline"
                 href="https://hashnode.com/settings/developer"
-                target="_blank"
-              >
+                target="_blank">
                 click here
               </a>
             </span>
@@ -168,8 +165,7 @@ export default function Settings() {
               className="w-full h-[40px] mt-2 text-xs bg-blue-100 rounded-md font-ppReg disabled:cursor-not-allowed"
               onClick={updateHashnodeToken}
               isLoading={updateHNTokenMutation.isPending}
-              disabled={updateHNTokenMutation.isPending}
-            >
+              disabled={updateHNTokenMutation.isPending}>
               Authorize
             </Button>
           </FlexColStart>

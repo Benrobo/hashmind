@@ -150,8 +150,7 @@ export function BlogStyleComp() {
         onClick={() => {
           saveBlogStyle();
         }}
-        disabled={gptStyleMutation.isPending}
-      >
+        disabled={gptStyleMutation.isPending}>
         {gptStyleMutation.isPending ? (
           <Spinner size={13} />
         ) : (
@@ -169,8 +168,7 @@ export function BlogStyleComp() {
               data-dd={d.name}
               onClick={() => {
                 toggleDD(d.name as GPT_RESP_STYLE_NAME);
-              }}
-            >
+              }}>
               <FlexRowCenterBtw className="w-auto " data-dd={d.name}>
                 <FlexRowStartCenter>
                   <span className="text-2xl">{d.emoji}</span>
@@ -197,8 +195,7 @@ export function BlogStyleComp() {
               className={cn(
                 "w-full transition-all overflow-hidden p-0 gap-0",
                 activeDD.includes(d.name) ? "h-auto mt-3" : "h-[0px] mt-0"
-              )}
-            >
+              )}>
               {!userSettingsQuery?.isLoading && defaultBlogStyle && (
                 <StyleInfo
                   style={d.name}

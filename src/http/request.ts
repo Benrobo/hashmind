@@ -68,4 +68,3 @@ export const deleteContent = async (data: any) => {
   const req = await $axios.post("/user/blog/content", data);
   return req.data;
 };
-

@@ -687,13 +687,11 @@ export const inngest_update_article_coverImage_function =
     }
   );
 
-
 // DELETING ARTICLE
-export const inngest_delete_article_function =
-  inngest.createFunction(
-    {
-      id: "hashmind-delete-article",
-      onFailure: async ({ error, event, step }) => {
+export const inngest_delete_article_function = inngest.createFunction(
+  {
+    id: "hashmind-delete-article",
+    onFailure: async ({ error, event, step }) => {
       console.log(`❌ ARTICLE DELETION FAILED`, error);
 
       const jobData = event.data.event.data;
@@ -712,79 +710,76 @@ export const inngest_delete_article_function =
         ],
       });
     },
-    },
-    { event: "hashmind/article.delete" },
-    async ({ event, step })=> {
-      console.log("DELETING ARTICLE EVENT TRIGGERED");
+  },
+  { event: "hashmind/article.delete" },
+  async ({ event, step }) => {
+    console.log("DELETING ARTICLE EVENT TRIGGERED");
 
-      const user = await prisma.users.findFirst({
-        where: { userId: event.data.userId },
-        include: { settings: true },
-      });
-      const jobId = event.data.jobId
-      const apiKey = user?.settings?.hashnode_token;
-      const title = event.data.title!;
-      const userId = event.data.userId;
+    const user = await prisma.users.findFirst({
+      where: { userId: event.data.userId },
+      include: { settings: true },
+    });
+    const jobId = event.data.jobId;
+    const apiKey = user?.settings?.hashnode_token;
+    const title = event.data.title!;
+    const userId = event.data.userId;
 
-      const resp = await hashnodeService.getUserArticles(apiKey as string);
-      const userArticles = resp.data;
+    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const userArticles = resp.data;
 
-      // find the article to update based on title
-      const articleToUpdate = await identifyArticleToUpdate(
-        title,
-        userArticles
+    // find the article to update based on title
+    const articleToUpdate = await identifyArticleToUpdate(title, userArticles);
+
+    console.log({ articleToUpdate });
+
+    if (articleToUpdate.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        `Error deleting article, Article with the title [${title}] not found`,
+        500
       );
-
-      console.log({articleToUpdate})
-
-      if (articleToUpdate.error) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
-          `Error deleting article, Article with the title [${title}] not found`,
-          500
-        );
-      }
-
-      const articleId = articleToUpdate.article_id;
-      const article = await hashnodeService.getArticleById({
-        id: articleId!,
-        apiKey: apiKey as string,
-      });
-
-      if (article.error) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_DELETING_ARTICLE,
-          `Error deleting article, ${article.error}`,
-          500
-        );
-      }
-
-      // delete the article
-      const articleDeleted = await hashnodeService.deleteArticle({
-        apiKey: apiKey!,
-        id: articleId!
-      });
-
-      if(articleDeleted.error){
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_DELETING_ARTICLE,
-          `Error deleting article, ${article.error}`,
-          500
-        );
-      }
-
-      console.log(`✅ Article Deleted`);
-
-      await queueService.updateQueue({
-        jobId: jobId!,
-        userId,
-        subqueues: [
-          {
-            identifier: "article-deletion",
-            message: "Article deleted",
-            status: "completed"
-          }
-        ]
-      });
     }
-  )
+
+    const articleId = articleToUpdate.article_id;
+    const article = await hashnodeService.getArticleById({
+      id: articleId!,
+      apiKey: apiKey as string,
+    });
+
+    if (article.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_DELETING_ARTICLE,
+        `Error deleting article, ${article.error}`,
+        500
+      );
+    }
+
+    // delete the article
+    const articleDeleted = await hashnodeService.deleteArticle({
+      apiKey: apiKey!,
+      id: articleId!,
+    });
+
+    if (articleDeleted.error) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_DELETING_ARTICLE,
+        `Error deleting article, ${article.error}`,
+        500
+      );
+    }
+
+    console.log(`✅ Article Deleted`);
+
+    await queueService.updateQueue({
+      jobId: jobId!,
+      userId,
+      subqueues: [
+        {
+          identifier: "article-deletion",
+          message: "Article deleted",
+          status: "completed",
+        },
+      ],
+    });
+  }
+);

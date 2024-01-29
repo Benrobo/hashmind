@@ -132,8 +132,7 @@ function AuthorStyle({ defaultBlogStyle, saveChanges, changes }: StyleProps) {
             onClick={() => {
               if (!isPlaying) playAudio();
               else stopAudio();
-            }}
-          >
+            }}>
             {isPlaying ? <Pause size={15} /> : <Volume2 size={15} />}
           </button>
         </FlexRowStart>
@@ -146,8 +145,7 @@ function AuthorStyle({ defaultBlogStyle, saveChanges, changes }: StyleProps) {
           onChange={(e) => {
             setAuthorName(e.target.value as AUTHOR_NAMES);
             saveChanges("author_style", e.target.value as AUTHOR_NAMES);
-          }}
-        >
+          }}>
           <option value="">Select author style</option>
           {getGptStyle("author_style" as GPT_RESP_STYLE_NAME)?.styles.map(
             (a, i) => (
@@ -233,8 +231,7 @@ function CombineStyles({
             onClick={() => {
               if (!isPlaying) playAudio();
               else stopAudio();
-            }}
-          >
+            }}>
             {isPlaying ? <Pause size={15} /> : <Volume2 size={15} />}
           </button>
         </FlexRowStart>

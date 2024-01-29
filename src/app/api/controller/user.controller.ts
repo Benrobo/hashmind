@@ -163,13 +163,13 @@ export default class UserController {
     });
   }
 
-  public async getContents(req: NextRequest){
+  public async getContents(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
     const contents = await prisma.contentMetaData.findMany({
-      where:{
-        userId: user.id
-      }
-    }) 
+      where: {
+        userId: user.id,
+      },
+    });
 
     return sendResponse.success(
       RESPONSE_CODE.SUCCESS,
@@ -180,43 +180,41 @@ export default class UserController {
   }
 
   // removes created hashnode posts alongside
-  public async removeContentMetadata(req: NextRequest){
+  public async removeContentMetadata(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
-    const payload: {id: string} = await req.json();
+    const payload: { id: string } = await req.json();
 
     await ZodValidation(removeContentSchema, payload, req.url);
 
     const content = await prisma.contentMetaData.findFirst({
       where: {
         id: payload.id,
-        userId: user.id
-      }
+        userId: user.id,
+      },
     });
 
-    if(!content){
+    if (!content) {
       throw new HttpException(
         RESPONSE_CODE.CONTENT_NOT_FIND,
         "Content not found",
         404
-      )
-    };
+      );
+    }
 
     // delete content-metadat from database
     await prisma.contentMetaData.delete({
-      where:{
-        id: payload.id
-      }
+      where: {
+        id: payload.id,
+      },
     });
 
     // delete content from hashnode (Event based)
     // fire an inngest event (delete content in background)
 
-
     return sendResponse.success(
       RESPONSE_CODE.CONTENT_DELETED,
       "Content deleted",
       200
-    )
+    );
   }
-
 }

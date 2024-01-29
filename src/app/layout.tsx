@@ -23,8 +23,7 @@ export default function RootLayout({
           `${ppReg.variable} ${ppB.variable} ${ppEB.variable} ${ppSB.variable} ${ppL.variable} ${blEB.variable}`,
           "h-screen hideScrollBar2 scroll-smooth"
         )}
-        suppressHydrationWarning
-      >
+        suppressHydrationWarning>
         <ClerkProvider>
           <QueryClientProvider client={queryClient}>
             <DataContextProvider>{children}</DataContextProvider>

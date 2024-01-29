@@ -60,16 +60,14 @@ export default function HashnodePage() {
         rows={10}
         className="w-full text-dark-100 px-3 py-2 "
         placeholder="description"
-        onChange={handleChange as any}
-      ></textarea>
+        onChange={handleChange as any}></textarea>
       <br />
       <Button
         onClick={() => {
           publishArticleMut.mutate(blogDetails);
         }}
         isLoading={publishArticleMut.isPending}
-        disabled={publishArticleMut.isPending}
-      >
+        disabled={publishArticleMut.isPending}>
         Publish
       </Button>
 

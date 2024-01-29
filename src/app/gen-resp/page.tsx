@@ -83,8 +83,7 @@ export default function GenAIResponses() {
         cols={50}
         rows={10}
         onChange={(e) => setPrompt(e.target.value)}
-        value={prompt}
-      ></textarea>
+        value={prompt}></textarea>
       <Button onClick={generateResponse} isLoading={loading}>
         Generate
       </Button>

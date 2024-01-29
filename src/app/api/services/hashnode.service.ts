@@ -117,24 +117,15 @@ class HashnodeService {
         },
       };
 
-      // ! Uncomment this once you're done
-      // const resp = await $http({
-      //   method: "POST",
-      //   data: reqBody,
-      //   headers: {
-      //     Authorization: apiKey,
-      //   },
-      // });
-
-      // const respData = resp.data?.data;
-      const respData = {
-        publishPost: {
-          post: {
-            id: "123",
-            url: "https://google.com",
-          },
+      const resp = await $http({
+        method: "POST",
+        data: reqBody,
+        headers: {
+          Authorization: apiKey,
         },
-      };
+      });
+
+      const respData = resp.data?.data;
       funcResp.success = "Article created successfully";
       funcResp.data = respData.publishPost.post as PublishedArtRespData;
       return funcResp;
@@ -306,7 +297,7 @@ class HashnodeService {
     }
   }
 
-  async deleteArticle({ id, apiKey }: { apiKey: string; id: string }){
+  async deleteArticle({ id, apiKey }: { apiKey: string; id: string }) {
     if (!apiKey) {
       throw new HttpException(
         RESPONSE_CODE.ERROR_DELETING_ARTICLE,
@@ -328,7 +319,7 @@ class HashnodeService {
         }`,
         variables: {
           input: {
-            id
+            id,
           },
         },
       };
@@ -344,7 +335,7 @@ class HashnodeService {
 
       const respData = resp.data?.data;
       funcResp.success = "Article created successfully";
-      funcResp.data = respData.removePost.post as {id: string, title: string};
+      funcResp.data = respData.removePost.post as { id: string; title: string };
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;

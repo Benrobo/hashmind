@@ -16,7 +16,6 @@ import Link from "next/link";
 import React from "react";
 import toast from "react-hot-toast";
 
-
 type ContentMetadata = {
   id: string;
   title: string;
@@ -24,26 +23,26 @@ type ContentMetadata = {
   emoji: string;
   link: string;
   article_id: string;
-}
+};
 
 export default function BlogContent() {
   const { showToolBar, setActivePage } = useDataContext();
-  const [contents, setContents] = React.useState<ContentMetadata[]>([])
-  const [contDelId, setContentDelId] = React.useState("")
+  const [contents, setContents] = React.useState<ContentMetadata[]>([]);
+  const [contDelId, setContentDelId] = React.useState("");
   const getContentsQuery = useQuery({
     queryKey: ["getContentMetadata"],
-    queryFn: async ()=> await getContents()
+    queryFn: async () => await getContents(),
   });
   const deleteContMutation = useMutation({
-    mutationFn: async (data: any)=> await deleteContent(data),
-    onSuccess: ()=> getContentsQuery.refetch(),
-    onError: (data: any)=> {
+    mutationFn: async (data: any) => await deleteContent(data),
+    onSuccess: () => getContentsQuery.refetch(),
+    onError: (data: any) => {
       const error =
         (data?.response?.data as ResponseData)?.message ??
         "Something went wrong!.";
       toast.error(error);
-      setContentDelId("")
-    }
+      setContentDelId("");
+    },
   });
 
   React.useEffect(() => {
@@ -51,13 +50,13 @@ export default function BlogContent() {
     setActivePage("content");
 
     // fetch content every 5sec
-    const intervalId = setInterval(()=> {
-      getContentsQuery.refetch()
-    },5000);
+    const intervalId = setInterval(() => {
+      getContentsQuery.refetch();
+    }, 5000);
 
-    return ()=> {
+    return () => {
       clearInterval(intervalId);
-    }
+    };
   }, []);
 
   React.useEffect(() => {
@@ -71,8 +70,11 @@ export default function BlogContent() {
       const contents = data.data as ContentMetadata[];
       setContents(contents);
     }
-  }, [getContentsQuery.data, getContentsQuery.error, getContentsQuery.isPending]);
-
+  }, [
+    getContentsQuery.data,
+    getContentsQuery.error,
+    getContentsQuery.isPending,
+  ]);
 
   return (
     <FlexColStart className="w-full h-full">
@@ -89,47 +91,49 @@ export default function BlogContent() {
         </p>
       </FlexColStart>
       <FlexColStart className="w-full px-4 py-2 gap-2 pb-[10em]">
-        {
-          getContentsQuery.isLoading && <Spinner />
-        }
-        {
-          !getContentsQuery.isLoading &&
-        contents.length > 0 ? contents.map((c, i)=>(
-          <FlexRowStart key={i} className="w-full p-2 bg-dark-100 rounded-md">
-            <span className="text-3xl px-4 py-3 bg-dark-300 rounded-lg">{c.emoji}</span>
-            <FlexColStart className="w-full gap-0">
-              <h1 className="font-ppSB text-md text-white-100">{
-                c.title.length > 15 ? c.title.slice(0, 15) + "..." : c.title
-              }</h1>
-              <p className="font-ppReg text-xs text-white-100/70">{c.sub_heading}</p>
-            </FlexColStart>
-            <FlexRowEnd className="w-fit py-3 px-4">
-              <a href={c.link} target="_blank" className="text-white-100">
-                <ExternalLink size={15} />
-              </a>
-              {/* <a href={`https://hashnode.com/edit/${c.article_id}`} target="_blank" className="text-white-100">
+        {getContentsQuery.isLoading && <Spinner />}
+        {!getContentsQuery.isLoading && contents.length > 0 ? (
+          contents.map((c, i) => (
+            <FlexRowStart key={i} className="w-full p-2 bg-dark-100 rounded-md">
+              <span className="text-3xl px-4 py-3 bg-dark-300 rounded-lg">
+                {c.emoji}
+              </span>
+              <FlexColStart className="w-full gap-0">
+                <h1 className="font-ppSB text-md text-white-100">
+                  {c.title.length > 15 ? c.title.slice(0, 15) + "..." : c.title}
+                </h1>
+                <p className="font-ppReg text-xs text-white-100/70">
+                  {c.sub_heading}
+                </p>
+              </FlexColStart>
+              <FlexRowEnd className="w-fit py-3 px-4">
+                <a href={c.link} target="_blank" className="text-white-100">
+                  <ExternalLink size={15} />
+                </a>
+                {/* <a href={`https://hashnode.com/edit/${c.article_id}`} target="_blank" className="text-white-100">
                 <Pencil size={15} />
               </a> */}
-              <button className="text-red-305" onClick={()=>{
-                setContentDelId(c.id);
-                deleteContMutation.mutate({id: c.id});
-              }}
-              disabled={deleteContMutation.isPending}
-              >
-                {
-                  contDelId === c.id ? 
-                  <Spinner size={13} />
-                  :
-                  <Trash2 size={15} />
-                }
-              </button>
-            </FlexRowEnd>
-          </FlexRowStart>
-        )):
-        <span className="text-white-100 font-ppReg text-xs">
-          No contents yet!.
-        </span>
-        }
+                <button
+                  className="text-red-305"
+                  onClick={() => {
+                    setContentDelId(c.id);
+                    deleteContMutation.mutate({ id: c.id });
+                  }}
+                  disabled={deleteContMutation.isPending}>
+                  {contDelId === c.id ? (
+                    <Spinner size={13} />
+                  ) : (
+                    <Trash2 size={15} />
+                  )}
+                </button>
+              </FlexRowEnd>
+            </FlexRowStart>
+          ))
+        ) : (
+          <span className="text-white-100 font-ppReg text-xs">
+            No contents yet!.
+          </span>
+        )}
       </FlexColStart>
     </FlexColStart>
   );

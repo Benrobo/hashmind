@@ -21,7 +21,6 @@ export const Spinner: React.FC<SpinnerProps> = ({
     <div
       id="loading-spinner"
       className="rounded-full border-[3px] animate-spin-fast"
-      style={spinnerStyle}
-    ></div>
+      style={spinnerStyle}></div>
   );
 };

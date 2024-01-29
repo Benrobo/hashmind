@@ -129,8 +129,7 @@ export default function QueuesPage() {
           queues.map((Q, i) => (
             <FlexColStart
               key={i}
-              className="w-full h-auto bg-dark-200 rounded-lg px-4 py-4 gap-0 transition-all"
-            >
+              className="w-full h-auto bg-dark-200 rounded-lg px-4 py-4 gap-0 transition-all">
               <div key={i} className="w-full">
                 <FlexRowCenterBtw className="w-full">
                   <FlexColStart className="w-auto leading-none gap-0">
@@ -151,8 +150,7 @@ export default function QueuesPage() {
                           deleteQueueMutation.mutate({ id: Q.id });
                         }}
                         className=""
-                        disabled={deleteQueueMutation.isPending}
-                      >
+                        disabled={deleteQueueMutation.isPending}>
                         {deleteQueueMutation.isPending && deletingQ === Q.id ? (
                           <Spinner size={12} />
                         ) : (
@@ -197,8 +195,7 @@ export default function QueuesPage() {
                 className={cn(
                   "w-full ml-3 transition-all gap-1",
                   dropdownVisi === Q.id ? "mt-4 h-auto" : "h-0 overflow-hidden"
-                )}
-              >
+                )}>
                 {/* child queue content */}
                 {Q.subqueues.map((subQ, i) => (
                   <QueueContent
@@ -233,15 +230,13 @@ function QueueContent({ title, status, message, ...rest }: QueueContentProps) {
   return (
     <FlexColStartCenter
       {...rest}
-      className="w-full border-white-100/20 border-[.5px] px-2 py-2 rounded-md"
-    >
+      className="w-full border-white-100/20 border-[.5px] px-2 py-2 rounded-md">
       <button
         className="w-full disabled:cursor-not-allowed"
         onClick={() => {
           toggleQueueVisi("queue_name");
         }}
-        disabled={status === "pending"}
-      >
+        disabled={status === "pending"}>
         <FlexRowCenterBtw className="w-full">
           <FlexColStart className="w-full leading-none gap-0">
             <h1 className="font-ppReg text-xs text-white-300">{title}</h1>

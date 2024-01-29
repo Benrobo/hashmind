@@ -35,8 +35,8 @@ class QueueController {
       const _status = hasCompleted
         ? "completed"
         : hasFailed
-        ? "failed"
-        : "pending";
+          ? "failed"
+          : "pending";
 
       formattedResp.push({
         id: queues.id,
