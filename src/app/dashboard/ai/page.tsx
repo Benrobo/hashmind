@@ -109,6 +109,15 @@ export default function AI() {
           if (audioUrl) playAudio(audioUrl);
           else toast.success("Article creation queued.");
         }
+        if (actionCode === "DELETE_ARTICLE_REQUESTED") {
+          // get the audio for this code.
+          const audioUrl = retrieveAudioByAction(actionCode);
+          if (audioUrl) playAudio(audioUrl);
+          else
+            toast.success(
+              "You've requested to delete an article, are you sure??."
+            );
+        }
       }
     }
   }, [

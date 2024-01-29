@@ -29,6 +29,7 @@ export const updateHashnodeTokenSchema = zod.object({
 
 export const handleUserRequestSchema = zod.object({
   audio_base64: zod.string(),
+  usersIntent: zod.string().optional(),
 });
 
 export const publishArticleSchema = zod.object({
@@ -69,9 +70,8 @@ export const publishArticleSchema = zod.object({
     .optional(),
 });
 
-
 export const removeContentSchema = zod.object({
   id: zod.string({
-    required_error: "Content id is required."
-  })
-})
+    required_error: "Content id is required.",
+  }),
+});

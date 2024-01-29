@@ -56,5 +56,8 @@ export function retrieveAudioByAction(action: HashmindAIResponseAction) {
   if (action === "ARTICLE_TITLE_NOT_PROVIDED") {
     return `/audio/response/api-resp/title-missing.mp3`;
   }
+  if (action === "DELETE_ARTICLE_REQUESTED") {
+    return `/audio/response/api-resp/delete-art.mp3`;
+  }
   return null;
 }

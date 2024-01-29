@@ -17,6 +17,7 @@
     "@prisma/client": "^5.8.1",
     "@radix-ui/react-switch": "^1.0.3",
     "@tanstack/react-query": "^5.17.15",
+    "@upstash/redis": "^1.28.2",
     "axios": "^1.6.5",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^1.41.3",

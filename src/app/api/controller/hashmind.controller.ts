@@ -17,7 +17,8 @@ import { actionsVariants, supportedActions } from "../data/ai/function";
 import { inngest } from "../config/inngest_client";
 import prisma from "@/prisma/prisma";
 import { nanoid } from "nanoid";
-import { userActionTestData } from "../data/test_data";
+import { transcriptTestData, userActionTestData } from "../data/test_data";
+import redis from "../config/redis";
 
 type ReqUserObj = {
   id: string;
@@ -25,33 +26,68 @@ type ReqUserObj = {
   hnPubId: string;
 };
 
+type UsersReqPayload = {
+  audio_base64: string;
+  usersIntent: "DELETE" | undefined; // possible intent
+};
+
 export default class HashmindController {
   async handleUserRequest(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
-    const payload: { audio_base64: string } = await req.json();
+    const payload: UsersReqPayload = await req.json();
 
     await ZodValidation(handleUserRequestSchema, payload, req.url);
 
-    const { audio_base64 } = payload;
+    const { audio_base64, usersIntent } = payload;
+
+    // USERS INTENT PRESENT
+    if (usersIntent) {
+      const possibleIntents = ["DELETE"];
+      if (possibleIntents.includes(usersIntent)) {
+        // check if user has a title in cache
+        const cache = await redis.get(user.id);
+        if (!cache) {
+          return sendResponse.success(
+            RESPONSE_CODE.ERROR_DELETING_ARTICLE,
+            `No article title found in cache.`,
+            200,
+            {
+              aiMsg: `It seems you requested for an article to be deleted, but I couldn't find any article title in cache. Please try again.`,
+            }
+          );
+        }
+
+        // const title = cache?.title
+        console.log({ cache });
+
+        // invoke the function
+      } else {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_IDENTIFYING_ACTION,
+          `Invalid intent provided.`,
+          400
+        );
+      }
+      return;
+    }
+
+    // 🚀 CONTINUE THE FLOW if not present
+    // It implies user didn't intend to delete an article
 
     //! Uncomment this once you're done
     // const transcript = await speechToText.openaiSTT(audio_base64);
     // console.log({ transcript });
 
     // temp transcript
-    // const transcript =
-    //   "I need you to create a new article on the title Why Artificial Intelligence is the future of humanity and how it won't change the world.";
-    const transcript =
-      "Hi, so I need you to update one of my article on hashnode with the title Why Artificial Intelligence is the future of humanity and how it won't change the world. Update the section of the article that talks about the limitations of AI. I want you to add a new section that talks about the promise of AI. Also, add a new cover image depicting a Utopian future where AI live in harmony with humans.";
+    const transcript = transcriptTestData;
 
-    // save (User) transcript to chathistory
-    // await prisma.chatHistory.create({
-    //   data: {
-    //     message: transcript,
-    //     userId: user.id,
-    //     type: "user",
-    //   },
-    // });
+    await prisma.chatHistory.create({
+      data: {
+        message: transcript,
+        userId: user.id,
+        type: "user",
+      },
+    });
 
     //! Uncomment this once you're done
     // const userAction = (await identifyAction(
@@ -73,7 +109,7 @@ export default class HashmindController {
       console.log("ACTION DETECTED");
       console.log(userAction);
 
-      // create article action
+      // CREATE ARTICLE ACTION
       if (actionsVariants.create.includes(_action as string)) {
         console.log(`CREATING ARTICLE EVENT FIRED`);
 
@@ -143,7 +179,7 @@ export default class HashmindController {
         );
       }
 
-      // update article action
+      // UPDATE ARTICLE ACTION
       if (actionsVariants.update.includes(_action)) {
         console.log(`UPDATING ARTICLE EVENT FIRED`);
 
@@ -288,9 +324,32 @@ export default class HashmindController {
           }
         );
       }
+
+      // DELETE ARTICLE ACTION
+      if (actionsVariants.delete.includes(_action)) {
+        console.log(`DELETING ARTICLE EVENT FIRED`);
+
+        // store title in cache
+        await redis.set(
+          user.id,
+          JSON.stringify({
+            title: userAction.title,
+          })
+        );
+        await redis.expire(user.id, 60); // exp in 60min
+
+        return sendResponse.success(
+          RESPONSE_CODE.DELETE_ARTICLE_REQUESTED,
+          `Deleting of article queued.`,
+          200,
+          {
+            action: "DELETE_ARTICLE_REQUESTED",
+          }
+        );
+      }
     }
 
-    // no action detected (this happens if a usre tries conversing with the AI)
+    // no action detected (this happens if a user tries conversing with the AI)
     if (!_action && userAction.aiMsg) {
       // save (User) transcript to chathistory
       await prisma.chatHistory.create({

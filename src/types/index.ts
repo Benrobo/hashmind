@@ -73,6 +73,8 @@ export enum RESPONSE_CODE {
   ERROR_UPDATING_ARTICLE,
   ERROR_FETCHING_ARTICLE,
   ERROR_FINDING_ARTICLE_FOR_UPDATE,
+  DELETE_ARTICLE_REQUESTED,
+  ERROR_DELETING_ARTICLE,
 }
 
 export type ResponseData = {
@@ -102,6 +104,7 @@ export type ReqUserObj = {
 
 export type HashmindAIResponseAction =
   | "ARTICLE_CREATION_QUEUED"
-  | "ARTICLE_TITLE_NOT_PROVIDED";
+  | "ARTICLE_TITLE_NOT_PROVIDED"
+  | "DELETE_ARTICLE_REQUESTED";
 
 export type updateBlogContentNotationType = "ADD" | "REMOVE" | "REPLACE";
