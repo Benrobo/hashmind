@@ -58,6 +58,12 @@ export const deleteQueue = async (data: any) => {
   return req.data;
 };
 
+// Add notion page
+export const addNotionPage = async (data: { url: string }) => {
+  const req = await $axios.post("/notion/page", data);
+  return req.data;
+};
+
 // Content Metadata
 export const getContents = async () => {
   const req = await $axios.get("/user/blog/content");

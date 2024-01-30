@@ -77,6 +77,7 @@ export enum RESPONSE_CODE {
   ERROR_DELETING_ARTICLE,
   BAD_REQUEST,
   NOT_FOUND,
+  INVALID_NOTION_PAGE_URL,
 }
 
 export type ResponseData = {
