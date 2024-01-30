@@ -4,6 +4,8 @@ import { MdBlock } from "notion-to-md/build/types";
 import { NotionToMarkdown } from "notion-to-md";
 import { ConfigNotion } from "@/types/config";
 import slugify from "slugify";
+import HttpException from "../utils/exception";
+import { RESPONSE_CODE } from "@/types";
 
 export default class NotionService {
   notion: Client;
@@ -76,7 +78,11 @@ export default class NotionService {
       unformattedId = urlArr[urlArr.length - 1].replace("?pvs=4", "");
 
     if (unformattedId.length !== 32) {
-      throw Error("Invalid ID. Length of ID should be 32 characters");
+      throw new HttpException(
+        RESPONSE_CODE.INVALID_NOTION_PAGE_URL,
+        "Invalid Notion page URL.",
+        400
+      );
     }
 
     return (
