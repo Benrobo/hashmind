@@ -42,6 +42,10 @@ enum MessageUserType {
     assistant
 }
 
+enum IntegrationType {
+    notion
+}
+
 model Users {
     id       String @id @map("_id")
     userId   String @unique @default(cuid())
@@ -54,6 +58,7 @@ model Users {
     subqueue        SubQueues[]
     contentmetadata ContentMetaData[]
     chathistory     ChatHistory[]
+    integration     Integration[]
 
     @@map("users")
 }
@@ -125,4 +130,17 @@ model ChatHistory {
     user Users @relation(fields: [userId], references: [userId])
 
     @@map("chathistory")
+}
+
+model Integration {
+    id     String          @id @default(cuid()) @map("_id")
+    userId String
+    type   IntegrationType @default(notion)
+    token  String
+
+    createdAt DateTime @default(now())
+
+    user Users @relation(fields: [userId], references: [userId])
+
+    @@map("integration")
 }

@@ -28,6 +28,7 @@
     "lucide-react": "^0.312.0",
     "nanoid": "^5.0.4",
     "next": "14.0.4",
+    "notion-to-md": "^3.1.1",
     "nprogress": "^0.2.0",
     "openai": "^4.25.0",
     "prisma": "^5.8.1",

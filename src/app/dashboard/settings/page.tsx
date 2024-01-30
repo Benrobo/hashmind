@@ -20,9 +20,12 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { checkHnTokenIsAuthorized, updateHNToken } from "@/http/request";
 import toast from "react-hot-toast";
 import { ResponseData } from "@/types";
+import { useSearchParams } from "next/navigation";
+import env from "@/app/api/config/env";
 
 export default function Settings() {
   const { showToolBar, setActivePage } = useDataContext();
+  const params = useSearchParams();
   const [authVisi, setAuthVisi] = React.useState<boolean>(false);
   const [tokenAuthorized, setTokenAuthorized] = React.useState<boolean>(false);
   const [hnToken, setHnToken] = React.useState<string>("");
@@ -41,6 +44,12 @@ export default function Settings() {
   React.useEffect(() => {
     showToolBar();
     setActivePage("settings");
+
+    if (params.get("notion")) {
+      toast.success("Notion integration successful.");
+    } else {
+      toast.error("Notion integration failed.");
+    }
   }, []);
 
   React.useEffect(() => {
@@ -183,9 +192,24 @@ export default function Settings() {
           {/* blog style settings */}
           <BlogStyleComp />
 
-          <br />
-          {/* Set whether to enable publishing of blog direct or saving as draft */}
-          {/* <BlogPreference /> */}
+          <FlexColStart className="w-full mt-1">
+            <h1 className="font-ppSB text-white-100">Integration</h1>
+            <FlexRowCenterBtw className="w-full">
+              <FlexColStart className="w-auto">
+                <p className="text-white-100/90 text-sm font-ppSB">Notion</p>
+                <p className="text-white-100/50 text-xs font-ppReg">
+                  Publish articles from notion to hashnode.
+                </p>
+              </FlexColStart>
+              <a
+                href={
+                  "https://api.notion.com/v1/oauth/authorize?client_id=ebff2951-b4d2-4785-a943-00d4cdfd9f67&response_type=code&owner=user&redirect_uri=http%3A%2F%2Flocalhost%3A2025%2Fapi%2Fauth%2Fnotion%2Fcb"
+                }
+                className="w-[130px] rounded-full px-3 py-2 font-ppReg text-xs bg-blue-101">
+                Authorize Notion
+              </a>
+            </FlexRowCenterBtw>
+          </FlexColStart>
         </FlexColStart>
       </FlexColStart>
     </FlexColStart>
