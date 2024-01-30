@@ -19,6 +19,19 @@ export function FlexColStart({ children, className, ...props }: FlexProps) {
   );
 }
 
+export function FlexColStartBtw({ children, className, ...props }: FlexProps) {
+  return (
+    <div
+      className={twMerge(
+        "w-auto flex flex-col items-start justify-between gap-3",
+        className
+      )}
+      {...props}>
+      {children}
+    </div>
+  );
+}
+
 export function FlexColEnd({ children, className, ...props }: FlexProps) {
   return (
     <div

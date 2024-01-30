@@ -46,19 +46,36 @@ export const GET = isAuthenticated(async (req: NextRequest) => {
   if (data) {
     const { access_token } = data;
     const user = (req as any)["user"] as ReqUserObj;
-
-    await prisma.integration.create({
-      data: {
-        id: nanoid(),
+    const integration = await prisma.integration.findFirst({
+      where: {
+        userId: user.id,
         type: "notion",
-        token: access_token,
-        user: {
-          connect: {
-            userId: user.id,
-          },
-        },
       },
     });
+
+    if (!integration) {
+      await prisma.integration.create({
+        data: {
+          id: nanoid(),
+          type: "notion",
+          token: access_token,
+          user: {
+            connect: {
+              userId: user.id,
+            },
+          },
+        },
+      });
+    } else {
+      await prisma.integration.update({
+        where: {
+          id: integration.id,
+        },
+        data: {
+          token: access_token,
+        },
+      });
+    }
 
     redirect("/dashboard/settings?notion=true");
   }

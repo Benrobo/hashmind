@@ -1,6 +1,7 @@
 import axios from "axios";
 import HttpException from "../utils/exception";
 import { RESPONSE_CODE } from "@/types";
+import NotionService from "./notion.service";
 
 const $http = axios.create({
   baseURL: "https://gql.hashnode.com",
@@ -76,6 +77,13 @@ type UpdateArticle = {
   };
 };
 
+type notionToHashnodeType = {
+  url: string;
+  publicationId: string;
+  apiKey: string;
+  notionToken: string;
+};
+
 class HashnodeService {
   async createPost({
     title,
@@ -125,13 +133,22 @@ class HashnodeService {
         },
       });
 
-      const respData = resp.data?.data;
+      const respData = resp.data;
+
+      if (respData.errors) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_CREATING_POST,
+          `Something went wrong creating article. ${respData.errors[0].message}`,
+          400
+        );
+      }
+
       funcResp.success = "Article created successfully";
-      funcResp.data = respData.publishPost.post as PublishedArtRespData;
+      funcResp.data = respData?.data?.publishPost.post as PublishedArtRespData;
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
-      console.log(msg);
+      console.log(msg, e);
       throw new HttpException(
         RESPONSE_CODE.ERROR_CREATING_POST,
         `Something went wrong creating article.`,
@@ -346,6 +363,56 @@ class HashnodeService {
         400
       );
     }
+  }
+
+  async notionTohashnode(props: notionToHashnodeType) {
+    const { apiKey, publicationId, url, notionToken } = props;
+
+    if (!url) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Notion page url is missing.`,
+        401
+      );
+    }
+
+    if (!apiKey || !publicationId || !notionToken) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Unauthorized, missing api key or publication id`,
+        401
+      );
+    }
+
+    const notionService = new NotionService({
+      connection_settings: {
+        token: notionToken,
+      },
+      options: {
+        skip_block_types: [""],
+      },
+    });
+
+    const pageId = notionService.getPageIdFromURL(url);
+    const blocks = await notionService.getBlocks(url);
+    const content = await notionService.getMarkdown(blocks);
+    const properties = await notionService.getArticleProperties(pageId);
+    const markdown = content.parent;
+    const title = properties?.title?.title?.[0]?.plain_text;
+    const slug = notionService.getArticleSlug(title!);
+
+    // publish to hashnode
+    const publishedArticle = await this.createPost({
+      apiKey,
+      contentMarkdown: markdown ?? "Default content",
+      publicationId,
+      title,
+      subtitle: "",
+      tags: [],
+      slug,
+    });
+
+    return publishedArticle;
   }
 }
 

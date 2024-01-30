@@ -1,17 +1,28 @@
 "use client";
 import {
+  FlexColCenter,
   FlexColStart,
+  FlexColStartBtw,
   FlexRowCenterBtw,
   FlexRowEnd,
   FlexRowStart,
+  FlexRowStartBtw,
 } from "@/components/flex";
 import { Spinner } from "@/components/spinner";
 import { useDataContext } from "@/context/DataContext";
 import { deleteContent, getContents } from "@/http/request";
+import { cn } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ExternalLink, MoveLeft, Pencil, Trash2 } from "lucide-react";
+import {
+  ExternalLink,
+  MoveLeft,
+  Pencil,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
 import getConfig from "next/config";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import toast from "react-hot-toast";
@@ -33,17 +44,6 @@ export default function BlogContent() {
     queryKey: ["getContentMetadata"],
     queryFn: async () => await getContents(),
   });
-  const deleteContMutation = useMutation({
-    mutationFn: async (data: any) => await deleteContent(data),
-    onSuccess: () => getContentsQuery.refetch(),
-    onError: (data: any) => {
-      const error =
-        (data?.response?.data as ResponseData)?.message ??
-        "Something went wrong!.";
-      toast.error(error);
-      setContentDelId("");
-    },
-  });
 
   React.useEffect(() => {
     showToolBar();
@@ -51,7 +51,7 @@ export default function BlogContent() {
 
     // fetch content every 5sec
     const intervalId = setInterval(() => {
-      getContentsQuery.refetch();
+      // getContentsQuery.refetch();
     }, 5000);
 
     return () => {
@@ -85,55 +85,61 @@ export default function BlogContent() {
             size={30}
           />
         </Link>
-        <p className="font-ppSB text-xl text-white-100">Generated Content</p>
+        <p className="font-ppSB text-xl text-white-100">Pages</p>
         <p className="text-white-400 font-ppReg text-xs">
-          All your AI generated content will be listed here.
+          Your notion pages will be listed here.
         </p>
       </FlexColStart>
       <FlexColStart className="w-full px-4 py-2 gap-2 pb-[10em]">
         {getContentsQuery.isLoading && <Spinner />}
-        {!getContentsQuery.isLoading && contents.length > 0 ? (
-          contents.map((c, i) => (
-            <FlexRowStart key={i} className="w-full p-2 bg-dark-100 rounded-md">
-              <span className="text-3xl px-4 py-3 bg-dark-300 rounded-lg">
-                {c.emoji}
-              </span>
-              <FlexColStart className="w-full gap-0">
-                <h1 className="font-ppSB text-md text-white-100">
-                  {c.title.length > 15 ? c.title.slice(0, 15) + "..." : c.title}
-                </h1>
-                <p className="font-ppReg text-xs text-white-100/70">
-                  {c.sub_heading}
-                </p>
-              </FlexColStart>
-              <FlexRowEnd className="w-fit py-3 px-4">
-                <a href={c.link} target="_blank" className="text-white-100">
-                  <ExternalLink size={15} />
-                </a>
-                {/* <a href={`https://hashnode.com/edit/${c.article_id}`} target="_blank" className="text-white-100">
-                <Pencil size={15} />
-              </a> */}
-                <button
-                  className="text-red-305"
-                  onClick={() => {
-                    setContentDelId(c.id);
-                    deleteContMutation.mutate({ id: c.id });
-                  }}
-                  disabled={deleteContMutation.isPending}>
-                  {contDelId === c.id ? (
-                    <Spinner size={13} />
-                  ) : (
-                    <Trash2 size={15} />
-                  )}
+        <br />
+        <FlexRowStartBtw className="w-full bg-dark-100 rounded-md p-4">
+          <FlexRowStart className="">
+            <FlexColCenter>
+              <Image
+                src={"/images/logos/notion.png"}
+                width={50}
+                height={0}
+                className=""
+                alt="notion"
+              />
+            </FlexColCenter>
+            <FlexColStart className="w-auto gap-0">
+              <p className="font-ppSB text-white-100 text-md">Notion</p>
+              <p className="font-ppReg text-white-100/30 text-xs">slug-me</p>
+            </FlexColStart>
+          </FlexRowStart>
+          <FlexRowEnd className="w-auto">
+            <FlexColStartBtw className="w-auto">
+              <FlexRowEnd className="w-full">
+                <button>
+                  <Trash2 size={15} className="text-red-305" />
+                </button>
+                <button>
+                  <RefreshCcw
+                    size={15}
+                    className={cn(
+                      "text-blue-101 transition-all",
+                      false ? "animate-spin" : ""
+                    )}
+                  />
                 </button>
               </FlexRowEnd>
-            </FlexRowStart>
-          ))
-        ) : (
-          <span className="text-white-100 font-ppReg text-xs">
-            No contents yet!.
-          </span>
-        )}
+              <FlexRowStart className="w-auto mt-2">
+                <Link
+                  href=""
+                  className="text-white-100 opacity-[.9] font-ppL text-xs underline">
+                  hashnode ↗︎
+                </Link>
+                <Link
+                  href=""
+                  className="text-white-100 opacity-[.4] font-ppL text-xs underline">
+                  notion ↗︎
+                </Link>
+              </FlexRowStart>
+            </FlexColStartBtw>
+          </FlexRowEnd>
+        </FlexRowStartBtw>
       </FlexColStart>
     </FlexColStart>
   );

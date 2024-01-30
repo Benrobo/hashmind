@@ -75,3 +75,9 @@ export const removeContentSchema = zod.object({
     required_error: "Content id is required.",
   }),
 });
+
+export const addNotionPageSchema = zod.object({
+  url: zod.string({
+    required_error: "Notion page url is required.",
+  }),
+});

@@ -59,6 +59,7 @@ model Users {
     contentmetadata ContentMetaData[]
     chathistory     ChatHistory[]
     integration     Integration[]
+    NotionPages     NotionPages[]
 
     @@map("users")
 }
@@ -118,6 +119,21 @@ model ContentMetaData {
     user Users @relation(fields: [userId], references: [userId])
 
     @@map("contentmetadata")
+}
+
+model NotionPages {
+    id     String @id @default(cuid()) @map("_id")
+    userId String
+    pageId String
+    url    String
+    title  String
+    slug   String
+
+    createdAt DateTime @default(now())
+
+    user Users @relation(fields: [userId], references: [userId])
+
+    @@map("notionpages")
 }
 
 model ChatHistory {

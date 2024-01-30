@@ -76,6 +76,7 @@ export enum RESPONSE_CODE {
   DELETE_ARTICLE_REQUESTED,
   ERROR_DELETING_ARTICLE,
   BAD_REQUEST,
+  NOT_FOUND,
 }
 
 export type ResponseData = {

@@ -47,7 +47,7 @@ export default function Settings() {
 
     if (params.get("notion")) {
       toast.success("Notion integration successful.");
-    } else {
+    } else if (params.get("error")) {
       toast.error("Notion integration failed.");
     }
   }, []);
