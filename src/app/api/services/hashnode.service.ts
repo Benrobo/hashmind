@@ -177,10 +177,20 @@ class HashnodeService {
       const reqBody = {
         query: `query GetPost {
           me {
-            posts(pageSize:20, page:1) {
+            posts(pageSize:5, page:1) {
               nodes {
                 id
                 title
+                url
+                coverImage {
+                  url
+                }
+                slug
+                views
+                readTimeInMinutes
+                likedBy(first: 1000) {
+                  totalDocuments 
+                }
               }
             }
           }

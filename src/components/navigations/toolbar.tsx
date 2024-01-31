@@ -41,7 +41,7 @@ export default function ToolBar() {
   const router = useRouter();
 
   return (
-    <FlexRowCenter className="w-full fixed bottom-5">
+    <FlexRowCenter className="w-full fixed bottom-5 z-[999]">
       <FlexRowCenter
         className={cn(
           "min-w-[10em] bg-dark-100 px-4 py-1 rounded-full transition-all shadow-2xl drop-shadow-2xl shadow-dark-105",

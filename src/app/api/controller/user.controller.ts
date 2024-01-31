@@ -1,4 +1,8 @@
-import { GPT_RESP_STYLE_NAME, RESPONSE_CODE } from "@/types";
+import {
+  GPT_RESP_STYLE_NAME,
+  RESPONSE_CODE,
+  ReturnedUserArticles,
+} from "@/types";
 import sendResponse from "../utils/sendResponse";
 import { NextRequest } from "next/server";
 import prisma from "@/prisma/prisma";
@@ -12,6 +16,7 @@ import {
 import { getGptStyle } from "@/lib/utils";
 import HttpException from "../utils/exception";
 import { useSearchParams } from "next/navigation";
+import hashnodeService from "../services/hashnode.service";
 
 type ReqUserObj = {
   id: string;
@@ -163,58 +168,38 @@ export default class UserController {
     });
   }
 
-  public async getContents(req: NextRequest) {
+  public async articles(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
-    const contents = await prisma.contentMetaData.findMany({
-      where: {
-        userId: user.id,
-      },
+
+    if (!user.hnToken) {
+      throw new HttpException(
+        RESPONSE_CODE.HASHNODE_TOKEN_NOT_FOUND,
+        "Hashnode token not found",
+        404
+      );
+    }
+
+    const userArticles = await hashnodeService.getUserArticles(user.hnToken);
+    const articles = userArticles.data as ReturnedUserArticles[];
+
+    const formattedArticles = articles?.map((a) => {
+      return {
+        id: a.id,
+        title: a.title,
+        url: a.url,
+        coverImage: a.coverImage?.url ?? null,
+        slug: a.slug,
+        views: a.views,
+        readTime: a.readTimeInMinutes,
+        likes: a.likedBy.totalDocuments,
+      };
     });
 
     return sendResponse.success(
       RESPONSE_CODE.SUCCESS,
       "content fetched",
       200,
-      contents
-    );
-  }
-
-  // removes created hashnode posts alongside
-  public async removeContentMetadata(req: NextRequest) {
-    const user = (req as any)["user"] as ReqUserObj;
-    const payload: { id: string } = await req.json();
-
-    await ZodValidation(removeContentSchema, payload, req.url);
-
-    const content = await prisma.contentMetaData.findFirst({
-      where: {
-        id: payload.id,
-        userId: user.id,
-      },
-    });
-
-    if (!content) {
-      throw new HttpException(
-        RESPONSE_CODE.CONTENT_NOT_FIND,
-        "Content not found",
-        404
-      );
-    }
-
-    // delete content-metadat from database
-    await prisma.contentMetaData.delete({
-      where: {
-        id: payload.id,
-      },
-    });
-
-    // delete content from hashnode (Event based)
-    // fire an inngest event (delete content in background)
-
-    return sendResponse.success(
-      RESPONSE_CODE.CONTENT_DELETED,
-      "Content deleted",
-      200
+      formattedArticles
     );
   }
 }

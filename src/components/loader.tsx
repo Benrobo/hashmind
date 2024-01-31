@@ -33,3 +33,7 @@ export function FullPageLoader({ showText, text }: Props) {
     </FlexColCenter>
   );
 }
+
+export function LineLoader() {
+  return <div className="line-loader"></div>;
+}

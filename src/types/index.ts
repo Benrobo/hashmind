@@ -113,3 +113,29 @@ export type HashmindAIResponseAction =
   | "ARTICLE_DELETING_TITLE_NOTFOUND";
 
 export type updateBlogContentNotationType = "ADD" | "REMOVE" | "REPLACE";
+
+export type ReturnedUserArticles = {
+  id: string;
+  title: string;
+  url: string;
+  coverImage: {
+    url: string | null;
+  };
+  slug: string;
+  views: number;
+  readTimeInMinutes: number;
+  likedBy: {
+    totalDocuments: number;
+  };
+};
+
+export type UserHnArticles = {
+  id: string;
+  title: string;
+  url: string;
+  coverImage: string | null;
+  slug: string;
+  views: number;
+  readTime: number;
+  likes: number;
+};

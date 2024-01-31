@@ -7,12 +7,6 @@ const userController = new UserController();
 
 export const GET = CatchError(
   isAuthenticated(
-    async (req: NextRequest) => await userController.getContents(req)
-  )
-);
-
-export const POST = CatchError(
-  isAuthenticated(
-    async (req: NextRequest) => await userController.removeContentMetadata(req)
+    async (req: NextRequest) => await userController.articles(req)
   )
 );

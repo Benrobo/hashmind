@@ -79,13 +79,8 @@ export const getNotionPages = async () => {
   return req.data;
 };
 
-// Content Metadata
-export const getContents = async () => {
-  const req = await $axios.get("/user/blog/content");
-  return req.data;
-};
-
-export const deleteContent = async (data: any) => {
-  const req = await $axios.post("/user/blog/content", data);
+// User hashnode articles
+export const getUserHnArticles = async () => {
+  const req = await $axios.get("/user/blog/articles");
   return req.data;
 };
