@@ -46,20 +46,17 @@ const Modal = ({
     };
   }, [isOpen]);
 
-  if (!isVisible) {
-    return null;
-  }
-
   return (
     <div
       className={twMerge(
-        `w-full hideScrollBar backdrop-blur bg-dark-600 bg-opacity-85 h-[100vh] z-[500] ${
+        `w-full hideScrollBar backdrop-blur bg-dark-600 bg-opacity-85 h-[100vh] z-[999] transition-all ${
           fixed ? "fixed" : "relative"
         } top-0 left-0 py-5`,
-        scrollable ? "overflow-y-auto hideScollBar" : "overflow-hidden"
+        scrollable ? "overflow-y-auto hideScollBar" : "overflow-hidden",
+        isVisible ? "scale-1" : "scale-0"
       )}
       data-name="main-modal">
-      <div className={`${isVisible ? "opacity-100" : "opacity-0"}`}>
+      <div>
         {showCloseIcon && (
           <button
             className="absolute top-5 right-0 p-1 z-[70] scale-[.80] transition-all active:scale-[1] hover:scale-1 "
