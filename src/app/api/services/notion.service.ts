@@ -43,14 +43,22 @@ export default class NotionService {
   }
 
   async getArticleProperties(page_id: string): Promise<Record<string, any>> {
-    const response = await this.notion.pages.retrieve({
-      page_id,
-    });
+    try {
+      const response = await this.notion.pages.retrieve({
+        page_id,
+      });
 
-    //due to an issue in Notion's types we disable ts for this line
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    return response.properties;
+      //due to an issue in Notion's types we disable ts for this line
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return response.properties;
+    } catch (e: any) {
+      throw new HttpException(
+        RESPONSE_CODE.NOT_FOUND,
+        `Notion page notfound. Make sure the page is shared with hashmind integration.`,
+        404
+      );
+    }
   }
 
   getArticleSlug(title: string): string {

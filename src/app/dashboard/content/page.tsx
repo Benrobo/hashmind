@@ -132,7 +132,6 @@ export default function BlogContent() {
     if (getIntegrationPageQuery.data) {
       const data = getIntegrationPageQuery.data as ResponseData;
       const pages = data.data as IntegrationPageData[];
-      console.log(pages);
       setIntPages(pages);
     }
   }, [

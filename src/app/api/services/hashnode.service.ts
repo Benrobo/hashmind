@@ -279,6 +279,8 @@ class HashnodeService {
                 username
               }
               cuid
+              title
+              slug
             }
           }
         }`,

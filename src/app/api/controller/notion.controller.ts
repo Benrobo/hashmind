@@ -143,13 +143,15 @@ class NotionController {
     });
 
     if (pubArt.data) {
-      const { id, author, cuid } = pubArt.data;
+      const { id, author, cuid, title, slug } = pubArt.data;
       await prisma.integrationPage.update({
         where: { id: page?.id! },
         data: {
           article_id: id,
           hn_cuid: cuid,
           author: author?.username,
+          slug,
+          title,
         },
       });
       console.log("✅ Integration page updated");
