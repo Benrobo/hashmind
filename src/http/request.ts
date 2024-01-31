@@ -58,9 +58,24 @@ export const deleteQueue = async (data: any) => {
   return req.data;
 };
 
-// Add notion page
+// Notion page
 export const addNotionPage = async (data: { url: string }) => {
   const req = await $axios.post("/notion/page", data);
+  return req.data;
+};
+
+export const syncNotionPage = async (pageId: string) => {
+  const req = await $axios.patch(`/notion/page?pageId=${pageId}`);
+  return req.data;
+};
+
+export const deleteNotionPage = async (id: string) => {
+  const req = await $axios.delete(`/notion/page?pageId=${id}`);
+  return req.data;
+};
+
+export const getNotionPages = async () => {
+  const req = await $axios.get("/notion/page");
   return req.data;
 };
 
