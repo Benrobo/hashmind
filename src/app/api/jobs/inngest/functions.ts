@@ -321,23 +321,6 @@ export const inngest_publish_article_function = inngest.createFunction(
       );
     }
 
-    // store content in db
-    await prisma.contentMetaData.create({
-      data: {
-        id: nanoid(),
-        emoji,
-        link: artUrl,
-        title,
-        sub_heading: subtitle,
-        article_id: artId,
-        user: {
-          connect: {
-            userId,
-          },
-        },
-      },
-    });
-
     console.log(`✅ ARTICLE PUBLISHED TO HASHNODE`);
 
     return {};

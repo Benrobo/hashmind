@@ -57,7 +57,6 @@ model Users {
     settings        Settings?
     queue           Queues[]
     subqueue        SubQueues[]
-    contentmetadata ContentMetaData[]
     chathistory     ChatHistory[]
     integration     Integration[]
     integrationPage IntegrationPage[]
@@ -106,20 +105,6 @@ model SubQueues {
     queue Queues @relation(fields: [queueId], references: [id], onDelete: Cascade)
 
     @@map("subqueues")
-}
-
-model ContentMetaData {
-    id          String  @id @default(cuid()) @map("_id")
-    userId      String
-    title       String
-    sub_heading String
-    emoji       String
-    link        String
-    article_id  String?
-
-    user Users @relation(fields: [userId], references: [userId])
-
-    @@map("contentmetadata")
 }
 
 model IntegrationPage {
