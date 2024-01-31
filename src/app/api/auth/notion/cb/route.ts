@@ -13,6 +13,11 @@ import { NextRequest } from "next/server";
 export const GET = isAuthenticated(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get("code");
+  const error = searchParams.get("error");
+
+  if (error) {
+    redirect("/dashboard/settings?error='Authentication failed'");
+  }
 
   if (!code) {
     throw new HttpException(

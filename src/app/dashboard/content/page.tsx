@@ -9,6 +9,7 @@ import {
   FlexRowStart,
   FlexRowStartBtw,
 } from "@/components/flex";
+import { LineLoader } from "@/components/loader";
 import Modal from "@/components/modal";
 import { Spinner } from "@/components/spinner";
 import Tooltip from "@/components/tooltip";
@@ -17,9 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useDataContext } from "@/context/DataContext";
 import {
   addNotionPage,
-  deleteContent,
   deleteNotionPage,
-  getContents,
   getNotionPages,
   syncNotionPage,
 } from "@/http/request";
@@ -62,23 +61,6 @@ export default function BlogContent() {
     queryKey: ["getNotionPage"],
     queryFn: async () => await getNotionPages(),
   });
-  const addPageMutation = useMutation({
-    mutationFn: async (data: { url: string }) => await addNotionPage(data),
-    onSuccess: () => {
-      addPageMutation.reset();
-      getIntegrationPageQuery.refetch();
-      toast.success("Notion page added successfully.");
-      setAddPageModal(false);
-      setPageUrl("");
-    },
-    onError: (error) => {
-      addPageMutation.reset();
-      const err = (error as any)?.response?.data as ResponseData;
-      const msg = err?.message ?? "Something went wrong.";
-      toast.error(msg);
-      setAddPageModal(false);
-    },
-  });
   const syncNotionPageMut = useMutation({
     mutationFn: async (pageId: string) => syncNotionPage(pageId),
     onSuccess: () => {
@@ -88,20 +70,6 @@ export default function BlogContent() {
     },
     onError: (error) => {
       syncNotionPageMut.reset();
-      const err = (error as any)?.response?.data as ResponseData;
-      console.log({ err });
-      const msg = err?.message ?? "Something went wrong.";
-      toast.error(msg);
-    },
-  });
-  const deleteNotionPageMut = useMutation({
-    mutationFn: async (pageId: string) => await deleteNotionPage(pageId),
-    onSuccess: () => {
-      deleteNotionPageMut.reset();
-      getIntegrationPageQuery.refetch();
-    },
-    onError: (error) => {
-      deleteNotionPageMut.reset();
       const err = (error as any)?.response?.data as ResponseData;
       console.log({ err });
       const msg = err?.message ?? "Something went wrong.";
@@ -140,22 +108,6 @@ export default function BlogContent() {
     getIntegrationPageQuery.isPending,
   ]);
 
-  function addPage() {
-    try {
-      new URL(pageUrl);
-    } catch (e: any) {
-      toast.error("Please enter a valid URL.");
-      return;
-    }
-
-    addPageMutation.mutate({ url: pageUrl });
-  }
-
-  const constructNotionUrl = (id: string, title: string) => {
-    const url = `https://www.notion.so/${title.replace(" ", "-")}-${id.replace(/\-/g, "")}`;
-    return url;
-  };
-
   const syncPage = (pageId: string) => {
     syncNotionPageMut.mutate(pageId);
   };
@@ -176,17 +128,10 @@ export default function BlogContent() {
               Your notion pages will be listed here.
             </p>
           </FlexColStart>
-          <FlexRowEnd className="w-auto">
-            <button
-              className="border-[3px] border-blue-101 text-2xl rounded-full text-blue-101 p-2 scale-[.80] transition-all active:scale-[1] hover:scale-1 "
-              onClick={() => setAddPageModal(true)}>
-              <Plus size={20} strokeWidth={3} />
-            </button>
-          </FlexRowEnd>
         </FlexRowStartBtw>
       </FlexColStart>
       <FlexColStart className="w-full px-4 py-2 gap-2 pb-[10em]">
-        {getIntegrationPageQuery.isLoading && <Spinner />}
+        {getIntegrationPageQuery.isLoading && <LineLoader />}
         <br />
 
         {/* card */}
@@ -219,14 +164,9 @@ export default function BlogContent() {
                 <FlexRowEnd className="w-auto">
                   <FlexColStartBtw className="w-auto">
                     <FlexRowEnd className="w-full">
-                      <button
-                        className={cn(
-                          deleteNotionPageMut.isPending ? "animate-pulse" : ""
-                        )}
-                        disabled={deleteNotionPageMut.isPending}
-                        onClick={() => deleteNotionPageMut.mutate(p.pageId)}>
-                        <Trash2 size={15} className="text-red-305" />
-                      </button>
+                      <span className="text-xs font-ppSB text-white-100/50">
+                        Sync
+                      </span>
                       <button
                         className="group relative"
                         onClick={() => syncPage(p.pageId)}>
@@ -249,7 +189,7 @@ export default function BlogContent() {
                         </Link>
                       )}
                       <Link
-                        href={constructNotionUrl(p.pageId, p.title)}
+                        href={p.url}
                         className="text-white-100 opacity-[.4] font-ppL text-xs underline"
                         target="_blank">
                         notion ↗︎
@@ -261,39 +201,6 @@ export default function BlogContent() {
             ))
           : null}
       </FlexColStart>
-
-      {/* Add page modal */}
-      <Modal
-        showCloseIcon
-        onClose={() => setAddPageModal(false)}
-        isBlurBg
-        isOpen={addPageModal}
-        fixed>
-        <FlexColCenter className="h-full p-4">
-          <FlexColStart className="w-full max-w-[400px] rounded-md bg-dark-100 p-4">
-            <FlexColStart className="w-auto gap-1">
-              <p className="text-white-100 font-ppSB text-md">Notion Page</p>
-              <p className="text-white-100/50 font-ppReg text-xs">
-                Add your notion page url
-              </p>
-            </FlexColStart>
-            <br />
-            <Input
-              placeholder="https://www.notion.so/Page-Name-xxxxxx"
-              className="bg-dark-100 border-blue-101/40 border-[2px] outline-none focus:border-blue-101 text-white-100 font-ppReg text-xs px-4"
-              onChange={(e) => setPageUrl(e.target.value)}
-              value={pageUrl}
-            />
-            <Button
-              className="w-full bg-blue-101 hover:bg-blue-101/80 text-xs font-ppReg disabled:cursor-not-allowed disabled:opacity-[.75]"
-              disabled={addPageMutation.isPending}
-              onClick={addPage}
-              isLoading={addPageMutation.isPending}>
-              Add Page
-            </Button>
-          </FlexColStart>
-        </FlexColCenter>
-      </Modal>
     </FlexColStart>
   );
 }

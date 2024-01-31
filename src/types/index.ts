@@ -139,3 +139,14 @@ export type UserHnArticles = {
   readTime: number;
   likes: number;
 };
+
+export type NotionDBPosts = {
+  id: string;
+  title: string;
+  subtitle: string;
+  coverImage: string | null;
+  slug: string;
+  status: "Done" | "Not Started";
+  pageUrl: string;
+  content: string;
+};

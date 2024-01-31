@@ -78,8 +78,9 @@ type UpdateArticle = {
 };
 
 type notionToHashnodeType = {
-  url: string;
   publicationId: string;
+  databaseId: string;
+  pageId: string;
   apiKey: string;
   notionToken: string;
   type: "UPDATE" | "CREATE";
@@ -385,15 +386,15 @@ class HashnodeService {
   }
 
   async notionTohashnode(props: notionToHashnodeType) {
-    const { apiKey, publicationId, url, notionToken, type, article_id } = props;
-
-    if (!url) {
-      throw new HttpException(
-        RESPONSE_CODE.ERROR_CREATING_POST,
-        `Notion page url is missing.`,
-        401
-      );
-    }
+    const {
+      apiKey,
+      publicationId,
+      notionToken,
+      type,
+      article_id,
+      pageId,
+      databaseId,
+    } = props;
 
     if (!apiKey || !publicationId || !notionToken) {
       throw new HttpException(
@@ -405,44 +406,48 @@ class HashnodeService {
 
     const notionService = new NotionService({
       connection_settings: {
-        token: notionToken,
+        token: notionToken!,
       },
       options: {
         skip_block_types: [""],
       },
     });
 
-    const pageId = notionService.getPageIdFromURL(url);
-    const blocks = await notionService.getBlocks(url);
-    const content = await notionService.getMarkdown(blocks);
-    const properties = await notionService.getArticleProperties(pageId);
-    const markdown = content.parent;
-    const title = properties?.title?.title?.[0]?.plain_text;
-    const slug = notionService.getArticleSlug(title!);
+    const posts = await notionService.getDBPosts(databaseId);
+
+    const post = posts.find((p) => p.id == pageId);
 
     let publishedArticle;
-    console.log(type);
+
+    console.log(post);
+
     if (type === "CREATE") {
       // publish to hashnode
       publishedArticle = await this.createPost({
         apiKey,
-        contentMarkdown: markdown ?? "Default content",
+        contentMarkdown: post?.content ?? "Default content",
         publicationId,
-        title,
-        subtitle: "",
+        title: post?.title!,
+        subtitle: post?.subtitle ?? "",
         tags: [],
-        slug,
+        slug: post?.slug,
+        coverImageOptions: {
+          coverImageURL: post?.coverImage!,
+        },
       });
     } else {
       publishedArticle = await this.updateArticle({
         apiKey,
         update: {
           id: article_id!,
-          contentMarkdown: markdown ?? "Default content",
-          title,
-          subtitle: "",
+          contentMarkdown: post?.content ?? "Default content",
+          title: post?.title!,
+          subtitle: post?.subtitle ?? "",
           tags: [],
-          slug,
+          slug: post?.slug,
+          coverImageOptions: {
+            coverImageURL: post?.coverImage!,
+          },
         },
       });
     }

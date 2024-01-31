@@ -10,21 +10,85 @@ import ZodValidation from "../utils/zodValidation";
 import hashnodeService from "../services/hashnode.service";
 
 class NotionController {
-  async getNotionPages(req: NextRequest) {
+  async getArticlesContent(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
-
-    const pages = await prisma.integrationPage.findMany({
+    const integration = await prisma.integration.findFirst({
       where: { userId: user.id },
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        url: true,
-        article_id: true,
-        pageId: true,
-        type: true,
-        hn_cuid: true,
-        author: true,
+    });
+
+    const notionService = new NotionService({
+      connection_settings: {
+        token: integration?.token!,
+      },
+      options: {
+        skip_block_types: [""],
+      },
+    });
+
+    const notionDB = await notionService.searchDatabase();
+
+    if (!notionDB) {
+      throw new HttpException(
+        RESPONSE_CODE.NOT_FOUND,
+        "Notion database not found. Please make sure you've linked the integration and connected hashmind to your workspace.",
+        404
+      );
+    }
+
+    const posts = await notionService.getDBPosts(notionDB.databaseId);
+
+    const articles = [];
+    if (posts.length > 0) {
+      for (const p of posts) {
+        const pageExists = await prisma.integrationPage.findFirst({
+          where: {
+            pageId: p.id,
+          },
+        });
+
+        // @ts-expect-error
+        if (p.pageUrl) delete p?.pageUrl;
+
+        articles.push({
+          ...p,
+          article_id: pageExists?.article_id ?? null,
+          type: pageExists?.type,
+          author: pageExists?.author,
+          hn_cuid: pageExists?.hn_cuid,
+          url: pageExists?.pageUrl,
+          pageId: pageExists?.pageId,
+        });
+
+        if (!pageExists) {
+          await prisma.integrationPage.create({
+            data: {
+              id: nanoid(),
+              pageUrl: p.pageUrl,
+              userId: user.id,
+              pageId: p.id,
+              type: "notion",
+            },
+          });
+        } else {
+          await prisma.integrationPage.update({
+            where: {
+              id: pageExists.id,
+            },
+            data: {
+              pageUrl: p.pageUrl,
+            },
+          });
+        }
+      }
+    }
+
+    // update databaseid
+    await prisma.users.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        notion_database_id: notionDB.databaseId!,
       },
     });
 
@@ -32,78 +96,8 @@ class NotionController {
       RESPONSE_CODE.SUCCESS,
       "Successfully fetched notion pages.",
       200,
-      pages
+      articles
     );
-  }
-  async addPage(req: NextRequest) {
-    const user = (req as any)["user"] as ReqUserObj;
-    const payload: { url: string } = await req.json();
-
-    await ZodValidation(addNotionPageSchema, payload, req.url);
-
-    const integration = await prisma.integration.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (!integration) {
-      throw new HttpException(
-        RESPONSE_CODE.UNAUTHORIZED,
-        "Unauthorized. Please connect your notion workspace.",
-        401
-      );
-    }
-
-    const url = payload.url;
-
-    const notionService = new NotionService({
-      connection_settings: {
-        token: integration.token!,
-      },
-      options: {
-        skip_block_types: [""],
-      },
-    });
-
-    const pageId = notionService.getPageIdFromURL(url);
-    if (pageId) {
-      const properties = await notionService.getArticleProperties(pageId);
-      const title = properties?.title?.title?.[0]?.plain_text;
-      const slug = notionService.getArticleSlug(title!);
-
-      // check if pageId exists
-      const page = await prisma.integrationPage.findFirst({
-        where: { pageId },
-      });
-
-      if (page) {
-        await prisma.integrationPage.update({
-          where: { id: page.id },
-          data: {
-            slug,
-            title,
-            url,
-          },
-        });
-      } else {
-        await prisma.integrationPage.create({
-          data: {
-            id: nanoid(),
-            userId: user.id,
-            pageId,
-            slug,
-            title,
-            url,
-          },
-        });
-      }
-
-      return sendResponse.success(
-        RESPONSE_CODE.SUCCESS,
-        "Successfully added notion page.",
-        200,
-        { slug, title, url }
-      );
-    }
   }
 
   async syncToHashnode(req: NextRequest) {
@@ -119,6 +113,9 @@ class NotionController {
       );
     }
 
+    const userData = await prisma.users.findFirst({
+      where: { userId: user.id },
+    });
     const integration = await prisma.integration.findFirst({
       where: { userId: user.id },
     });
@@ -130,28 +127,26 @@ class NotionController {
       },
     });
 
-    const pageUrl = page?.url;
     const articleId = page?.article_id;
 
     const pubArt = await hashnodeService.notionTohashnode({
       apiKey: user.hnToken,
       notionToken: integration?.token!,
       publicationId: user.hnPubId,
-      url: pageUrl!,
       type: !articleId ? "CREATE" : "UPDATE",
       article_id: articleId!,
+      pageId: page?.pageId!,
+      databaseId: userData?.notion_database_id!,
     });
 
     if (pubArt.data) {
-      const { id, author, cuid, title, slug } = pubArt.data;
+      const { id, author, cuid } = pubArt.data;
       await prisma.integrationPage.update({
         where: { id: page?.id! },
         data: {
           article_id: id,
           hn_cuid: cuid,
           author: author?.username,
-          slug,
-          title,
         },
       });
       console.log("✅ Integration page updated");
@@ -162,44 +157,6 @@ class NotionController {
       "Successfully sync page to hashnode.",
       200,
       pubArt
-    );
-  }
-
-  async deletePage(req: NextRequest) {
-    const user = (req as any)["user"] as ReqUserObj;
-    const { searchParams } = new URL(req.url);
-    const pageId = searchParams.get("pageId");
-
-    if (!pageId) {
-      throw new HttpException(
-        RESPONSE_CODE.BAD_REQUEST,
-        "Page id is missing.",
-        400
-      );
-    }
-
-    const page = await prisma.integrationPage.findFirst({
-      where: {
-        pageId,
-        userId: user.id,
-      },
-    });
-
-    if (!page) {
-      throw new HttpException(RESPONSE_CODE.NOT_FOUND, "Page not found.", 404);
-    }
-
-    await prisma.integrationPage.delete({
-      where: {
-        id: page.id,
-        userId: user.id,
-      },
-    });
-
-    return sendResponse.success(
-      RESPONSE_CODE.SUCCESS,
-      "Successfully deleted notion page.",
-      200
     );
   }
 }

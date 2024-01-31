@@ -47,11 +47,12 @@ enum IntegrationType {
 }
 
 model Users {
-    id       String @id @map("_id")
-    userId   String @unique @default(cuid())
-    email    String @unique
-    username String
-    image    String
+    id                 String  @id @map("_id")
+    userId             String  @unique @default(cuid())
+    email              String  @unique
+    username           String
+    image              String
+    notion_database_id String?
 
     settings        Settings?
     queue           Queues[]
@@ -124,11 +125,9 @@ model ContentMetaData {
 model IntegrationPage {
     id         String          @id @default(cuid()) @map("_id")
     userId     String
-    pageId     String
-    url        String
-    title      String
-    slug       String
-    article_id String?
+    pageId     String          @unique
+    pageUrl    String? // notion page url
+    article_id String? // hashnode article id
     type       IntegrationType @default(notion)
     hn_cuid    String? // hashnode editor id
     author     String? // blog author (would be added later on during sync)
