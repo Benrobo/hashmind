@@ -41,17 +41,21 @@ export default class HashmindController {
 
     const { audio_base64, usersIntent } = payload;
 
-    // const transcript = await speechToText.openaiSTT(audio_base64);
+    let transcript;
 
-    // console.log({ transcript });
+    if (!usersIntent && audio_base64.length > 0) {
+      transcript = await speechToText.openaiSTT(audio_base64);
+    }
+
+    console.log({ transcript });
 
     // temp transcript
-    const transcript = transcriptTestData;
+    // const transcript = transcriptTestData;
 
     return await processUserRequests({
       user: user!,
-      transcript,
-      usersIntent: usersIntent!
+      transcript: transcript!,
+      usersIntent: usersIntent!,
     });
   }
 }

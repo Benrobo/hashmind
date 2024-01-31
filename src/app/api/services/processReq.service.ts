@@ -262,7 +262,7 @@ const handleNoActionDetected = async (
 
 const handleUsersIntent = async (props: UserIntentHandler) => {
   const { user, usersIntent } = props;
-
+  console.log("USERS INTENT DETECTED", usersIntent);
   if (usersIntent) {
     const possibleIntents = ["DELETE"];
     if (possibleIntents.includes(usersIntent)) {
@@ -353,21 +353,26 @@ export default async function processUserRequests(
     );
   }
 
-  if(!userAction.action || !userAction.title){
-    console.log("NO ACTION")
-    return await processUserRequests(props)
+  if (!userAction.action && !userAction.aiMsg) {
+    console.log("NO ACTION");
+    return await processUserRequests(props);
   }
-
 
   const _action = userAction.action;
 
   if (_action) {
     console.log("ACTION DETECTED: ", _action);
 
-    if (!userAction.subtitle || !userAction.title) {
-        console.log("NO TITLE OR SUBTITLE", userAction.title, userAction.subtitle)
+    if (!actionsVariants.delete.includes(_action)) {
+      if (!userAction.subtitle || !userAction.title) {
+        console.log(
+          "NO TITLE OR SUBTITLE",
+          userAction.title,
+          userAction.subtitle
+        );
         return;
-    //   return await processUserRequests(props);
+        //   return await processUserRequests(props);
+      }
     }
 
     if (actionsVariants.create.includes(_action as string)) {
@@ -383,6 +388,6 @@ export default async function processUserRequests(
     }
   }
 
-  console.log("NO ACTION DETECTED")
+  console.log("NO ACTION DETECTED");
   return handleNoActionDetected(userAction, user);
 }

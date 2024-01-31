@@ -52,7 +52,7 @@ class STT {
         base64Audio.indexOf(",") + 1
       );
       const audioBuffer = Buffer.from(formatedBase64, "base64");
-      const file = await toFile(audioBuffer, "audio.wav");
+      const file = await toFile(audioBuffer, "audio.mp3");
 
       const transcription = await openai.audio.transcriptions.create({
         file,

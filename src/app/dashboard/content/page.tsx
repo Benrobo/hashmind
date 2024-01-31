@@ -16,24 +16,11 @@ import Tooltip from "@/components/tooltip";
 import Button from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useDataContext } from "@/context/DataContext";
-import {
-  addNotionPage,
-  deleteNotionPage,
-  getNotionPages,
-  syncNotionPage,
-} from "@/http/request";
+import { getNotionPages, syncNotionPage } from "@/http/request";
 import { cn } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  ExternalLink,
-  MoveLeft,
-  Pencil,
-  Plus,
-  RefreshCcw,
-  Trash2,
-} from "lucide-react";
-import getConfig from "next/config";
+import { MoveLeft, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
