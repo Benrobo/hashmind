@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 export const withoutAuth = <P extends { children: React.ReactNode }>(
   WrappedComponent: React.ComponentType<P>
 ) => {
-  const Wrapper: React.FC<P> = (props) => {
+  const Wrapper: React.FC<P> = (props: P & any) => {
     const { isLoaded, userId } = useAuth();
     const { user } = useUser();
     const router = useRouter();

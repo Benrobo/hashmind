@@ -9,7 +9,6 @@ import React, { useEffect } from "react";
 
 export default function withAuth<P>(Component: React.ComponentType<P>) {
   const ComponentWithAuth = (props: P & any) => {
-    const { setUserInfo } = useDataContext();
     const { data, loading, error, refetch } = useAuthUser(false);
     const { isLoaded, userId } = useAuth();
     const { user } = useUser();
