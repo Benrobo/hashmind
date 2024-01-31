@@ -37,6 +37,8 @@ type FuncResp = {
 export type PublishedArtRespData = {
   id: string;
   url: string;
+  author: { username: string };
+  cuid: string;
 };
 
 export type UserArticlesRespData = {
@@ -59,9 +61,7 @@ type UpdateArticle = {
     id: string;
     title?: string;
     subtitle?: string;
-    contentMarkdown?: {
-      markdown: string;
-    };
+    contentMarkdown?: string;
     tags?: {
       id: string;
     }[];
@@ -82,6 +82,8 @@ type notionToHashnodeType = {
   publicationId: string;
   apiKey: string;
   notionToken: string;
+  type: "UPDATE" | "CREATE";
+  article_id?: string;
 };
 
 class HashnodeService {
@@ -110,6 +112,10 @@ class HashnodeService {
               post {
                 id
                 url
+                author {
+                  username
+                }
+                cuid
               }
             }
         }`,
@@ -181,7 +187,6 @@ class HashnodeService {
         }`,
       };
 
-      // ! Uncomment this once you're done
       const resp = await $http({
         method: "POST",
         data: reqBody,
@@ -191,14 +196,6 @@ class HashnodeService {
       });
 
       const respData = resp.data?.data;
-      // const respData = {
-      //   publishPost: {
-      //     post: {
-      //       id: "123",
-      //       url: "https://google.com",
-      //     },
-      //   },
-      // };
       funcResp.success = "Article created successfully";
       funcResp.data = respData.me.posts.nodes as UserArticlesRespData;
       return funcResp;
@@ -262,56 +259,66 @@ class HashnodeService {
   }
 
   async updateArticle({ apiKey, update }: UpdateArticle) {
-    try {
-      if (!apiKey) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_CREATING_POST,
-          `Unauthorized, missing api key`,
-          401
-        );
-      }
+    if (!apiKey) {
+      throw new HttpException(
+        RESPONSE_CODE.ERROR_CREATING_POST,
+        `Unauthorized, missing api key`,
+        401
+      );
+    }
 
-      const funcResp: FuncResp = { error: null, success: null, data: null };
+    const funcResp: FuncResp = { error: null, success: null, data: null };
 
-      const reqBody = {
-        query: `mutation UpdatePost($input: UpdatePostInput!) {
+    const reqBody = {
+      query: `mutation UpdatePost($input: UpdatePostInput!) {
           updatePost(input: $input) {
             post{
               id
+              url
+              author {
+                username
+              }
+              cuid
             }
           }
         }`,
-        variables: {
-          input: {
-            ...update,
-          },
+      variables: {
+        input: {
+          ...update,
         },
-      };
+      },
+    };
 
-      // ! Uncomment this once you're done
-      const resp = await $http({
-        method: "POST",
-        data: reqBody,
-        headers: {
-          Authorization: apiKey,
-        },
-      });
+    // ! Uncomment this once you're done
+    const resp = await $http({
+      method: "POST",
+      data: reqBody,
+      headers: {
+        Authorization: apiKey,
+      },
+    });
 
-      const respData = resp.data?.data;
+    const respData = resp.data?.data;
 
-      funcResp.success = "Article updated successfully";
-      funcResp.data = respData?.updatePost.post as UpdateArticle;
-      return funcResp;
-    } catch (e: any) {
-      const msg = e.response?.data?.errors[0]?.message ?? e.message;
-      console.log(msg);
-      console.log(e);
+    if (resp.data?.errors?.length > 0) {
+      console.log(resp?.data?.errors);
+      const err = resp?.data?.errors[0];
+      const { code } = err?.extensions;
+      const notFound = code === "NOT_FOUND";
       throw new HttpException(
-        RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
-        `Something went wrong updating article.`,
-        400
+        notFound
+          ? RESPONSE_CODE.NOT_FOUND
+          : RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
+        notFound
+          ? `Article notfound.`
+          : `Something went wrong updating article`,
+        notFound ? 404 : 400
       );
     }
+
+    funcResp.success = "Article updated successfully";
+    funcResp.data = respData?.updatePost.post as PublishedArtRespData;
+    return funcResp;
   }
 
   async deleteArticle({ id, apiKey }: { apiKey: string; id: string }) {
@@ -366,7 +373,7 @@ class HashnodeService {
   }
 
   async notionTohashnode(props: notionToHashnodeType) {
-    const { apiKey, publicationId, url, notionToken } = props;
+    const { apiKey, publicationId, url, notionToken, type, article_id } = props;
 
     if (!url) {
       throw new HttpException(
@@ -401,16 +408,32 @@ class HashnodeService {
     const title = properties?.title?.title?.[0]?.plain_text;
     const slug = notionService.getArticleSlug(title!);
 
-    // publish to hashnode
-    const publishedArticle = await this.createPost({
-      apiKey,
-      contentMarkdown: markdown ?? "Default content",
-      publicationId,
-      title,
-      subtitle: "",
-      tags: [],
-      slug,
-    });
+    let publishedArticle;
+    console.log(type);
+    if (type === "CREATE") {
+      // publish to hashnode
+      publishedArticle = await this.createPost({
+        apiKey,
+        contentMarkdown: markdown ?? "Default content",
+        publicationId,
+        title,
+        subtitle: "",
+        tags: [],
+        slug,
+      });
+    } else {
+      publishedArticle = await this.updateArticle({
+        apiKey,
+        update: {
+          id: article_id!,
+          contentMarkdown: markdown ?? "Default content",
+          title,
+          subtitle: "",
+          tags: [],
+          slug,
+        },
+      });
+    }
 
     return publishedArticle;
   }
