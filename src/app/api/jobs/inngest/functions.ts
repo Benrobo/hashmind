@@ -434,9 +434,7 @@ export const inngest_update_article_content_function = inngest.createFunction(
       apiKey: apiKey as string,
       update: {
         id: articleId!,
-        contentMarkdown: {
-          markdown: newUpdatedArticle.content as string,
-        },
+        contentMarkdown: newUpdatedArticle.content as string,
       },
     });
 
