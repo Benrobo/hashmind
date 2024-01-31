@@ -14,42 +14,9 @@ import { nanoid } from "nanoid";
 import notionController from "../../controller/notion.controller";
 
 export const GET = CatchError(
-  isAuthenticated(async (req: NextRequest) => {
-    const user = (req as any)["user"] as ReqUserObj;
-
-    const usrIntegration = await prisma.integration.findFirst({
-      where: {
-        userId: user.id!,
-      },
-    });
-    const notionToken = usrIntegration?.token;
-
-    if (!notionToken) {
-      throw new HttpException(
-        RESPONSE_CODE.UNAUTHORIZED,
-        "Unauthorized. Please connect your notion workspace.",
-        401
-      );
-    }
-
-    const url =
-      // "https://www.notion.so/benrobo/Lendsqr-API-doc-e51845e922914365b613b166374b8e3b?pvs=4";
-      "https://www.notion.so/Test-page-09303a3c117f447f9746581206a84550?pvs=4";
-
-    const pubArt = await hashnodeService.notionTohashnode({
-      apiKey: user.hnToken,
-      notionToken,
-      publicationId: user.hnPubId,
-      url,
-    });
-
-    return sendResponse.success(
-      RESPONSE_CODE.SUCCESS,
-      "Successfully posted to hashnode.",
-      200,
-      pubArt
-    );
-  })
+  isAuthenticated(
+    async (req: NextRequest) => await notionController.getNotionPages(req)
+  )
 );
 
 export const POST = CatchError(
