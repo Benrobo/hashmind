@@ -14,7 +14,7 @@ import { getUserHnArticles } from "@/http/request";
 import { ResponseData, UserHnArticles } from "@/types";
 import { UserButton } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Eye, Heart } from "lucide-react";
+import { ChevronRight, Eye, Heart, Library } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -146,11 +146,15 @@ function ArticlesCard({
               <Heart size={15} />
               {likes}
             </p>
+            <p className="font-ppSB text-xs text-white-300 flex items-start justify-center gap-1">
+              <Library size={15} />
+              {readtime} min
+            </p>
           </FlexRowStart>
           <Link
             href={url}
             target="_blank"
-            className="text-white-100 font-ppSB underline">
+            className="text-white-100 font-ppSB text-sm underline">
             {title.length > 25 ? title.slice(0, 25) + "..." : title}
           </Link>
           {/* <p className="text-white-300 text-xs font-ppReg">{slug}</p> */}
