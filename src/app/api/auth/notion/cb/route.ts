@@ -20,11 +20,8 @@ export const GET = isAuthenticated(async (req: NextRequest) => {
   }
 
   if (!code) {
-    throw new HttpException(
-      RESPONSE_CODE.BAD_REQUEST,
-      "Invalid query parameters.",
-      400
-    );
+    console.log("No code found");
+    redirect("/dashboard/settings?error='Authentication failed'");
   }
 
   const url = "https://api.notion.com/v1/oauth/token";
