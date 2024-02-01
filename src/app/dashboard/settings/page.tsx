@@ -47,6 +47,18 @@ export default function Settings() {
   }, []);
 
   React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (params.get("notion")) {
+        toast.success("Notion integration successful.");
+      } else if (params.get("error")) {
+        toast.error("Notion integration failed.");
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  React.useEffect(() => {
     if (updateHNTokenMutation?.error) {
       const data = (updateHNTokenMutation?.error as any)?.response
         ?.data as ResponseData;
@@ -78,12 +90,6 @@ export default function Settings() {
     checkHnAuthorizeQuery.error,
     checkHnAuthorizeQuery.isPending,
   ]);
-
-  if (params.get("notion")) {
-    toast.success("Notion integration successful.");
-  } else if (params.get("error")) {
-    toast.error("Notion integration failed.");
-  }
 
   function updateHashnodeToken() {
     if (hnToken.length < 1) {
