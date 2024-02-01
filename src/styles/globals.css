@@ -210,3 +210,20 @@ body {
     left: unset;
   }
 }
+
+.rainbowBorder {
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #02fcef70, #ffb52b70 50%, #a02bfe70);
+  height: 35px;
+  line-height: 0;
+  transition: transform 0.2s ease-in-out;
+  transform-origin: 0 100%;
+}
+
+.rainbowBorder span {
+  line-height: 1;
+  margin: 1px;
+  border-radius: 9999px;
+  width: calc(100% - 2px);
+  height: calc(32px - 2px);
+}

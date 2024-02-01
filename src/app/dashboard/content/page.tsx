@@ -40,8 +40,6 @@ type IntegrationPageData = {
 
 export default function BlogContent() {
   const { showToolBar, setActivePage } = useDataContext();
-  const [addPageModal, setAddPageModal] = React.useState(false);
-  const [pageUrl, setPageUrl] = React.useState("");
   const [intPages, setIntPages] = React.useState<IntegrationPageData[]>([]);
   const [contDelId, setContentDelId] = React.useState<string[]>([]);
   const getIntegrationPageQuery = useQuery({

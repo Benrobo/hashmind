@@ -7,6 +7,7 @@ import DataContextProvider from "@/context/DataContext";
 import { Toaster } from "react-hot-toast";
 import { ClerkProvider } from "@clerk/nextjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Seo from "@/components/seo";
 
 // tanstack reqct query
 const queryClient = new QueryClient();
@@ -18,6 +19,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Seo />
       <body
         className={cn(
           `${ppReg.variable} ${ppB.variable} ${ppEB.variable} ${ppSB.variable} ${ppL.variable} ${blEB.variable}`,
