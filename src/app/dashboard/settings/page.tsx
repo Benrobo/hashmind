@@ -94,7 +94,7 @@ export default function Settings() {
   }
 
   return (
-    <FlexColStart className="w-full h-screen overflow-y-scroll hideScrollBar pb-[10em]">
+    <FlexColStart className="w-full h-screen overflow-y-scroll hideScrollBar2 pb-[10em]">
       <FlexColStart className="w-full px-4 py-4">
         <Link href="/dashboard/home">
           <MoveLeft
