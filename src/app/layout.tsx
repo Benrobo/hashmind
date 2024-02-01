@@ -20,9 +20,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <Seo />
       {/* @ts-ignore */}
-      <Head></Head>
+      <Seo />
       <body
         className={cn(
           `${ppReg.variable} ${ppB.variable} ${ppEB.variable} ${ppSB.variable} ${ppL.variable} ${blEB.variable}`,
