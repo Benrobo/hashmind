@@ -107,7 +107,7 @@ function BlogContent() {
         <br />
 
         {/* card */}
-        {/* {!getIntegrationPageQuery.isPending && intPages.length > 0
+        {!getIntegrationPageQuery.isPending && intPages.length > 0
           ? intPages.map((p, i) => (
               <FlexRowStartBtw
                 key={i}
@@ -152,7 +152,7 @@ function BlogContent() {
                       </button>
                     </FlexRowEnd>
                     <FlexRowStart className="w-auto mt-2">
-                      {p.hn_cuid && (
+                      {/* {p.hn_cuid && (
                         <Link
                           href={`https://hashnode.com/edit/${p.hn_cuid}`}
                           target="_blank"
@@ -165,13 +165,13 @@ function BlogContent() {
                         className="text-white-100 opacity-[.4] font-ppL text-xs underline"
                         target="_blank">
                         notion ↗︎
-                      </Link>
+                      </Link> */}
                     </FlexRowStart>
                   </FlexColStartBtw>
                 </FlexRowEnd>
               </FlexRowStartBtw>
             ))
-                      : null} */}
+                      : null}
       </FlexColStart>
     </FlexColStart>
   );
