@@ -3,10 +3,8 @@ import { useAuth, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 
-export const withoutAuth = <P extends { children: React.ReactNode }>(
-  WrappedComponent: React.ComponentType<P>
-) => {
-  const Wrapper: React.FC<P> = (props: P & any) => {
+export function withoutAuth<P>(Component: React.ComponentType<P>) {
+  const ComponentWithAuth = (props: P & any) => {
     const { isLoaded, userId } = useAuth();
     const { user } = useUser();
     const router = useRouter();
@@ -14,7 +12,6 @@ export const withoutAuth = <P extends { children: React.ReactNode }>(
     useEffect(() => {
       if (isLoaded) {
         const isLoggedIn = userId;
-
         // Avoid infinite redirection loop
         if (isLoggedIn) {
           router.push("/dashboard/home");
@@ -22,9 +19,8 @@ export const withoutAuth = <P extends { children: React.ReactNode }>(
       }
     }, [isLoaded, userId, user, router]);
 
-    const wrappedComponent = React.createElement(WrappedComponent, props);
-    return wrappedComponent;
+    return <Component {...props} />;
   };
 
-  return Wrapper;
-};
+  return ComponentWithAuth;
+}
