@@ -90,6 +90,7 @@ export const POST = CatchError(async (req: NextRequest) => {
           console.log(`✅ User ${email} created!`);
         })
         .catch((e) => {
+          console.log(e);
           console.log(`❌ Error creating user ${email}`);
         });
 
