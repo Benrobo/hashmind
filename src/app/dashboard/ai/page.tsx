@@ -228,6 +228,7 @@ export default function AI() {
       <FlexColStart className="w-full px-4 py-4">
         <button
           // href="/dashboard/home"
+          className="z-[100]"
           onClick={() => {
             audio.pause();
             audio.src = "";

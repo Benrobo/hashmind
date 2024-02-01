@@ -195,10 +195,10 @@ export default function Settings() {
           <FlexColStart className="w-full mt-1">
             <h1 className="font-ppSB text-white-100">Integration</h1>
             <FlexRowCenterBtw className="w-full">
-              <FlexColStart className="w-auto">
+              <FlexColStart className="w-auto gap-0">
                 <p className="text-white-100/90 text-sm font-ppSB">Notion</p>
                 <p className="text-white-100/50 text-xs font-ppReg">
-                  Publish articles from notion to hashnode.
+                  Sync Notion to Hashnode
                 </p>
               </FlexColStart>
               <a
