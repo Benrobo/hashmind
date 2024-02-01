@@ -306,7 +306,7 @@ export default function AI() {
               {speaking ? <Pause size={30} /> : <Mic size={30} />}
             </button>
             <span className="text-xs text-white-100/70 font-ppSB scale-[.75] ">
-              click and hold
+              Click and Speak
             </span>
           </>
         )}
