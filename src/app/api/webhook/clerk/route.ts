@@ -31,8 +31,9 @@ export const POST = CatchError(async (req: NextRequest) => {
       "svix-timestamp": svix_timestamp as string,
       "svix-signature": svix_signature as string,
     }) as WebhookEvent;
-  } catch (_) {
+  } catch (e: any) {
     // If the verification fails, return a 400 error
+    console.log(e);
     console.log(`❌ Invalid webhook signature`);
     return Response.json(
       { error: "Invalid webhook signature" },
