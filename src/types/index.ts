@@ -150,3 +150,41 @@ export type NotionDBPosts = {
   pageUrl: string;
   content: string;
 };
+
+export type NewNotionColumnProperties = {
+  // Title: {
+  //   title: {
+  //     text: {
+  //       content: string;
+  //     };
+  //   }[];
+  // };
+  // Subtitle: {
+  //   rich_text: {
+  //     plain_text: string;
+  //   }[];
+  // };
+  // Status: {
+  //   select: {
+  //     name: "Done" | "Not Started";
+  //   };
+  // };
+  // Slug: {
+  //   rich_text: {
+  //     plain_text: string;
+  //   }[];
+  // };
+  // CoverImage: {
+  //   files: {
+  //     file: {
+  //       url: string;
+  //     };
+  //   }[];
+  // };
+  title: string;
+  slug: string;
+  subtitle: string;
+  coverImage: string;
+  status: "Done" | "Not Started";
+  content: string;
+};

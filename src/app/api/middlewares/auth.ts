@@ -25,7 +25,7 @@ export function isAuthenticated(fn: Function) {
       },
     });
 
-    console.log(user);
+    // console.log(user);
 
     if (!user) {
       throw new HttpException(

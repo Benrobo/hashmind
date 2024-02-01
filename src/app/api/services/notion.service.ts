@@ -5,7 +5,11 @@ import { NotionToMarkdown } from "notion-to-md";
 import { ConfigNotion } from "@/types/config";
 import slugify from "slugify";
 import HttpException from "../utils/exception";
-import { NotionDBPosts, RESPONSE_CODE } from "@/types";
+import {
+  NewNotionColumnProperties,
+  NotionDBPosts,
+  RESPONSE_CODE,
+} from "@/types";
 
 export default class NotionService {
   notion: Client;
@@ -38,6 +42,142 @@ export default class NotionService {
     return {
       databaseId,
     };
+  }
+
+  // ! This didn't endup not working as expected
+  // ! The notion api kind of suck and doesn't provide enough
+  // ! information towards adding new column to a database
+  async addNewColumnToDatabase(
+    databaseId: string,
+    properties: NewNotionColumnProperties
+  ) {
+    const response = await this.notion.databases.create({
+      parent: {
+        database_id: databaseId,
+      },
+      title: [
+        {
+          type: "text",
+          text: {
+            content: "Status",
+          },
+        },
+      ],
+      properties: {
+        Title: {
+          id: "title",
+          type: "title",
+          title: [
+            // @ts-ignore
+            {
+              type: "text",
+              text: {
+                content: properties?.title,
+                link: null,
+              },
+              annotations: {
+                bold: false,
+                italic: false,
+                strikethrough: false,
+                underline: false,
+                code: false,
+                color: "default",
+              },
+              plain_text: properties.title,
+              href: null,
+            },
+          ],
+        },
+        Slug: {
+          id: "P%7DY%7C",
+          type: "rich_text",
+          rich_text: [
+            // @ts-ignore
+            {
+              type: "text",
+              text: {
+                content: properties?.slug,
+                link: null,
+              },
+              annotations: {
+                bold: false,
+                italic: false,
+                strikethrough: false,
+                underline: false,
+                code: false,
+                color: "default",
+              },
+              plain_text: properties.slug,
+              href: null,
+            },
+          ],
+        },
+        Subtitle: {
+          id: "G%5DJG",
+          type: "rich_text",
+          rich_text: [
+            // @ts-ignore
+            {
+              text: {
+                content: properties?.subtitle,
+                link: null,
+              },
+              annotations: {
+                bold: false,
+                italic: false,
+                strikethrough: false,
+                underline: false,
+                code: false,
+                color: "default",
+              },
+              plain_text: properties.subtitle,
+              href: null,
+            },
+          ],
+        },
+        CoverImage: {
+          id: "%60cpr",
+          type: "files",
+          files: [
+            // @ts-ignore
+            {
+              type: "file",
+              file: {
+                url: properties?.coverImage,
+              },
+            },
+          ],
+        },
+        Status: {
+          type: "select",
+          select: {
+            options: [
+              {
+                name: properties?.status,
+              },
+            ],
+          },
+        },
+      },
+      children: [
+        {
+          object: "block",
+          type: "paragraph",
+          paragraph: {
+            text: [
+              {
+                type: "text",
+                text: {
+                  content: properties?.content,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+
+    return response;
   }
 
   //
@@ -83,6 +223,7 @@ export default class NotionService {
       });
     }
 
+    // return response;
     return articles as NotionDBPosts[];
   }
 }
