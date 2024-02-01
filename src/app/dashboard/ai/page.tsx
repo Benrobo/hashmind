@@ -294,9 +294,10 @@ export default function AI() {
                   ? " border-t-[6px] active:border-t-[6px]"
                   : " border-b-[6px] active:border-b-[2px]"
               )}
-              onMouseDown={startRecording}
-              onMouseUp={stopRecording}
-              onMouseLeave={stopRecording}
+              onClick={() => {
+                if (speaking) stopRecording();
+                else startRecording();
+              }}
               disabled={
                 delArt ||
                 handleUserRequestMut.isPending ||
