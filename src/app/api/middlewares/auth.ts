@@ -25,6 +25,8 @@ export function isAuthenticated(fn: Function) {
       },
     });
 
+    console.log(user);
+
     if (!user) {
       throw new HttpException(
         RESPONSE_CODE.UNAUTHORIZED,

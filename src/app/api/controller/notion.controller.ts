@@ -24,6 +24,14 @@ class NotionController {
       );
     }
 
+    if (!integration || !integration.token) {
+      throw new HttpException(
+        RESPONSE_CODE.BAD_REQUEST,
+        "Connect your notion account first.",
+        400
+      );
+    }
+
     const notionService = new NotionService({
       connection_settings: {
         token: integration?.token!,

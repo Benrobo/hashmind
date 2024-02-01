@@ -9,12 +9,6 @@ export const GET = CatchError(
   )
 );
 
-// export const POST = CatchError(
-//   isAuthenticated(
-//     async (req: NextRequest) => await notionController.addPage(req)
-//   )
-// );
-
 export const PATCH = CatchError(
   isAuthenticated(
     async (req: NextRequest) => await notionController.syncToHashnode(req)
