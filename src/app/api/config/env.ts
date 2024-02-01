@@ -1,7 +1,7 @@
 const API_URL =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:2025"
-    : "https://hashmind.vercel.app";
+    ? "http://localhost:2025/api"
+    : "https://hashmind.vercel.app/api";
 const env = {
   API_URL,
   GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
@@ -11,7 +11,7 @@ const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET,
   NOTION: {
-    redirect_url: `${API_URL}/api/auth/notion/cb`,
+    redirect_url: `${API_URL}/auth/notion/cb`,
     client_id: process.env.NOTION_CLIENT_ID,
     secret: process.env.NOTION_SECRET_KEY,
   },

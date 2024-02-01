@@ -44,12 +44,6 @@ export default function Settings() {
   React.useEffect(() => {
     showToolBar();
     setActivePage("settings");
-
-    if (params.get("notion")) {
-      toast.success("Notion integration successful.");
-    } else if (params.get("error")) {
-      toast.error("Notion integration failed.");
-    }
   }, []);
 
   React.useEffect(() => {
@@ -84,6 +78,12 @@ export default function Settings() {
     checkHnAuthorizeQuery.error,
     checkHnAuthorizeQuery.isPending,
   ]);
+
+  if (params.get("notion")) {
+    toast.success("Notion integration successful.");
+  } else if (params.get("error")) {
+    toast.error("Notion integration failed.");
+  }
 
   function updateHashnodeToken() {
     if (hnToken.length < 1) {
