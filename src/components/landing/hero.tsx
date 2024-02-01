@@ -57,7 +57,7 @@ function Hero() {
             src={"/images/mockup.png"}
             width={1000}
             height={0}
-            className="w-[90%] rounded-md"
+            className="w-[100%] md:w-[90%] rounded-md"
             alt="hashmind mockup"
           />
         </FlexColCenter>
