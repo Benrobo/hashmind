@@ -369,10 +369,13 @@ export const inngest_update_article_content_function = inngest.createFunction(
     // What should the AI do to the content based on users action
     // (ADD, REPLACE, REMOVE) would be use later to structure the prompt
     const contentNotation = event.data.updateContentNotation;
-
+    const publicationId = user?.settings?.hashnode_pub_id as string;
     console.log({ contentNotation });
 
-    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const resp = await hashnodeService.getUserArticles(
+      apiKey as string,
+      publicationId
+    );
     const userArticles = resp.data;
     const articleToUpdate = await identifyArticleToUpdate(title, userArticles);
 
@@ -388,6 +391,7 @@ export const inngest_update_article_content_function = inngest.createFunction(
     const article = await hashnodeService.getArticleById({
       id: articleId!,
       apiKey: apiKey as string,
+      publicationId,
     });
 
     if (article.error) {
@@ -491,10 +495,14 @@ export const inngest_update_article_title_function = inngest.createFunction(
     const prevTitle = event.data.title!;
     const newTitle = event.data.newTitle!;
     const userId = event.data.userId;
+    const publicationId = user?.settings?.hashnode_pub_id as string;
 
     console.log({ newTitle });
 
-    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const resp = await hashnodeService.getUserArticles(
+      apiKey as string,
+      publicationId
+    );
     const userArticles = resp.data;
 
     // find the article to update based on title
@@ -515,6 +523,7 @@ export const inngest_update_article_title_function = inngest.createFunction(
     const article = await hashnodeService.getArticleById({
       id: articleId!,
       apiKey: apiKey as string,
+      publicationId,
     });
 
     if (article.error) {
@@ -582,12 +591,16 @@ export const inngest_update_article_coverImage_function =
         where: { userId: event.data.userId },
         include: { settings: true },
       });
+      const publicationId = user?.settings?.hashnode_pub_id as string;
       const apiKey = user?.settings?.hashnode_token;
       const title = event.data.title!;
       const userId = event.data.userId;
       const coverImageKeywords = event.data.coverImage;
 
-      const resp = await hashnodeService.getUserArticles(apiKey as string);
+      const resp = await hashnodeService.getUserArticles(
+        apiKey as string,
+        publicationId
+      );
       const userArticles = resp.data;
 
       // find the article to update based on title
@@ -608,6 +621,7 @@ export const inngest_update_article_coverImage_function =
       const article = await hashnodeService.getArticleById({
         id: articleId!,
         apiKey: apiKey as string,
+        publicationId,
       });
 
       if (article.error) {
@@ -705,8 +719,12 @@ export const inngest_delete_article_function = inngest.createFunction(
     const apiKey = user?.settings?.hashnode_token;
     const title = event.data.title!;
     const userId = event.data.userId;
+    const publicationId = user?.settings?.hashnode_pub_id as string;
 
-    const resp = await hashnodeService.getUserArticles(apiKey as string);
+    const resp = await hashnodeService.getUserArticles(
+      apiKey as string,
+      publicationId
+    );
     const userArticles = resp.data;
 
     // find the article to update based on title
@@ -726,6 +744,7 @@ export const inngest_delete_article_function = inngest.createFunction(
     const article = await hashnodeService.getArticleById({
       id: articleId!,
       apiKey: apiKey as string,
+      publicationId,
     });
 
     if (article.error) {

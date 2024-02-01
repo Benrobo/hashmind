@@ -155,7 +155,7 @@ class HashnodeService {
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
-      console.log(msg, e);
+      console.log(msg, e.response?.data);
       throw new HttpException(
         RESPONSE_CODE.ERROR_CREATING_POST,
         `Something went wrong creating article.`,
@@ -258,8 +258,16 @@ class HashnodeService {
     }
   }
 
-  async getArticleById({ id, apiKey }: { apiKey: string; id: string }) {
-    if (!apiKey || !id) {
+  async getArticleById({
+    id,
+    apiKey,
+    publicationId,
+  }: {
+    apiKey: string;
+    id: string;
+    publicationId: string;
+  }) {
+    if (!apiKey || !id || !publicationId) {
       throw new HttpException(
         RESPONSE_CODE.ERROR_UPDATING_ARTICLE,
         `Unauthorized, missing api key or article id.`,
@@ -269,31 +277,24 @@ class HashnodeService {
 
     const funcResp: FuncResp = { error: null, success: null, data: null };
     try {
-      const reqBody = {
-        query: `query Post($id: ID!) {
-          post(id: $id){
-            id
-            title
-            subtitle
-            content {
-              markdown
-            }
-          }
-        }`,
-        variables: { id },
-      };
+      const resp = await this.getUserArticles(apiKey, publicationId);
+      const articles = resp.data as UserArticlesRespData[];
 
-      const resp = await $http({
-        method: "POST",
-        data: reqBody,
-        headers: {
-          Authorization: apiKey,
-        },
+      const article = articles.find((art) => art.id === id);
+      console.log({
+        articles,
+        article,
       });
 
-      const respData = resp.data?.data;
+      if (!article) {
+        throw new HttpException(
+          RESPONSE_CODE.ERROR_FETCHING_ARTICLE,
+          `Article not found.`,
+          404
+        );
+      }
       funcResp.success = "Article fetched successfully";
-      funcResp.data = respData.post as ArticleById;
+      funcResp.data = article as ArticleById;
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
@@ -464,7 +465,8 @@ class HashnodeService {
         apiKey,
         contentMarkdown: post?.content ?? "Default content",
         publicationId,
-        title: post?.title!,
+        title:
+          post?.title!.length !== 6 ? `${post?.title!} Title` : post?.title!,
         subtitle: post?.subtitle ?? "",
         tags: [],
         slug: post?.slug,
