@@ -164,7 +164,7 @@ class HashnodeService {
     }
   }
 
-  async getUserArticles(apiKey: string) {
+  async getUserArticles(apiKey: string, publicationId: string) {
     if (!apiKey) {
       throw new HttpException(
         RESPONSE_CODE.ERROR_CREATING_POST,
@@ -175,27 +175,62 @@ class HashnodeService {
 
     const funcResp: FuncResp = { error: null, success: null, data: null };
     try {
+      // fetch articles from users personal blog only
+      // const reqBody = {
+      //   query: `query GetPost {
+      //     me {
+      //       posts(pageSize:5, page:1) {
+      //         nodes {
+      //           id
+      //           title
+      //           url
+      //           coverImage {
+      //             url
+      //           }
+      //           slug
+      //           views
+      //           readTimeInMinutes
+      //           likedBy(first: 1000) {
+      //             totalDocuments
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }`,
+      // };
+
+      // fetch articles based on the user blog
       const reqBody = {
-        query: `query GetPost {
-          me {
-            posts(pageSize:5, page:1) {
-              nodes {
-                id
-                title
-                url
-                coverImage {
+        query: `query Publication(
+          $id: ObjectId!
+        ) {
+          publication(
+            id: $id
+          ) {
+            posts(first: 20) {
+              edges{
+                node{
+                  id
+                  slug
+                  title
                   url
-                }
-                slug
-                views
-                readTimeInMinutes
-                likedBy(first: 1000) {
-                  totalDocuments 
+                  coverImage {
+                    url
+                  }
+                  slug
+                  views
+                  readTimeInMinutes
+                  likedBy(first: 10) {
+                    totalDocuments
+                  }
                 }
               }
             }
           }
         }`,
+        variables: {
+          id: publicationId,
+        },
       };
 
       const resp = await $http({
@@ -207,15 +242,17 @@ class HashnodeService {
       });
 
       const respData = resp.data?.data;
-      funcResp.success = "Article created successfully";
-      funcResp.data = respData.me.posts.nodes as UserArticlesRespData;
+      const articles = respData.publication.posts
+        .edges as UserArticlesRespData[];
+      funcResp.success = "Article fetched successfully";
+      funcResp.data = articles;
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
       console.log(msg);
       throw new HttpException(
         RESPONSE_CODE.ERROR_CREATING_POST,
-        `Something went wrong creating article.`,
+        `Something went wrong fetching article.`,
         400
       );
     }

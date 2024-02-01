@@ -171,7 +171,7 @@ export default class UserController {
   public async articles(req: NextRequest) {
     const user = (req as any)["user"] as ReqUserObj;
 
-    if (!user.hnToken) {
+    if (!user.hnToken || !user.hnPubId) {
       throw new HttpException(
         RESPONSE_CODE.HASHNODE_TOKEN_NOT_FOUND,
         "Hashnode token not found",
@@ -179,21 +179,28 @@ export default class UserController {
       );
     }
 
-    const userArticles = await hashnodeService.getUserArticles(user.hnToken);
+    const userArticles = await hashnodeService.getUserArticles(
+      user.hnToken,
+      user.hnPubId
+    );
     const articles = userArticles.data as ReturnedUserArticles[];
 
-    const formattedArticles = articles?.map((a) => {
-      return {
-        id: a.id,
-        title: a.title,
-        url: a.url,
-        coverImage: a.coverImage?.url ?? null,
-        slug: a.slug,
-        views: a.views,
-        readTime: a.readTimeInMinutes,
-        likes: a.likedBy.totalDocuments,
-      };
-    });
+    const formattedArticles =
+      articles.length > 0
+        ? articles?.map((art) => {
+            const a = art.node;
+            return {
+              id: a.id,
+              title: a.title,
+              url: a.url,
+              coverImage: a.coverImage?.url ?? null,
+              slug: a.slug,
+              views: a.views,
+              readTime: a.readTimeInMinutes,
+              likes: a.likedBy?.totalDocuments ?? 0,
+            };
+          })
+        : [];
 
     return sendResponse.success(
       RESPONSE_CODE.SUCCESS,
