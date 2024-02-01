@@ -16,6 +16,14 @@ class NotionController {
       where: { userId: user.id },
     });
 
+    if (!user.hnToken || !user.hnPubId) {
+      throw new HttpException(
+        RESPONSE_CODE.BAD_REQUEST,
+        "Connect your hashnode account first.",
+        400
+      );
+    }
+
     const notionService = new NotionService({
       connection_settings: {
         token: integration?.token!,
