@@ -21,8 +21,8 @@ function Hero() {
 
         <FlexColCenter className="relative w-full h-full mt-[10em] md:mt-[8em] text-center">
           <FlexRowCenter className="rainbowBorder mb-10 inline-flex items-center justify-center text-[14px] px-[2px] ">
-            <span className="inline-flex items-center gap-1 whitespace-nowrap px-6 py-2 bg-dark-100 font-ppReg text-[12px] z-[20] text-white-100 scale-[.60] md:scale-1">
-              Your Creative Companion for Effortless Blogging Experience.
+            <span className="inline-flex items-center gap-1 whitespace-nowrap px-6 py-2 bg-dark-100 font-ppReg text-[12px] z-[20] text-white-100 scale-[.90] md:scale-1">
+              Your Effortless Blogging Companion.
             </span>
           </FlexRowCenter>
           <FlexColCenter className="w-auto px-3 md:max-w-[70%]">
