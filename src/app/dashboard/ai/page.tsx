@@ -7,7 +7,7 @@ import {
   FlexRowCenter,
   FlexRowCenterBtw,
 } from "@/components/flex";
-import WaveLoader from "@/components/loader";
+import WaveLoader, { LineLoader } from "@/components/loader";
 import Button from "@/components/ui/button";
 import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
@@ -224,7 +224,7 @@ export default function AI() {
   }
 
   return (
-    <FlexColStart className="relative w-full h-full min-h-screen">
+    <FlexColStartCenter className="relative w-full h-screen overflow-x-hidden">
       <FlexColStart className="w-full px-4 py-4">
         <button
           // href="/dashboard/home"
@@ -242,9 +242,10 @@ export default function AI() {
 
       {/* Voice assist container */}
       <FlexColStartCenter className="w-full h-full">
-        {loader && <WaveLoader />}
+        {loader && <LineLoader />}
 
-        <div className={cn(aiInvoke ? "visible" : "invisible")}>
+        <div
+          className={cn("absolute top-6", aiInvoke ? "visible" : "invisible")}>
           <ReactSiriwave
             theme={
               handleUserRequestMut.isPending || handleTTSMut.isPending
@@ -282,17 +283,7 @@ export default function AI() {
           </button>
         )}
       </FlexColStartCenter>
-      <FlexColCenter className="w-full fixed bottom-5">
-        {/* subtitles here */}
-        <FlexRowCenter className="w-full transition-all flex-wrap">
-          {humanSpeechs.map((speech) => (
-            <span
-              key={speech}
-              className="p-2 m-1 rounded-md bg-dark-100 text-xs text-white-100">
-              {speech}
-            </span>
-          ))}
-        </FlexRowCenter>
+      <FlexColCenter className="w-full relative bottom-[10em] md:bottom-[5em]">
         <br />
         {aiInvoke && (
           <>
@@ -323,14 +314,14 @@ export default function AI() {
       {/* Modal */}
       <FlexColCenter
         className={cn(
-          "w-full h-screen fixed top-0 backdrop-blur-lg bg-dark-105/20 bg-opacity-85 z-[999] transition-all",
+          "w-full h-full fixed top-0 backdrop-blur-lg bg-dark-105/20 bg-opacity-85 z-[999] transition-all",
           delArtModal ? "translate-y-[1]" : "translate-y-[50em]"
         )}>
         <FlexColStartCenter className="w-full max-w-[400px] mx-auto text-center">
           <p className="font-ppSB text-white-100 text-1xl text-center">
             Article Deletion
           </p>
-          <p className="text-xs font-ppReg text-white-100/50">
+          <p className="text-xs font-ppReg max-w-[90%] text-white-100/50">
             You've requested for an article to be deleted are you sure about
             this.?
           </p>
@@ -361,6 +352,6 @@ export default function AI() {
       </FlexColCenter>
 
       <BlurBgRadial className="w-[70%] absolute opacity-1 top-[-50%] left-5 bg-white-300 blur-[450px] " />
-    </FlexColStart>
+    </FlexColStartCenter>
   );
 }
