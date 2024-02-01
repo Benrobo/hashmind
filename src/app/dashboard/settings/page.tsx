@@ -202,9 +202,7 @@ export default function Settings() {
                 </p>
               </FlexColStart>
               <a
-                href={
-                  "https://api.notion.com/v1/oauth/authorize?client_id=ebff2951-b4d2-4785-a943-00d4cdfd9f67&response_type=code&owner=user&redirect_uri=http%3A%2F%2Flocalhost%3A2025%2Fapi%2Fauth%2Fnotion%2Fcb"
-                }
+                href={`${env.API_URL}/auth/notion/connect`}
                 className="w-[130px] rounded-full px-3 py-2 font-ppReg text-xs bg-blue-101">
                 Authorize Notion
               </a>

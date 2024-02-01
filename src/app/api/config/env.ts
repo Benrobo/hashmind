@@ -11,7 +11,7 @@ const env = {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
   CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET,
   NOTION: {
-    redirect_url: process.env.NOTION_AUTH_URL,
+    redirect_url: `${API_URL}/api/auth/notion/cb`,
     client_id: process.env.NOTION_CLIENT_ID,
     secret: process.env.NOTION_SECRET_KEY,
   },
