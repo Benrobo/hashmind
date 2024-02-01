@@ -10,11 +10,6 @@ import {
   FlexRowStartBtw,
 } from "@/components/flex";
 import { LineLoader } from "@/components/loader";
-import Modal from "@/components/modal";
-import { Spinner } from "@/components/spinner";
-import Tooltip from "@/components/tooltip";
-import Button from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useDataContext } from "@/context/DataContext";
 import { getNotionPages, syncNotionPage } from "@/http/request";
 import { cn } from "@/lib/utils";
@@ -65,15 +60,6 @@ export default function BlogContent() {
   React.useEffect(() => {
     showToolBar();
     setActivePage("content");
-
-    // fetch content every 5sec
-    const intervalId = setInterval(() => {
-      // getContentsQuery.refetch();
-    }, 5000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
   }, []);
 
   React.useEffect(() => {
