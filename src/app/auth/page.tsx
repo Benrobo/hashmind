@@ -14,7 +14,7 @@ function Auth() {
   return (
     <FlexColStartCenter className="w-full h-screen">
       <HomeTopBar />
-      <FlexColCenter className="w-full h-full px-8 mt-[5em]">
+      <FlexColCenter className="w-full h-full px-8 mt-[1em]">
         <FlexColStart className="p-2 scale-[.95]">
           <SignIn />
         </FlexColStart>
