@@ -54,7 +54,7 @@ export const POST = CatchError(async (req: NextRequest) => {
       external_accounts,
     } = data as any;
 
-    const randName = `${first_name + last_name ?? username}`;
+    const randName = `${first_name ?? username}`;
     const _username = external_accounts[0]?.username ?? randName;
 
     // check if user exists, if it doesn't then create a new user
