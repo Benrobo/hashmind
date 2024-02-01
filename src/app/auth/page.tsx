@@ -1,6 +1,10 @@
 "use client";
 // @ts-nocheck
-import { FlexColStart, FlexColStartCenter } from "@/components/flex";
+import {
+  FlexColCenter,
+  FlexColStart,
+  FlexColStartCenter,
+} from "@/components/flex";
 import HomeTopBar from "@/components/navbar";
 import { withoutAuth } from "@/lib/auth-helpers/withoutAuth";
 import { SignIn } from "@clerk/nextjs";
@@ -10,10 +14,11 @@ function Auth() {
   return (
     <FlexColStartCenter className="w-full h-screen">
       <HomeTopBar />
-      <FlexColStart className="w-full px-5 mt-9">
-        <h1 className="text-white-100 text-2xl font-ppSB">Sign-In</h1>
-      </FlexColStart>
-      <SignIn />
+      <FlexColCenter className="w-full h-full px-8 mt-[5em]">
+        <FlexColStart className="p-2 scale-[.95]">
+          <SignIn />
+        </FlexColStart>
+      </FlexColCenter>
     </FlexColStartCenter>
   );
 }

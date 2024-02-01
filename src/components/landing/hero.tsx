@@ -20,7 +20,7 @@ function Hero() {
         <BlurBgRadial className=" w-[100%] lg:w-[60%] h-[300px] absolute top-[10%] lg:top-[-10%] bg-white-300/10 " />
 
         <FlexColCenter className="relative w-full h-full mt-[10em] md:mt-[8em] text-center">
-          <FlexRowCenter className="rainbowBorder mb-10 inline-flex items-center justify-center text-[14px] px-[2px] scale-[.90] md:scale-1 ">
+          <FlexRowCenter className="rainbowBorder mb-10 inline-flex items-center justify-center text-[14px] px-[2px] ">
             <span className="inline-flex items-center gap-1 whitespace-nowrap px-6 py-2 bg-dark-100 font-ppReg text-[12px] z-[20] text-white-100">
               Your Effortless Blogging Companion.
             </span>
