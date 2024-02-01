@@ -25,9 +25,9 @@ function Hero() {
               Your Creative Companion for Effortless Blogging Experience.
             </span>
           </FlexRowCenter>
-          <FlexColCenter className="w-auto px-4 md:max-w-[70%]">
+          <FlexColCenter className="w-auto px-3 md:max-w-[70%]">
             <h1 className=" text-4xl md:text-6xl z-[20] text-white-100 mt-2 font-ppEB">
-              Hashnode Companion
+              Hashnode Blogging Companion
             </h1>
             <p className="text-white-300 text-[12px] md:text-[14px] w-full px-6 md:0 md:max-w-[60%] font-ppReg">
               Bring your ideas to life effortlessly using Hashmind. It combines
