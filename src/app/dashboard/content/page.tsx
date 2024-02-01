@@ -152,21 +152,20 @@ function BlogContent() {
                       </button>
                     </FlexRowEnd>
                     <FlexRowStart className="w-auto mt-2">
-                      <span>test</span>
-                      {/* {p.hn_cuid && (
+                      {p?.hn_cuid && (
                         <Link
-                          href={`https://hashnode.com/edit/${p.hn_cuid}`}
+                          href={`https://hashnode.com/edit/${p?.hn_cuid}`}
                           target="_blank"
                           className="text-white-100 opacity-[.9] font-ppL text-xs underline">
                           hashnode ↗︎
                         </Link>
                       )}
                       <Link
-                        href={p.url}
+                        href={p?.url ?? ""}
                         className="text-white-100 opacity-[.4] font-ppL text-xs underline"
                         target="_blank">
                         notion ↗︎
-                      </Link> */}
+                      </Link>
                     </FlexRowStart>
                   </FlexColStartBtw>
                 </FlexRowEnd>
