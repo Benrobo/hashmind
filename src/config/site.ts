@@ -7,7 +7,7 @@ const siteConfig = {
   headline: "Hashmind",
   description: "hashnode blogging companion",
   keywords: "boilerplate, starter kit, saucecode, hashnode, blogging",
-  image: "/images/banner.png",
+  image: "https://hashmind.vercel.app/images/banner.png",
 };
 
 export default siteConfig;
