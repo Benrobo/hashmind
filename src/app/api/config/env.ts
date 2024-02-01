@@ -1,4 +1,7 @@
-const API_URL = "http://localhost:2025";
+const API_URL =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:2025"
+    : "https://hashmind.vercel.app";
 const env = {
   API_URL,
   GOOGLE_CLOUD_API_KEY: process.env.GOOGLE_CLOUD_API_KEY,
