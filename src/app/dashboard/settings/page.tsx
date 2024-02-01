@@ -22,8 +22,9 @@ import toast from "react-hot-toast";
 import { ResponseData } from "@/types";
 import { useSearchParams } from "next/navigation";
 import env from "@/app/api/config/env";
+import withAuth from "@/lib/auth-helpers/withAuth";
 
-export default function Settings() {
+function Settings() {
   const { showToolBar, setActivePage } = useDataContext();
   const params = useSearchParams();
   const [authVisi, setAuthVisi] = React.useState<boolean>(false);
@@ -219,3 +220,4 @@ export default function Settings() {
     </FlexColStart>
   );
 }
+export default withAuth(Settings);

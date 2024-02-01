@@ -13,6 +13,7 @@ import ReactSiriwave from "@/components/wave/SiriWave";
 import { useDataContext } from "@/context/DataContext";
 import useSpeechRecognition from "@/hooks/useSpeechRecognition";
 import { googleTTS, handleUserRequest } from "@/http/request";
+import withAuth from "@/lib/auth-helpers/withAuth";
 import {
   audioBase64ToBlob,
   cn,
@@ -27,7 +28,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import toast from "react-hot-toast";
 
-export default function AI() {
+function AI() {
   const { hideToolBar } = useDataContext();
   const [humanSpeechs, setHumanSpeechs] = React.useState<string[]>([]);
   const [audioPlaying, setAudioPlaying] = React.useState<boolean>(false);
@@ -357,3 +358,5 @@ export default function AI() {
     </FlexColStartCenter>
   );
 }
+
+export default withAuth(AI);

@@ -12,6 +12,7 @@ import {
 import { LineLoader } from "@/components/loader";
 import { useDataContext } from "@/context/DataContext";
 import { getNotionPages, syncNotionPage } from "@/http/request";
+import withAuth from "@/lib/auth-helpers/withAuth";
 import { cn } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -33,7 +34,7 @@ type IntegrationPageData = {
   hn_cuid: string; // hashnode editor id (used internally by hashnode)
 };
 
-export default function BlogContent() {
+function BlogContent() {
   const { showToolBar, setActivePage } = useDataContext();
   const [intPages, setIntPages] = React.useState<IntegrationPageData[]>([]);
   const [contDelId, setContentDelId] = React.useState<string[]>([]);
@@ -118,7 +119,7 @@ export default function BlogContent() {
                         p.type === "notion" ? "/images/logos/notion.png" : ""
                       }
                       width={50}
-                      height={0}
+                      height={50}
                       className=""
                       alt="notion"
                     />
@@ -175,3 +176,5 @@ export default function BlogContent() {
     </FlexColStart>
   );
 }
+
+export default withAuth(BlogContent);

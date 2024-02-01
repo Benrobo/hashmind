@@ -11,6 +11,7 @@ import { Spinner } from "@/components/spinner";
 import Button from "@/components/ui/button";
 import { useDataContext } from "@/context/DataContext";
 import { deleteQueue, getQueues } from "@/http/request";
+import withAuth from "@/lib/auth-helpers/withAuth";
 import { cn } from "@/lib/utils";
 import { ResponseData } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -46,7 +47,7 @@ type QueuesValues = {
   }[];
 };
 
-export default function QueuesPage() {
+function QueuesPage() {
   const { showToolBar, setActivePage } = useDataContext();
   const [dropdownVisi, setDropdownVisi] = React.useState<string>("");
   const [deletingQ, setDeletingQ] = React.useState<string>("");
@@ -212,6 +213,8 @@ export default function QueuesPage() {
     </FlexColStart>
   );
 }
+
+export default withAuth(QueuesPage);
 
 type QueueContentProps = {
   title: string;
