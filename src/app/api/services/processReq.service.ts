@@ -80,7 +80,7 @@ const createArticleEvent = async (
     },
   });
 
-  inngest.send({
+  await inngest.send({
     name: "hashmind/main",
     data: {
       title: userAction.title ?? "",
@@ -137,7 +137,7 @@ const updateArticleEvent = async (
   };
 
   if (userAction.updateTitle) {
-    inngest.send({
+    await inngest.send({
       name: "hashmind/article.title.update",
       data: {
         title: userAction.title!, // prev title
