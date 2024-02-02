@@ -28,20 +28,28 @@ export default class NotionService {
 
   // notion database are like collections in mongodb
   async searchDatabase() {
-    const response = await this.notion.search({
-      filter: {
-        value: "database",
-        property: "object",
-      },
-      sort: {
-        direction: "ascending",
-        timestamp: "last_edited_time",
-      },
-    });
-    const databaseId = response.results[0]?.id;
-    return {
-      databaseId,
-    };
+    try {
+      const response = await this.notion.search({
+        filter: {
+          value: "database",
+          property: "object",
+        },
+        sort: {
+          direction: "ascending",
+          timestamp: "last_edited_time",
+        },
+      });
+      const databaseId = response.results[0]?.id;
+      return {
+        databaseId,
+      };
+    } catch (e: any) {
+      throw new HttpException(
+        RESPONSE_CODE.NOT_FOUND,
+        `Notion database not found. Connect hashmind to your workspace and try again.`,
+        404
+      );
+    }
   }
 
   // ! This didn't endup not working as expected
@@ -176,48 +184,56 @@ export default class NotionService {
   }
 
   async getDBPosts(databaseId: string) {
-    const response = await this.notion.databases.query({
-      database_id: databaseId,
-      sorts: [
-        {
-          timestamp: "last_edited_time",
-          direction: "descending",
+    try {
+      const response = await this.notion.databases.query({
+        database_id: databaseId,
+        sorts: [
+          {
+            timestamp: "last_edited_time",
+            direction: "descending",
+          },
+        ],
+        filter: {
+          property: "Status",
+          type: "status",
+          status: {
+            equals: "Done",
+          },
         },
-      ],
-      filter: {
-        property: "Status",
-        type: "status",
-        status: {
-          equals: "Done",
-        },
-      },
-    });
-
-    const articles = [];
-    for (const data of response.results) {
-      // @ts-expect-error
-      const properties = data?.properties as any;
-      const notionContent = this.n2m.toMarkdownString(
-        await this.n2m.pageToMarkdown(data.id)
-      );
-
-      const slug = properties["Slug"]?.rich_text[0]?.plain_text;
-      const title = properties["Title"]?.title[0]?.plain_text;
-
-      articles.push({
-        id: data.id,
-        title,
-        subtitle: properties["Subtitle"]?.rich_text[0]?.plain_text,
-        status: properties["Status"]?.status?.name,
-        slug: slugify(slug ?? title.toLowerCase()),
-        coverImage: properties["Cover Image"]?.files[0]?.file?.url,
-        content: notionContent?.parent,
-        // @ts-expect-error
-        pageUrl: data?.url,
       });
-    }
 
-    // return response;
-    return articles as NotionDBPosts[];
+      const articles = [];
+      for (const data of response.results) {
+        // @ts-expect-error
+        const properties = data?.properties as any;
+        const notionContent = this.n2m.toMarkdownString(
+          await this.n2m.pageToMarkdown(data.id)
+        );
+
+        const slug = properties["Slug"]?.rich_text[0]?.plain_text;
+        const title = properties["Title"]?.title[0]?.plain_text;
+
+        articles.push({
+          id: data.id,
+          title,
+          subtitle: properties["Subtitle"]?.rich_text[0]?.plain_text,
+          status: properties["Status"]?.status?.name,
+          slug: slugify(slug ?? title.toLowerCase()),
+          coverImage: properties["Cover Image"]?.files[0]?.file?.url,
+          content: notionContent?.parent,
+          // @ts-expect-error
+          pageUrl: data?.url,
+        });
+      }
+
+      // return response;
+      return articles as NotionDBPosts[];
+    } catch (e: any) {
+      throw new HttpException(
+        RESPONSE_CODE.NOT_FOUND,
+        `Notion database not found. Connect hashmind to your workspace and try again.`,
+        404
+      );
+    }
   }
 }
