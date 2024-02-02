@@ -376,15 +376,15 @@ export default async function processUserRequests(
     }
 
     if (actionsVariants.create.includes(_action as string)) {
-      return createArticleEvent(userAction, user);
+      return await createArticleEvent(userAction, user);
     }
 
     if (actionsVariants.update.includes(_action)) {
-      return updateArticleEvent(userAction, user);
+      return await updateArticleEvent(userAction, user);
     }
 
     if (actionsVariants.delete.includes(_action)) {
-      return deleteArticleEvent(userAction, user);
+      return await deleteArticleEvent(userAction, user);
     }
   }
 
