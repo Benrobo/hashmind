@@ -104,8 +104,13 @@ export const POST = CatchError(async (req: NextRequest) => {
     const { id } = data as any;
 
     try {
+      console.log({ wh_user_id: id });
       // delere related user data from database
-      await prisma.users.delete({ where: { id } });
+      await prisma.users.delete({
+        where: {
+          id: id,
+        },
+      });
 
       console.log(`✅ User ${id} data deleted`);
       return Response.json({ message: "User data deleted" });

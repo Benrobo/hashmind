@@ -83,7 +83,7 @@ model Queues {
     description String
     jobs        Int
 
-    user     Users       @relation(fields: [userId], references: [userId])
+    user     Users       @relation(fields: [userId], references: [userId], onDelete: Cascade)
     subqueue SubQueues[]
 
     @@map("queues")
@@ -98,7 +98,7 @@ model SubQueues {
     title      String
     message    String
 
-    user  Users  @relation(fields: [userId], references: [userId])
+    user  Users  @relation(fields: [userId], references: [userId], onDelete: Cascade)
     queue Queues @relation(fields: [queueId], references: [id], onDelete: Cascade)
 
     @@map("subqueues")
@@ -117,7 +117,7 @@ model IntegrationPage {
 
     createdAt DateTime @default(now())
 
-    user Users @relation(fields: [userId], references: [userId])
+    user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
     @@map("integration_page")
 }
@@ -129,7 +129,7 @@ model ChatHistory {
     type      MessageUserType?
     createdAt DateTime         @default(now())
 
-    user Users @relation(fields: [userId], references: [userId])
+    user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
     @@map("chathistory")
 }
@@ -142,7 +142,7 @@ model Integration {
 
     createdAt DateTime @default(now())
 
-    user Users @relation(fields: [userId], references: [userId])
+    user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
     @@map("integration")
 }
