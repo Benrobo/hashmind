@@ -44,7 +44,7 @@ export const GET = CatchError(
     const user = (req as any)["user"] as ReqUserObj;
     const { id, hnPubId, hnToken } = user;
 
-    const articles = await hashnodeService.getUserArticles(hnToken);
+    const articles = await hashnodeService.getUserArticles(hnToken, hnPubId);
 
     return sendResponse.success(
       RESPONSE_CODE.SUCCESS,
