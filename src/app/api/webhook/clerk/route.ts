@@ -115,6 +115,7 @@ export const POST = CatchError(async (req: NextRequest) => {
       console.log(`✅ User ${id} data deleted`);
       return Response.json({ message: "User data deleted" });
     } catch (e: any) {
+      console.log(e);
       console.log(`❌ Error deleting user ${id} data`);
       return Response.json({ message: "Error deleting user data" });
     }
