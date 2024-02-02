@@ -144,6 +144,7 @@ class HashnodeService {
       const respData = resp.data;
 
       if (respData.errors) {
+        console.log(respData.errors[0]);
         throw new HttpException(
           RESPONSE_CODE.ERROR_CREATING_POST,
           `Something went wrong creating article. ${respData.errors[0].message}`,
