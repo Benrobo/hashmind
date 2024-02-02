@@ -30,12 +30,12 @@ export const GET = CatchError(
 
     const notionDB = await notionService.searchDatabase();
 
-    console.log(notionDB);
+    console.log(notionDB, "ey");
 
     const resp = await notionService.addNewColumnToDatabase(
       notionDB.databaseId,
       {
-        title: "Status",
+        title: "Title here",
         content: `
             ## Here is a subheader
             Here is some text

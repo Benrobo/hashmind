@@ -65,6 +65,20 @@ class NotionController {
         // @ts-expect-error
         if (p.pageUrl) delete p?.pageUrl;
 
+        // we make use of the database_id and filter the articles
+        // which are were sync by the user with their default notion_db_id
+        // This is because, if they try updating their database id,
+        // There would be an issue when a user tries sync a page to hashnode
+        // with the old database id
+
+        if (pageExists && pageExists.notion_db_id) {
+          if (pageExists?.notion_db_id !== notionDB.databaseId) {
+            // if the page exists but the database id is different
+            // skip the page
+            continue;
+          }
+        }
+
         articles.push({
           ...p,
           article_id: pageExists?.article_id ?? null,
@@ -163,6 +177,7 @@ class NotionController {
           article_id: id,
           hn_cuid: cuid,
           author: author?.username,
+          notion_db_id: userData?.notion_database_id!,
         },
       });
       console.log("✅ Integration page updated");
@@ -173,6 +188,34 @@ class NotionController {
       "Successfully sync page to hashnode.",
       200,
       pubArt
+    );
+  }
+
+  async resetIntegration(req: NextRequest) {
+    const user = (req as any)["user"] as ReqUserObj;
+    const { searchParams } = new URL(req.url);
+    const pageId = searchParams.get("pageId");
+
+    if (!pageId) {
+      throw new HttpException(
+        RESPONSE_CODE.BAD_REQUEST,
+        "Page id is missing.",
+        400
+      );
+    }
+
+    await prisma.integrationPage.deleteMany({
+      where: {
+        userId: user.id,
+        pageId,
+      },
+    });
+
+    return sendResponse.success(
+      RESPONSE_CODE.SUCCESS,
+      "Successfully reset integration.",
+      200,
+      {}
     );
   }
 }

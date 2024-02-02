@@ -59,17 +59,12 @@ export default async function identifyAction(request: string) {
                 title: {
                   type: "string",
                   description:
-                    "Extract the title from the prompt if available and make sure to be short and concise. This is very important, it must not be empty. Make it short maximum 50 characters",
+                    "The title of the article (this could be the article title the user would like to generate an article with or this could be the old article title if user would like to update the title).Extract the title from the prompt if available and make sure to be short and concise. This is very important, it must not be empty. Make it short maximum 50 characters",
                 },
                 subtitle: {
                   type: "string",
                   description:
                     "Extract the subtitle from the prompt. Make it short maximum 50 characters. This is very important, it must not be empty",
-                },
-                emoji: {
-                  type: "string",
-                  description:
-                    "Generate a random emoji of the title in the prompt.",
                 },
                 keywords: {
                   type: "string",

@@ -105,14 +105,15 @@ model SubQueues {
 }
 
 model IntegrationPage {
-    id         String          @id @default(cuid()) @map("_id")
-    userId     String
-    pageId     String          @unique
-    pageUrl    String? // notion page url
-    article_id String? // hashnode article id
-    type       IntegrationType @default(notion)
-    hn_cuid    String? // hashnode editor id
-    author     String? // blog author (would be added later on during sync)
+    id           String          @id @default(cuid()) @map("_id")
+    userId       String
+    pageId       String          @unique
+    pageUrl      String? // notion page url
+    article_id   String? // hashnode article id
+    notion_db_id String? // notion database id
+    type         IntegrationType @default(notion)
+    hn_cuid      String? // hashnode editor id
+    author       String? // blog author (would be added later on during sync)
 
     createdAt DateTime @default(now())
 

@@ -24,16 +24,16 @@ export default class HashmindController {
 
     const { audio_base64, usersIntent } = payload;
 
-    let transcript;
+    // let transcript;
 
-    if (!usersIntent && audio_base64.length > 0) {
-      transcript = await speechToText.openaiSTT(audio_base64);
-    }
+    // if (!usersIntent && audio_base64.length > 0) {
+    //   transcript = await speechToText.openaiSTT(audio_base64);
+    // }
 
-    console.log({ transcript });
+    // console.log({ transcript });
 
     // temp transcript
-    // const transcript = transcriptTestData;
+    const transcript = "Update my article coverImage titled New hashnode platform the image should depict futuristic utopia.";
 
     return await processUserRequests({
       user: user!,

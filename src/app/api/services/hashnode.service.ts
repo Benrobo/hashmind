@@ -1,6 +1,6 @@
 import axios from "axios";
 import HttpException from "../utils/exception";
-import { RESPONSE_CODE } from "@/types";
+import { RESPONSE_CODE, ReturnedUserArticles } from "@/types";
 import NotionService from "./notion.service";
 
 const $http = axios.create({
@@ -245,7 +245,7 @@ class HashnodeService {
       const articles = respData.publication.posts
         .edges as UserArticlesRespData[];
       funcResp.success = "Article fetched successfully";
-      funcResp.data = articles;
+      funcResp.data = articles as UserArticlesRespData[];
       return funcResp;
     } catch (e: any) {
       const msg = e.response?.data?.errors[0]?.message ?? e.message;
@@ -276,35 +276,33 @@ class HashnodeService {
     }
 
     const funcResp: FuncResp = { error: null, success: null, data: null };
-    try {
-      const resp = await this.getUserArticles(apiKey, publicationId);
-      const articles = resp.data as UserArticlesRespData[];
 
-      const article = articles.find((art) => art.id === id);
-      console.log({
-        articles,
-        article,
-      });
-
-      if (!article) {
-        throw new HttpException(
-          RESPONSE_CODE.ERROR_FETCHING_ARTICLE,
-          `Article not found.`,
-          404
-        );
+    const resp = await this.getUserArticles(apiKey, publicationId);
+    const articles = resp.data as ReturnedUserArticles[];
+    const modifiedArticles = articles.map(art=> {
+      return {
+        ...art.node
       }
-      funcResp.success = "Article fetched successfully";
-      funcResp.data = article as ArticleById;
-      return funcResp;
-    } catch (e: any) {
-      const msg = e.response?.data?.errors[0]?.message ?? e.message;
-      console.log(msg);
+    })
+
+    const article = modifiedArticles.find((art) => art.id === id);
+    
+    console.log({
+      modifiedArticles,
+      article,
+    });
+
+    if (!article) {
       throw new HttpException(
         RESPONSE_CODE.ERROR_FETCHING_ARTICLE,
-        `Something went wrong fetching article.`,
-        400
+        `Article not found.`,
+        404
       );
     }
+    funcResp.success = "Article fetched successfully";
+    funcResp.data = article as ArticleById;
+
+    return funcResp;
   }
 
   async updateArticle({ apiKey, update }: UpdateArticle) {
@@ -457,8 +455,6 @@ class HashnodeService {
 
     let publishedArticle;
 
-    console.log(post);
-
     if (type === "CREATE") {
       // publish to hashnode
       publishedArticle = await this.createPost({
@@ -475,6 +471,23 @@ class HashnodeService {
         },
       });
     } else {
+      // check if article exists
+      if (article_id) {
+        const article = await this.getArticleById({
+          apiKey,
+          id: article_id!,
+          publicationId,
+        });
+
+        if (article.error) {
+          throw new HttpException(
+            RESPONSE_CODE.ERROR_CREATING_POST,
+            `Article not found`,
+            404
+          );
+        }
+      }
+
       publishedArticle = await this.updateArticle({
         apiKey,
         update: {

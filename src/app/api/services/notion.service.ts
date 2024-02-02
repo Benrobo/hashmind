@@ -53,134 +53,128 @@ export default class NotionService {
   ) {
     const response = await this.notion.databases.create({
       parent: {
+        type: "database_id",
         database_id: databaseId,
       },
-      title: [
-        {
-          type: "text",
-          text: {
-            content: "Status",
-          },
-        },
-      ],
       properties: {
         Title: {
-          id: "title",
-          type: "title",
+          // id: "title",
           title: [
             // @ts-ignore
             {
-              type: "text",
-              text: {
-                content: properties?.title,
-                link: null,
-              },
-              annotations: {
-                bold: false,
-                italic: false,
-                strikethrough: false,
-                underline: false,
-                code: false,
-                color: "default",
-              },
-              plain_text: properties.title,
-              href: null,
+              text: { content: properties?.title },
             },
           ],
+          // title: [
+          //   // @ts-ignore
+          //   {
+          //     type: "text",
+          //     text: {
+          //       content: properties?.title,
+          //       link: null,
+          //     },
+          //     annotations: {
+          //       bold: false,
+          //       italic: false,
+          //       strikethrough: false,
+          //       underline: false,
+          //       code: false,
+          //       color: "default",
+          //     },
+          //     plain_text: properties.title,
+          //     href: null,
+          //   },
+          // ],
         },
-        Slug: {
-          id: "P%7DY%7C",
-          type: "rich_text",
-          rich_text: [
-            // @ts-ignore
-            {
-              type: "text",
-              text: {
-                content: properties?.slug,
-                link: null,
-              },
-              annotations: {
-                bold: false,
-                italic: false,
-                strikethrough: false,
-                underline: false,
-                code: false,
-                color: "default",
-              },
-              plain_text: properties.slug,
-              href: null,
-            },
-          ],
-        },
-        Subtitle: {
-          id: "G%5DJG",
-          type: "rich_text",
-          rich_text: [
-            // @ts-ignore
-            {
-              text: {
-                content: properties?.subtitle,
-                link: null,
-              },
-              annotations: {
-                bold: false,
-                italic: false,
-                strikethrough: false,
-                underline: false,
-                code: false,
-                color: "default",
-              },
-              plain_text: properties.subtitle,
-              href: null,
-            },
-          ],
-        },
-        CoverImage: {
-          id: "%60cpr",
-          type: "files",
-          files: [
-            // @ts-ignore
-            {
-              type: "file",
-              file: {
-                url: properties?.coverImage,
-              },
-            },
-          ],
-        },
-        Status: {
-          type: "select",
-          select: {
-            options: [
-              {
-                name: properties?.status,
-              },
-            ],
-          },
-        },
+        // Slug: {
+        //   type: "rich_text",
+        //   rich_text: [
+        //     // @ts-ignore
+        //     {
+        //       type: "text",
+        //       text: {
+        //         content: properties?.slug,
+        //         link: null,
+        //       },
+        //       annotations: {
+        //         bold: false,
+        //         italic: false,
+        //         strikethrough: false,
+        //         underline: false,
+        //         code: false,
+        //         color: "default",
+        //       },
+        //       plain_text: properties.slug,
+        //       href: null,
+        //     },
+        //   ],
+        // },
+        // Subtitle: {
+        //   type: "rich_text",
+        //   rich_text: [
+        //     // @ts-ignore
+        //     {
+        //       text: {
+        //         content: properties?.subtitle,
+        //         link: null,
+        //       },
+        //       annotations: {
+        //         bold: false,
+        //         italic: false,
+        //         strikethrough: false,
+        //         underline: false,
+        //         code: false,
+        //         color: "default",
+        //       },
+        //       plain_text: properties.subtitle,
+        //       href: null,
+        //     },
+        //   ],
+        // },
+        // CoverImage: {
+        //   type: "files",
+        //   files: [
+        //     // @ts-ignore
+        //     {
+        //       type: "file",
+        //       file: {
+        //         url: properties?.coverImage,
+        //       },
+        //     },
+        //   ],
+        // },
+        // Status: {
+        //   type: "select",
+        //   select: {
+        //     options: [
+        //       {
+        //         name: properties?.status,
+        //       },
+        //     ],
+        //   },
+        // },
       },
-      children: [
-        {
-          object: "block",
-          type: "paragraph",
-          paragraph: {
-            text: [
-              {
-                type: "text",
-                text: {
-                  content: properties?.content,
-                },
-              },
-            ],
-          },
-        },
-      ],
+      // children: [
+      //   {
+      //     object: "block",
+      //     type: "paragraph",
+      //     paragraph: {
+      //       text: [
+      //         {
+      //           type: "text",
+      //           text: {
+      //             content: properties?.content,
+      //           },
+      //         },
+      //       ],
+      //     },
+      //   },
+      // ],
     });
 
     return response;
   }
 
-  //
   async getDBPosts(databaseId: string) {
     const response = await this.notion.databases.query({
       database_id: databaseId,

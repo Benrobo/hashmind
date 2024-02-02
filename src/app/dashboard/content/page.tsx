@@ -11,7 +11,11 @@ import {
 } from "@/components/flex";
 import { LineLoader } from "@/components/loader";
 import { useDataContext } from "@/context/DataContext";
-import { getNotionPages, syncNotionPage } from "@/http/request";
+import {
+  getNotionPages,
+  resetIntegration,
+  syncNotionPage,
+} from "@/http/request";
 import withAuth from "@/lib/auth-helpers/withAuth";
 import { cn } from "@/lib/utils";
 import { ResponseData } from "@/types";
@@ -37,7 +41,7 @@ type IntegrationPageData = {
 function BlogContent() {
   const { showToolBar, setActivePage } = useDataContext();
   const [intPages, setIntPages] = React.useState<IntegrationPageData[]>([]);
-  const [contDelId, setContentDelId] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState<string[]>([]);
   const getIntegrationPageQuery = useQuery({
     queryKey: ["getNotionPage"],
     queryFn: async () => await getNotionPages(),
@@ -47,6 +51,7 @@ function BlogContent() {
     onSuccess: () => {
       syncNotionPageMut.reset();
       getIntegrationPageQuery.refetch();
+      setLoading([]);
       toast.success("Synchronized");
     },
     onError: (error) => {
@@ -54,6 +59,21 @@ function BlogContent() {
       const err = (error as any)?.response?.data as ResponseData;
       console.log({ err });
       const msg = err?.message ?? "Something went wrong.";
+      toast.error(msg);
+      setLoading([]);
+    },
+  });
+
+  const resetIntegrationMut = useMutation({
+    mutationFn: async (pageId: string) => await resetIntegration(pageId),
+    onSuccess: () => {
+      getIntegrationPageQuery.refetch();
+      toast.success("Integration reset successfully.");
+    },
+    onError: (error) => {
+      const err = (error as any)?.response?.data as ResponseData;
+      console.log({ err });
+      const msg = err?.message ?? "Something went wrong resetting.";
       toast.error(msg);
     },
   });
@@ -81,6 +101,7 @@ function BlogContent() {
   ]);
 
   const syncPage = (pageId: string) => {
+    setLoading((prev) => [...prev, pageId]);
     syncNotionPageMut.mutate(pageId);
   };
 
@@ -136,6 +157,16 @@ function BlogContent() {
                 <FlexRowEnd className="w-auto">
                   <FlexColStartBtw className="w-auto">
                     <FlexRowEnd className="w-full">
+                      <button
+                        className={cn(
+                          "bg-red-305 px-3 py-1 rounded-md font-ppReg text-xs text-white-100 scale-[.70] translate-y-1",
+                          resetIntegrationMut.isPending ? "animate-pulse" : "",
+                          !p.article_id ? "invisible" : ""
+                        )}
+                        disabled={resetIntegrationMut.isPending}
+                        onClick={() => resetIntegrationMut.mutate(p.pageId)}>
+                        Reset
+                      </button>
                       <span className="text-xs font-ppSB text-white-100/50">
                         Sync
                       </span>
@@ -146,12 +177,12 @@ function BlogContent() {
                           size={15}
                           className={cn(
                             "text-blue-101 transition-all",
-                            syncNotionPageMut.isPending ? "animate-spin" : ""
+                            loading.includes(p.pageId) ? "animate-spin" : ""
                           )}
                         />
                       </button>
                     </FlexRowEnd>
-                    <FlexRowStart className="w-auto mt-2">
+                    <FlexRowEnd className="w-full mt-2">
                       {p?.hn_cuid && (
                         <Link
                           href={`https://hashnode.com/edit/${p?.hn_cuid}`}
@@ -166,12 +197,12 @@ function BlogContent() {
                         target="_blank">
                         notion ↗︎
                       </Link>
-                    </FlexRowStart>
+                    </FlexRowEnd>
                   </FlexColStartBtw>
                 </FlexRowEnd>
               </FlexRowStartBtw>
             ))
-                      : null}
+          : null}
       </FlexColStart>
     </FlexColStart>
   );

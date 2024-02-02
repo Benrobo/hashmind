@@ -112,7 +112,7 @@ function AI() {
         // get the action code
         const actionCode = response?.action as HashmindAIResponseAction;
         if (
-          ["ARTICLE_CREATION_QUEUED", "ARTICLE_DELETION_QUEUED"].includes(
+          ["ARTICLE_CREATION_QUEUED", "UPDATE_BLOG_QUEUED", "ARTICLE_DELETION_QUEUED"].includes(
             actionCode
           )
         ) {

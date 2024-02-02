@@ -102,7 +102,11 @@ export default function Dashboard() {
                 url={art.url}
               />
             ))
-          : null}
+          : !getArticlesQuery.isLoading && (
+              <span className="text-xs text-white-100 font-ppReg">
+                You have no hashnode articles.
+              </span>
+            )}
       </FlexColStart>
       <div className="w-full h-[100px] bg-dark-105 backdrop-blur opacity-1 blur-[50px] fixed bottom-0"></div>
     </FlexColStart>

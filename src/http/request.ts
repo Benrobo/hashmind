@@ -63,6 +63,11 @@ export const syncNotionPage = async (pageId: string) => {
   return req.data;
 };
 
+export const resetIntegration = async (pageId: string) => {
+  const req = await $axios.post(`/notion/page?pageId=${pageId}`);
+  return req.data;
+};
+
 export const getNotionPages = async () => {
   const req = await $axios.get("/notion/page");
   return req.data;

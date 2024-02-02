@@ -3,6 +3,8 @@ import { isAuthenticated } from "../../../middlewares/auth";
 import CatchError from "../../../utils/_error";
 import UserController from "@api/controller/user.controller";
 
+export const dynamic = "force-dynamic"
+
 const userController = new UserController();
 
 export const GET = CatchError(
