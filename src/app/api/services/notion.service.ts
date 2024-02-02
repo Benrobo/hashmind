@@ -38,7 +38,7 @@ export default class NotionService {
         timestamp: "last_edited_time",
       },
     });
-    const databaseId = response.results[0].id;
+    const databaseId = response.results[0]?.id;
     return {
       databaseId,
     };
