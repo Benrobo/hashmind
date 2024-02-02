@@ -126,7 +126,8 @@ class HashnodeService {
             subtitle,
             publicationId,
             contentMarkdown,
-            slug,
+            // replace any unwanted characters like ', ", etc
+            slug: slug?.replace(/[^a-zA-Z0-9-]/g, "") ?? "",
             ...config,
           },
         },
@@ -279,14 +280,14 @@ class HashnodeService {
 
     const resp = await this.getUserArticles(apiKey, publicationId);
     const articles = resp.data as ReturnedUserArticles[];
-    const modifiedArticles = articles.map(art=> {
+    const modifiedArticles = articles.map((art) => {
       return {
-        ...art.node
-      }
-    })
+        ...art.node,
+      };
+    });
 
     const article = modifiedArticles.find((art) => art.id === id);
-    
+
     console.log({
       modifiedArticles,
       article,
