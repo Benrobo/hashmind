@@ -8,4 +8,8 @@ Your personal hashnode blogging companion. With Hashmind, your voice becomes the
 
 ---
 
+Hashmind was built in 2weeks for the Hashnode Hackathon. It is a voice-driven blogging companion that allows you to create, edit, delete, and publish your Hashnode blog posts with the simplicity of spoken words.
+
+It also allows you to publish your article from notion to hashnode with a single click.
+
 For more detail guide towards how hashmind works and built, please refer to this [article](https://benrobo.hashnode.dev/hashnode-blogging-companion).
