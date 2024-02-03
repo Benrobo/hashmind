@@ -475,6 +475,7 @@ class HashnodeService {
     } else {
       // check if article exists
       if (article_id) {
+        console.log("CHECKING IF HASNODE ARTICLE EXISTS", { article_id });
         const article = await this.getArticleById({
           apiKey,
           id: article_id!,
