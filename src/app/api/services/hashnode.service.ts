@@ -467,7 +467,7 @@ class HashnodeService {
           post?.title!.length !== 6 ? `${post?.title!} Title` : post?.title!,
         subtitle: post?.subtitle ?? "",
         tags: [],
-        slug: post?.slug,
+        slug: post?.slug ?? "test-slug",
         coverImageOptions: {
           coverImageURL: post?.coverImage!,
         },
@@ -480,6 +480,8 @@ class HashnodeService {
           id: article_id!,
           publicationId,
         });
+
+        console.log({ article });
 
         if (article.error) {
           throw new HttpException(
