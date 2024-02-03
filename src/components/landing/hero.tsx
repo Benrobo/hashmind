@@ -40,7 +40,9 @@ function Hero() {
               <button
                 className="w-auto px-5 py-3 rounded-[30px] bg-blue-101 border-solid border-[3px] transition-all hover:scale-[1] scale-[.95] "
                 //   onClick={toggleVideo}
-              >
+                onClick={() =>
+                  (window.location.href = "https://youtu.be/ou1aaOVh7vQ")
+                }>
                 <FlexRowCenterBtw className="w-full">
                   <Play size={20} />
                   <span className="text-white-100 font-ppSB text-[12px] ">
