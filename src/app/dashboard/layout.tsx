@@ -5,7 +5,7 @@ import React, { PropsWithChildren } from "react";
 
 function layout({ children }: PropsWithChildren) {
   return (
-    <div className="w-full">
+    <div className="relative w-full h-screen md:max-w-[450px] mx-auto">
       <ToolBar />
       {children}
     </div>
