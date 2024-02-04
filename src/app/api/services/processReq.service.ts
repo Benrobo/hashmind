@@ -363,14 +363,21 @@ export default async function processUserRequests(
   if (_action) {
     console.log("ACTION DETECTED: ", _action);
 
-    if (!actionsVariants.delete.includes(_action)) {
+    if (actionsVariants.delete.includes(_action)) {
       if (!userAction.subtitle || !userAction.title) {
         console.log(
           "NO TITLE OR SUBTITLE",
           userAction.title,
           userAction.subtitle
         );
-        return;
+        return handleNoActionDetected(
+          {
+            ...userAction,
+            aiMsg:
+              "I'm sorry, I couldn't find any title in your request, do you mind trying again? Thank you.!",
+          },
+          user
+        );
         //   return await processUserRequests(props);
       }
     }
