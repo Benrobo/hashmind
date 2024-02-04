@@ -2,12 +2,18 @@ import { inngest } from "@api/config/inngest_client";
 import generateImage from "../../functions/generateCoverImage";
 import prisma from "@/prisma/prisma";
 import HttpException from "../../utils/exception";
-import { AUTHOR_NAMES, GPT_RESP_STYLE_NAME, RESPONSE_CODE, ReturnedUserArticles } from "@/types";
+import {
+  AUTHOR_NAMES,
+  GPT_RESP_STYLE_NAME,
+  RESPONSE_CODE,
+  ReturnedUserArticles,
+} from "@/types";
 import generateArticleContent, {
   gptUpdateArticleContent,
 } from "../../functions/articleContent";
 import hashnodeService, {
-  PublishedArtRespData, UserArticlesRespData,
+  PublishedArtRespData,
+  UserArticlesRespData,
 } from "../../services/hashnode.service";
 import { nanoid } from "nanoid";
 import queueService from "../../services/queue.service";
@@ -378,13 +384,15 @@ export const inngest_update_article_content_function = inngest.createFunction(
     );
     const userArticles = resp.data as ReturnedUserArticles[];
 
-    const modifiedArt = userArticles.length > 0 ? userArticles.map((a) => {
-      return {
-        id: a.node.id,
-        title: a.node.title
-      }
-    }) : []
-
+    const modifiedArt =
+      userArticles.length > 0
+        ? userArticles.map((a) => {
+            return {
+              id: a.node.id,
+              title: a.node.title,
+            };
+          })
+        : [];
 
     const articleToUpdate = await identifyArticleToUpdate(title, modifiedArt);
 
@@ -514,12 +522,15 @@ export const inngest_update_article_title_function = inngest.createFunction(
     );
     const userArticles = resp.data as ReturnedUserArticles[];
 
-    const modifiedArt = userArticles.length > 0 ? userArticles.map((a) => {
-      return {
-        id: a.node.id,
-        title: a.node.title
-      }
-    }) : []
+    const modifiedArt =
+      userArticles.length > 0
+        ? userArticles.map((a) => {
+            return {
+              id: a.node.id,
+              title: a.node.title,
+            };
+          })
+        : [];
 
     // find the article to update based on title
     const articleToUpdate = await identifyArticleToUpdate(
@@ -535,7 +546,7 @@ export const inngest_update_article_title_function = inngest.createFunction(
       );
     }
 
-    console.log({articleToUpdate})
+    console.log({ articleToUpdate });
 
     const articleId = articleToUpdate.article_id;
     const article = await hashnodeService.getArticleById({
@@ -620,19 +631,18 @@ export const inngest_update_article_coverImage_function =
         publicationId
       );
       const userArticles = resp.data as ReturnedUserArticles[];
-      const modifiedArt = userArticles.length > 0 ? userArticles.map((a) => {
-        return {
-          id: a.node.id,
-          title: a.node.title
-        }
-      }) : []
-      
+      const modifiedArt =
+        userArticles.length > 0
+          ? userArticles.map((a) => {
+              return {
+                id: a.node.id,
+                title: a.node.title,
+              };
+            })
+          : [];
 
       // find the article to update based on title
-      const articleToUpdate = await identifyArticleToUpdate(
-        title,
-        modifiedArt
-      );
+      const articleToUpdate = await identifyArticleToUpdate(title, modifiedArt);
 
       if (articleToUpdate.error) {
         throw new HttpException(
@@ -703,7 +713,7 @@ export const inngest_update_article_coverImage_function =
         );
       }
 
-      console.log(`✅ ARTICLE TITLE UPDATED`);
+      console.log(`✅ ARTICLE COVER IMAGE UPDATED`);
       return {};
     }
   );
@@ -751,13 +761,15 @@ export const inngest_delete_article_function = inngest.createFunction(
       publicationId
     );
     const userArticles = resp.data as ReturnedUserArticles[];
-      const modifiedArt = userArticles.length > 0 ? userArticles.map((a) => {
-        return {
-          id: a.node.id,
-          title: a.node.title
-        }
-      }) : []
-    
+    const modifiedArt =
+      userArticles.length > 0
+        ? userArticles.map((a) => {
+            return {
+              id: a.node.id,
+              title: a.node.title,
+            };
+          })
+        : [];
 
     // find the article to update based on title
     const articleToUpdate = await identifyArticleToUpdate(title, modifiedArt);

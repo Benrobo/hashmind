@@ -151,7 +151,7 @@ const updateArticleEvent = async (
   }
 
   if (userAction.updateContent) {
-    inngest.send({
+    await inngest.send({
       name: "hashmind/article.content.update",
       data: {
         content: userAction.updateContent,
@@ -190,7 +190,7 @@ const updateArticleEvent = async (
   }
 
   if (userAction.updateSubtitle) {
-    inngest.send({
+    await inngest.send({
       name: "hashmind/article.subtitle.update",
       data: {
         subtitle: userAction.updateSubtitle,
@@ -203,7 +203,7 @@ const updateArticleEvent = async (
   }
 
   if (userAction.updateCoverImage) {
-    inngest.send({
+    await inngest.send({
       name: "hashmind/article.coverImage.update",
       data: {
         coverImage: userAction.updateCoverImage,
@@ -334,6 +334,15 @@ export default async function processUserRequests(
   props: ProcessUserReqType
 ): Promise<any> {
   const { user, transcript, usersIntent } = props;
+
+  // check if user hashnode account is connected
+  if (!user.hnToken || !user.hnPubId) {
+    throw new HttpException(
+      RESPONSE_CODE.UNAUTHORIZED,
+      "Please connect your hashnode account to continue.",
+      400
+    );
+  }
 
   if (usersIntent) {
     return await handleUsersIntent(props);

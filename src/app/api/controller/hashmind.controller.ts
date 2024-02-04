@@ -33,7 +33,8 @@ export default class HashmindController {
     console.log({ transcript });
 
     // temp transcript
-    // const transcript = "Update my article coverImage titled New hashnode platform the image should depict futuristic utopia.";
+    // const transcript =
+    //   "Update my article coverImage titled hashmind your hashnode companion the image should depict personal assistant and artificial intelligence.";
 
     return await processUserRequests({
       user: user!,

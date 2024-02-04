@@ -50,7 +50,13 @@ export function audioBase64ToBlob(audioContent: string) {
 }
 
 export function retrieveAudioByAction(action: HashmindAIResponseAction) {
-  if (["ARTICLE_DELETION_QUEUED", "ARTICLE_CREATION_QUEUED"].includes(action)) {
+  if (
+    [
+      "ARTICLE_DELETION_QUEUED",
+      "ARTICLE_CREATION_QUEUED",
+      "UPDATE_BLOG_QUEUED",
+    ].includes(action)
+  ) {
     return `/audio/response/api-resp/art-queued.mp3`;
   }
   if (action === "ARTICLE_TITLE_NOT_PROVIDED") {
@@ -65,13 +71,12 @@ export function retrieveAudioByAction(action: HashmindAIResponseAction) {
   return null;
 }
 
-
 export function removeLeadingTrailingBackticks(inputString: string) {
-    // Remove leading backticks
-    let result = inputString.replace(/^`+/g, '');
+  // Remove leading backticks
+  let result = inputString.replace(/^`+/g, "");
 
-    // Remove trailing backticks
-    result = result.replace(/`+$/g, '').replace(/markdown+/g, '');
+  // Remove trailing backticks
+  result = result.replace(/`+$/g, "").replace(/markdown+/g, "");
 
-    return result;
+  return result;
 }
