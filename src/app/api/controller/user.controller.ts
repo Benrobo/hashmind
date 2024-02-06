@@ -185,6 +185,8 @@ export default class UserController {
     );
     const articles = userArticles.data as ReturnedUserArticles[];
 
+    console.log({ articlesCount: articles.length });
+
     const formattedArticles =
       articles.length > 0
         ? articles?.map((art) => {
