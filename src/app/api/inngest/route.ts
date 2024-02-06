@@ -11,8 +11,6 @@ import {
   inngest_delete_article_function,
 } from "@api/jobs/inngest/functions";
 
-export const maxDuration = 30;
-
 // Create an API that serves zero functions
 export const { GET, POST, PUT } = serve({
   client: inngest,
