@@ -373,7 +373,7 @@ export default async function processUserRequests(
     console.log("ACTION DETECTED: ", _action);
 
     if (actionsVariants.delete.includes(_action)) {
-      if (!userAction.subtitle || !userAction.title) {
+      if (!userAction.title) {
         console.log(
           "NO TITLE OR SUBTITLE",
           userAction.title,
