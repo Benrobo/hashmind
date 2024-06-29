@@ -4,7 +4,7 @@ Your personal hashnode blogging companion. With Hashmind, your voice becomes the
 
 ### Video Demo
 
-[![Watch the video](https://hashmind.vercel.app/images/banner.png)](https://www.youtube.com/watch?v=ou1aaOVh7vQ&t=4s)
+[![Watch the video](https://hashmind.vercel.app/images/banner.png)](https://www.youtube.com/watch?v=ou1aaOVh7vQ&t=50s)
 
 ---
 
